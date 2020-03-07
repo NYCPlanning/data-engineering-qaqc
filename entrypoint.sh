@@ -1,2 +1,2 @@
 #!/bin/bash
-streamlit run --server.port 8050 index.py
+streamlit run --server.port $PORT index.py
