@@ -3,6 +3,7 @@ from src.pluto import pluto
 from src.ztl import ztl
 from src.facdb import facdb
 from src.devdb import devdb
+from src.geocode import geocode
 
 
 datasets = {
@@ -10,7 +11,8 @@ datasets = {
     'PLUTO':pluto, 
     'Zoning Tax Lots': ztl,
     'Facilities DB': facdb,
-    'Developments DB': devdb
+    'Developments DB': devdb,
+    'Geosupport Demo': geocode
 }
 
 def run():
