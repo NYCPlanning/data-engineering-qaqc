@@ -4,6 +4,8 @@ def ztl():
     import numpy as np
     import requests
     import os 
+    import pydeck as pdk
+    import json 
 
     @st.cache(suppress_st_warning=True, allow_output_mutation=True)
     def get_data():
@@ -14,9 +16,11 @@ def ztl():
         qc_versioncomparison = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_versioncomparison.csv')
         qc_versioncomparisonnownullcount = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_versioncomparisonnownullcount.csv')
         qc_bbls_count_added_removed = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_bbls_count_added_removed.csv')
-        return source_data_versions, bbldiff, last_build, qc_frequencychanges, qc_versioncomparison, qc_versioncomparisonnownullcount, qc_bbls_count_added_removed
+        DATA_URL='https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_bbldiffs.geojson'
+        geojson = requests.get(DATA_URL).json()
+        return source_data_versions, bbldiff, last_build, qc_frequencychanges, qc_versioncomparison, qc_versioncomparisonnownullcount, qc_bbls_count_added_removed, geojson
     
-    source_data_versions, bbldiff, last_build, qc_frequencychanges, qc_versioncomparison, qc_versioncomparisonnownullcount, qc_bbls_count_added_removed = get_data()
+    source_data_versions, bbldiff, last_build, qc_frequencychanges, qc_versioncomparison, qc_versioncomparisonnownullcount, qc_bbls_count_added_removed, geojson = get_data()
 
     st.title('Zoning Tax Lots QAQC')
     st.markdown(f'![CI](https://github.com/NYCPlanning/db-zoningtaxlots/workflows/CI/badge.svg) last build: {last_build}')
@@ -30,14 +34,50 @@ def ztl():
         df=df.dropna(subset=[f'{column}new', f'{column}prev'])
         df.columns = ['bbl', f'{column}new', f'{column}prev']
     st.dataframe(df)
-    bbl = st.selectbox('view a bbl on zola:', df.bbl.to_list())
-    st.markdown(f'[click to view {bbl} on zola](https://zola.planning.nyc.gov/bbl/{bbl})')
-    st.markdown(
-        f"""
-        <iframe src="https://zola.planning.nyc.gov/bbl/{bbl}" style='height:600px; width:100%'>
-        </iframe>
-        """, 
-        unsafe_allow_html=True)
+
+    st.pydeck_chart(pdk.Deck(
+        map_style='mapbox://styles/mapbox/light-v9',
+        initial_view_state=pdk.ViewState(
+            latitude=40.7128,
+            longitude=-74.0006,
+            zoom=11,
+            pitch=0,
+        ),
+        layers=[
+            pdk.Layer(
+                'GeoJsonLayer',
+                data=geojson,
+                opacity=0.8,
+                pickable=True,
+                wireframe=True,
+                stroked=False,
+                filled=True,
+                auto_highlight=True,
+                get_line_color=[255, 255, 255]
+            )
+        ],
+        # tooltip={
+        #     "html": '''
+        #      <div><b>BBL &nbsp;</b></div>
+        #     <div><div>${object.properties.area}</div></div>
+        #     <div><b>Growth</b></div>
+        #     <div>${properties}%</div>
+        #     ''',
+        #     "style": {
+        #             "backgroundColor": "steelblue",
+        #             "color": "white"
+        #     }
+        # }
+    ))
+
+    # bbl = st.selectbox('view a bbl on zola:', df.bbl.to_list())
+    # st.markdown(f'[click to view {bbl} on zola](https://zola.planning.nyc.gov/bbl/{bbl})')
+    # st.markdown(
+    #     f"""
+    #     <iframe src="https://zola.planning.nyc.gov/bbl/{bbl}" style='height:600px; width:100%'>
+    #     </iframe>
+    #     """, 
+    #     unsafe_allow_html=True)
 
     st.header('Source Data Versions')
     st.table(source_data_versions)

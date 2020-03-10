@@ -16,7 +16,7 @@ datasets = {
 }
 
 def run():
-    name = st.sidebar.selectbox('select a dataset for qaqc', list(datasets.keys()))
+    name = st.sidebar.selectbox('select a dataset for qaqc', list(datasets.keys()), index=0)
     app = datasets[name]
     if name == '-':
         st.sidebar.success("Select a dataset above.")
