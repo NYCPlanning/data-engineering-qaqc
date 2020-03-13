@@ -14,11 +14,8 @@ def devdb():
         qc_units_complete_stats = pd.read_csv(f'{u}qc_units_complete_stats.csv', dtype=str)
         qc_geocodedstats = pd.read_csv(f'{u}qc_geocodedstats.csv', dtype=str)
         return qc_jobtypestats, qc_countsstats, qc_units_complete_stats, qc_geocodedstats
-    
-    qc_jobtypestats, qc_countsstats, qc_units_complete_stats, qc_geocodedstats = get_data()
-    
+
     st.write(qc_jobtypestats)
     st.write(qc_countsstats)
     st.write(qc_units_complete_stats)
     st.write(qc_geocodedstats)
-    
