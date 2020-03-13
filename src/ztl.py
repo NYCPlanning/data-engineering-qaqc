@@ -26,7 +26,7 @@ def ztl():
         
         qc_bbls_count_added_removed = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_bbls_count_added_removed.csv')
         
-        DATA_URL='https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_bbldiffs.geojson'
+        DATA_URL='https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_bbldiffs.json'
         
         geojson = requests.get(DATA_URL).json()
         
