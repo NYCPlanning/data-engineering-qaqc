@@ -17,7 +17,7 @@ datasets = {
 }
 
 def get_blogs(): 
-    r = requests.get('https://labs-home-api.herokuapp.com/posts?tag=engineering')
+    r = requests.get('https://labs-home-api.herokuapp.com/posts?tag=data')
     result = r.json()['items']
     for i in result: 
         # st.image(i['image'], width=100)
