@@ -20,12 +20,10 @@ def pluto():
         df_mismatch=pd.read_sql('SELECT * FROM dcp_pluto.qaqc_mismatch', con=engine)
         df_null=pd.read_sql('SELECT * FROM dcp_pluto.qaqc_null', con=engine)
         df_aggregate=pd.read_sql('SELECT * FROM dcp_pluto.qaqc_aggregate', con=engine)
-        return [df_mismatch, df_null, df_aggregate]
+        source_data_versions=pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/latest/output/source_data_versions.csv')
+        return df_mismatch, df_null, df_aggregate, source_data_versions
 
-    data = get_data()
-    df_mismatch = data[0]
-    df_null = data[1]
-    df_aggregate = data[2]
+    df_mismatch, df_null, df_aggregate, source_data_versions = get_data()
 
     versions = [i[0] for i in engine.execute('''
             SELECT table_name 
@@ -193,3 +191,5 @@ def pluto():
     create_mismatch(df_mismatch, v1, v2, v3, condo)
     create_null(df_null, v1, v2, v3, condo)
     create_aggregate(df_aggregate, v1, v2, v3, condo)
+    st.header('Source Data Versions')
+    st.table(source_data_versions)
