@@ -19,12 +19,13 @@ def ztl():
         
         last_build = requests.get(f'{url}version.txt').text
         
-        qc_frequencychanges = pd.read_csv(f'{url}qc_frequencychanges.csv', index_col=False).sort_values(by=['field'], ascending=True)
-        
-        qc_versioncomparison = pd.read_csv(f'{url}qc_versioncomparison.csv', index_col=False).sort_values(by=['field'], ascending=True)
-        
-        qc_versioncomparisonnownullcount = pd.read_csv(f'{url}qc_versioncomparisonnownullcount.csv', index_col=False).sort_values(by=['field'], ascending=True)
-        
+        qc_frequencychanges = pd.read_csv(f'{url}qc_frequencychanges.csv', index_col=False)
+        qc_frequencychanges['percent'] = qc_frequencychanges['countnew']/qc_frequencychanges['countold'] -1
+        qc_frequencychanges['percent'] = qc_frequencychanges['percent'].round(4)
+
+        qc_versioncomparison = pd.read_csv(f'{url}qc_versioncomparison.csv', index_col=False)
+        qc_versioncomparisonnownullcount = pd.read_csv(f'{url}qc_versioncomparisonnownullcount.csv', index_col=False)
+        qc_versioncomparisonnownullcount['percent'] = qc_versioncomparisonnownullcount['newnullcount']/qc_versioncomparisonnownullcount['oldnullcount']-1
         qc_bbls_count_added_removed = pd.read_csv(f'{url}qc_bbls_count_added_removed.csv', index_col=False)
         
         return source_data_versions, bbldiff, last_build, qc_frequencychanges, qc_versioncomparison, qc_versioncomparisonnownullcount, qc_bbls_count_added_removed
@@ -55,10 +56,10 @@ def ztl():
     ''')
 
     st.header('Frequency Changes')
-    st.table(qc_frequencychanges)
+    st.dataframe(qc_frequencychanges)
 
     st.header('Version Comparison')
-    st.table(qc_versioncomparison)
+    st.dataframe(qc_versioncomparison)
     st.markdown('''
     Compares the value differences between this version and 
     the previous version, showing the number of records with a 
@@ -66,14 +67,14 @@ def ztl():
     ''')
 
     st.header('Version Comparison -- Null Count')
-    st.table(qc_versioncomparisonnownullcount)
+    st.dataframe(qc_versioncomparisonnownullcount)
     st.markdown('''
     reports the number of records that changed 
     from null to a value or vice versa.
     ''')
 
     st.header('BBLs added/removed')
-    st.table(qc_bbls_count_added_removed)
+    st.dataframe(qc_bbls_count_added_removed)
     st.markdown('''
     Shows how many records have non-null values for each field 
     in the old and new version. Note that changes to the number 

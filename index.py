@@ -28,7 +28,7 @@ def get_blogs():
         ''', unsafe_allow_html=True)
 
 def run():
-    name = st.sidebar.selectbox('select a dataset for qaqc', list(datasets.keys()), index=2)
+    name = st.sidebar.selectbox('select a dataset for qaqc', list(datasets.keys()), index=0)
     app = datasets[name]
     if name == '-':
         st.sidebar.success("Select a dataset above.")
