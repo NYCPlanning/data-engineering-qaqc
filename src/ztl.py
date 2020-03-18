@@ -9,22 +9,23 @@ def ztl():
 
     @st.cache(suppress_st_warning=True, allow_output_mutation=True)
     def get_data():
-        source_data_versions=pd.read_csv('https://edm-publishing.nyc3.cdn.digitaloceanspaces.com/db-zoningtaxlots/latest/output/source_data_versions.csv')
+        url='https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/'
+        source_data_versions=pd.read_csv(f'{url}source_data_versions.csv', index_col=False)
         
-        bbldiff=pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_bbldiffs.csv', dtype=str)
+        bbldiff=pd.read_csv(f'{url}qc_bbldiffs.csv', dtype=str, index_col=False)
         bbldiff = bbldiff.fillna('NULL')
         bbldiff['longitude'] = bbldiff.longitude.astype(float)
         bbldiff['latitude'] = bbldiff.latitude.astype(float)
         
-        last_build = requests.get('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/version.txt').text
+        last_build = requests.get(f'{url}version.txt').text
         
-        qc_frequencychanges = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_frequencychanges.csv')
+        qc_frequencychanges = pd.read_csv(f'{url}qc_frequencychanges.csv', index_col=False).sort_values(by=['field'], ascending=True)
         
-        qc_versioncomparison = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_versioncomparison.csv')
+        qc_versioncomparison = pd.read_csv(f'{url}qc_versioncomparison.csv', index_col=False).sort_values(by=['field'], ascending=True)
         
-        qc_versioncomparisonnownullcount = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_versioncomparisonnownullcount.csv')
+        qc_versioncomparisonnownullcount = pd.read_csv(f'{url}qc_versioncomparisonnownullcount.csv', index_col=False).sort_values(by=['field'], ascending=True)
         
-        qc_bbls_count_added_removed = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/qc_bbls_count_added_removed.csv')
+        qc_bbls_count_added_removed = pd.read_csv(f'{url}qc_bbls_count_added_removed.csv', index_col=False)
         
         return source_data_versions, bbldiff, last_build, qc_frequencychanges, qc_versioncomparison, qc_versioncomparisonnownullcount, qc_bbls_count_added_removed
     
@@ -81,4 +82,4 @@ def ztl():
     ''')
 
     st.header('Source Data Versions')
-    st.table(source_data_versions)
+    st.table(source_data_versions.sort_values(by=['schema_name'], ascending=True))
