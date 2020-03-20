@@ -4,14 +4,17 @@ def ztl():
     import numpy as np
     import requests
     import os 
-    import pydeck as pdk
     import json
+    import plotly.graph_objects as go
 
     @st.cache(suppress_st_warning=True, allow_output_mutation=True)
     def get_data():
         url='https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/'
         source_data_versions=pd.read_csv(f'{url}source_data_versions.csv', index_col=False)
         
+        qaqc_frequency = pd.read_csv(f'{url}qaqc_frequency.csv', index_col=False)
+        qaqc_bbl = pd.read_csv(f'{url}qaqc_bbl.csv', index_col=False)
+
         bbldiff=pd.read_csv(f'{url}qc_bbldiffs.csv', dtype=str, index_col=False)
         bbldiff = bbldiff.fillna('NULL')
         bbldiff['longitude'] = bbldiff.longitude.astype(float)
@@ -26,11 +29,15 @@ def ztl():
         qc_versioncomparison = pd.read_csv(f'{url}qc_versioncomparison.csv', index_col=False)
         qc_versioncomparisonnownullcount = pd.read_csv(f'{url}qc_versioncomparisonnownullcount.csv', index_col=False)
         qc_versioncomparisonnownullcount['percent'] = qc_versioncomparisonnownullcount['newnullcount']/qc_versioncomparisonnownullcount['oldnullcount']-1
-        qc_bbls_count_added_removed = pd.read_csv(f'{url}qc_bbls_count_added_removed.csv', index_col=False)
         
-        return source_data_versions, bbldiff, last_build, qc_frequencychanges, qc_versioncomparison, qc_versioncomparisonnownullcount, qc_bbls_count_added_removed
+        return source_data_versions, bbldiff, last_build, \
+                qc_frequencychanges, qc_versioncomparison, \
+                qc_versioncomparisonnownullcount, qaqc_frequency, qaqc_bbl
     
-    source_data_versions, bbldiff, last_build, qc_frequencychanges, qc_versioncomparison, qc_versioncomparisonnownullcount, qc_bbls_count_added_removed = get_data()
+    source_data_versions, bbldiff, last_build, \
+    qc_frequencychanges, qc_versioncomparison, \
+    qc_versioncomparisonnownullcount, \
+    qaqc_frequency, qaqc_bbl= get_data()
 
     st.title('Zoning Tax Lots QAQC')
     st.markdown(f'![CI](https://github.com/NYCPlanning/db-zoningtaxlots/workflows/CI/badge.svg) last build: {last_build}')
@@ -58,6 +65,43 @@ def ztl():
     st.header('Frequency Changes')
     st.dataframe(qc_frequencychanges)
 
+    co = ['commercialoverlay1', 'commercialoverlay2']
+    zd = ['zoningdistrict1', 'zoningdistrict2', 'zoningdistrict3','zoningdistrict4']
+    sp = ['specialdistrict1', 'specialdistrict2', 'specialdistrict3']
+    other = ['zoningmapcode', 'zoningmapnumber', 'limitedheightdistrict']
+    def create_plot(df, group):
+        fig = go.Figure()
+        for i in group:
+            fig.add_trace(go.Scatter(
+                            x=df['version'],
+                            y=df[i]-df[i].mean(),
+                            mode='lines',
+                            name=i,
+                            text=df[i]))
+        fig.add_shape(
+                type='line', 
+                x0=0, 
+                x1=df.shape[0], 
+                y1=0, 
+                y0=0,
+                line=dict(
+                    color="MediumPurple",
+                    width=1,
+                    dash="dot"
+        ))
+        fig.update_layout(template='plotly_white')
+        st.plotly_chart(fig)
+
+    st.header('Commercial Overlay')
+    create_plot(qaqc_frequency, co)
+    st.header('Zoning Districts')
+    create_plot(qaqc_frequency, zd)
+    st.header('Special Districts')
+    create_plot(qaqc_frequency, sp)
+    st.header('Other')
+    create_plot(qaqc_frequency, other)
+
+
     st.header('Version Comparison')
     st.dataframe(qc_versioncomparison)
     st.markdown('''
@@ -74,7 +118,8 @@ def ztl():
     ''')
 
     st.header('BBLs added/removed')
-    st.dataframe(qc_bbls_count_added_removed)
+    create_plot(qaqc_bbl, ['added', 'removed'])
+
     st.markdown('''
     Shows how many records have non-null values for each field 
     in the old and new version. Note that changes to the number 
