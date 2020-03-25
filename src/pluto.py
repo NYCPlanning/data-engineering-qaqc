@@ -39,7 +39,7 @@ def pluto():
                 '20v5', '20v6', '20v7', '20v8',
                 '20v9', '20v10', '20v11', '20v12']
 
-    v1 = st.sidebar.selectbox('Pick a version of PLUTO:',versions, index=len(versions)-1)
+    v1 = st.sidebar.selectbox('Pick a version of PLUTO:',versions[2:], index=len(versions)-1)
     v2 = versions_order[versions_order.index(v1)-1]
     v3 = versions_order[versions_order.index(v1)-2]
 
@@ -55,7 +55,7 @@ def pluto():
                         'officearea', 'retailarea', 'garagearea', 'strgearea', 
                         'factryarea', 'otherarea', 'areasource']
 
-        zoning_columns = ['zonedist1', 'zonedist2', 'zonedist3', 'zonedist4', 
+        zoning_columns = ['plutomapid','zonedist1', 'zonedist2', 'zonedist3', 'zonedist4', 
                         'overlay1', 'overlay2', 'spdist1', 'spdist2', 'spdist3', 
                         'ltdheight', 'splitzone', 'zonemap', 'zmcode', 'edesignum']
 
@@ -73,8 +73,6 @@ def pluto():
                         'lottype', 'bsmtcode', 'yearbuilt', 'yearalter1',
                         'yearalter2', 'landmark', 'condono']
 
-        other_columns = ['plutomapid', 'dcasdate', 'zoningdate', 'landmkdate',
-                    'basempdate', 'masdate', 'polidate', 'edesigdate']
         df = df_mismatch.loc[(df_mismatch.condo == str(condo).lower())
                     &(df_mismatch.pair.isin([f'{v1} - {v2}', f'{v2} - {v3}'])), :]
 
@@ -100,8 +98,7 @@ def pluto():
                     {'title': 'Mismatch graph -- area', 'columns':area_columns},
                     {'title': 'Mismatch graph -- zoning', 'columns':zoning_columns},
                     {'title': 'Mismatch graph -- geo', 'columns':geo_columns},
-                    {'title': 'Mismatch graph -- building', 'columns':bldg_columns},
-                    {'title': 'Mismatch graph -- other', 'columns':other_columns}]:
+                    {'title': 'Mismatch graph -- building', 'columns':bldg_columns}]:
             fig = generate_graph(v1v2, v2v3, v1v2_total, v2v3_total, group['columns'])
             fig.update_layout(title=group['title'], template='plotly_white')
             st.plotly_chart(fig)
@@ -140,7 +137,7 @@ def pluto():
                 pct1 = v1[i]/total1
                 pct2 = v2[i]/total2
                 if pct2 != 0:
-                    x.append(round((pct1-pct2)/pct2, 4))
+                    x.append(round(100*(pct1-pct2)/pct2, 4))
                 else:
                     x.append(None)
             
@@ -172,14 +169,14 @@ def pluto():
                 'resarea','officearea','retailarea','garagearea',
                 'strgearea','factryarea','otherarea','assessland',
                 'assesstot','exempttot','firm07_flag','pfirm15_flag']
-            x = [v1[i]/v2[i]-1 for i in y]
+            x = [(v1[i]/v2[i]-1)*100 for i in y]
             
             return go.Scatter(
                         x=y, 
                         y=x,
                         mode='lines',
                         name=f'{_v1} - {_v2}',
-                        text=[f'pct: {round(i*100,2)}' for i in x])
+                        text=[f'pct: {round(i,2)}' for i in x])
 
         fig = go.Figure()
         fig.add_trace(generate_graph(v1, v2))
