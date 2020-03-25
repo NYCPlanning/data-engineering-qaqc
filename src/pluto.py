@@ -39,7 +39,7 @@ def pluto():
                 '20v5', '20v6', '20v7', '20v8',
                 '20v9', '20v10', '20v11', '20v12']
 
-    v1 = st.sidebar.selectbox('Pick a version of PLUTO:',versions[2:], index=len(versions)-1)
+    v1 = st.sidebar.selectbox('Pick a version of PLUTO:',versions, index=len(versions)-1)
     v2 = versions_order[versions_order.index(v1)-1]
     v3 = versions_order[versions_order.index(v1)-2]
 
