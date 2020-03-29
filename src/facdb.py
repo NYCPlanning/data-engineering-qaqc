@@ -15,14 +15,14 @@ def facdb():
         _facdb = pd.read_csv('https://raw.githubusercontent.com/NYCPlanning/db-facilities/84b90bfc8f6966a30f699dbdc2768934a7781484/output/facilities.csv')
         facdb['version'] = 'new'
         _facdb['version'] = 'old'
-        facdb = facdb.round(5)
-        _facdb = _facdb.round(5)
+        facdb = facdb.round(4)
+        _facdb = _facdb.round(4)
         combined = pd.concat([facdb, _facdb])
-        combined = combined.drop_duplicates(subset=['longitude', 'latitude'])
+        combined = combined.drop_duplicates(subset=['longitude', 'latitude'], keep=False)
         return qc_diff, facdb, _facdb, combined
 
     qc_diff, facdb, _facdb, combined = get_data()
-    datasource = st.selectbox('select a datasource', qc_diff.datasource.unique())
+    datasource = st.selectbox('select a datasource', combined.datasource.unique())
     st.dataframe(qc_diff.loc[(qc_diff.datasource == datasource)&(qc_diff.diff != 0), :])
     
     st.pydeck_chart(pdk.Deck(
@@ -38,22 +38,44 @@ def facdb():
                 data=combined.loc[
                         (combined.datasource == datasource)&
                         (combined.version=='new'), 
-                        ['longitude', 'latitude']]\
+                        ['longitude', 'latitude','facname',
+                        'facdomain', 'facgroup', 'facsubgrp',
+                        'factype', 'datasource']]\
                             .dropna(subset=['longitude', 'latitude']),
                 get_position='[longitude, latitude]',
                 get_color='[255, 0, 0, 160]',
                 get_radius=40,
+                pickable=True
             ),
             pdk.Layer(
                 'ScatterplotLayer',
                 data=combined.loc[
                         (combined.datasource == datasource)&
                         (combined.version=='old'), 
-                        ['longitude', 'latitude']]\
+                        ['longitude', 'latitude','facname',
+                        'facdomain', 'facgroup', 'facsubgrp',
+                        'factype', 'datasource']]\
                             .dropna(subset=['longitude', 'latitude']),
                 get_position='[longitude, latitude]',
                 get_color='[255, 255, 0, 160]',
                 get_radius=40,
+                pickable=True
             )
         ],
+        tooltip={
+            "html": '''
+                <div><b>facname: {facname} &nbsp;</b></div>
+                <ul>
+                <li>facdomain: {facdomain}</li>
+                <li>facgroup: {facgroup}</li>
+                <li>facsubgrp: {facsubgrp}</li>
+                <li>factype: {factype}</li>
+                <li>datasource: {datasource}</li>
+                </ul>
+            ''',
+            "style": {
+                    "backgroundColor": "steelblue",
+                    "color": "white"
+            }
+        }
     ))
