@@ -12,7 +12,7 @@ def facdb():
         url = 'https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/latest/output'
         qc_diff = pd.read_csv(f'{url}/qc_diff.csv')
         facdb = pd.read_csv(f'{url}/facilities.csv')
-        _facdb = pd.read_csv('https://raw.githubusercontent.com/NYCPlanning/db-facilities/84b90bfc8f6966a30f699dbdc2768934a7781484/output/facilities.csv')
+        _facdb = pd.read_csv('https://edm-recipes.nyc3.digitaloceanspaces.com/random/facilities_201912.csv')
         facdb['version'] = 'new'
         _facdb['version'] = 'old'
         facdb = facdb.round(4)
