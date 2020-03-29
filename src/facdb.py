@@ -9,58 +9,51 @@ def facdb():
     
     @st.cache(suppress_st_warning=True, allow_output_mutation=True)
     def get_data():
-        # geo_rejects = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/latest/output/geo_rejects.csv')
-        # qc_diff = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/latest/output/qc_diff.csv')
-        facdb = pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/latest/output/facilities.csv')
-        # facdb_old = pd.read_csv('https://www1.nyc.gov/assets/planning/download/zip/data-maps/open-data/facilities_csv_201901.zip')       
-        # return geo_rejects, qc_diff, facdb, facdb_old
-        # URL = 'https://raw.githubusercontent.com/ajduberstein/data_sets/master/beijing_subway_station.csv'
-        # df = pd.read_csv(URL)
-        # df = pd.DataFrame(
-        #     np.random.randn(1000, 2) / [50, 50] + [37.76, -122.4],
-        #     columns=['lat', 'lon'])
-        return facdb
+        url = 'https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/latest/output'
+        qc_diff = pd.read_csv(f'{url}/qc_diff.csv')
+        facdb = pd.read_csv(f'{url}/facilities.csv')
+        _facdb = pd.read_csv('https://raw.githubusercontent.com/NYCPlanning/db-facilities/84b90bfc8f6966a30f699dbdc2768934a7781484/output/facilities.csv')
+        facdb['version'] = 'new'
+        _facdb['version'] = 'old'
+        facdb = facdb.round(5)
+        _facdb = _facdb.round(5)
+        combined = pd.concat([facdb, _facdb])
+        combined = combined.drop_duplicates(subset=['longitude', 'latitude'])
+        return qc_diff, facdb, _facdb, combined
 
-    # geo_rejects, qc_diff, facdb, facdb_old = get_data()
-    facdb = get_data()
-    # st.write(facdb.head())
-    # scatterplot = Layer(
-    #     'ScatterplotLayer',
-    #     df,
-    #     id='scatterplot-layer',
-    #     get_radius=50,
-    #     # get_fill_color='color',
-    #     get_position='[lng, lat]')
-
-    # r = Deck(layers=[scatterplot])
-    # st.pydeck_chart(r)
+    qc_diff, facdb, _facdb, combined = get_data()
+    datasource = st.selectbox('select a datasource', qc_diff.datasource.unique())
+    st.dataframe(qc_diff.loc[(qc_diff.datasource == datasource)&(qc_diff.diff != 0), :])
+    
     st.pydeck_chart(pdk.Deck(
-        map_style='mapbox://styles/mapbox/light-v9',
+        map_style='mapbox://styles/mapbox/dark-v9',
         initial_view_state=pdk.ViewState(
             latitude=40.7128,
             longitude=-74.0006,
             zoom=11,
-            pitch=50,
         ),
         layers=[
             pdk.Layer(
-                'HexagonLayer',
-                data=facdb[['longitude', 'latitude']]\
-                    .dropna(subset=['longitude', 'latitude']),
+                'ScatterplotLayer',
+                data=combined.loc[
+                        (combined.datasource == datasource)&
+                        (combined.version=='new'), 
+                        ['longitude', 'latitude']]\
+                            .dropna(subset=['longitude', 'latitude']),
                 get_position='[longitude, latitude]',
-                radius=200,
-                elevation_scale=4,
-                elevation_range=[0, 1000],
-                pickable=True,
-                extruded=True,
+                get_color='[255, 0, 0, 160]',
+                get_radius=40,
             ),
             pdk.Layer(
                 'ScatterplotLayer',
-                data=facdb[['longitude', 'latitude']]\
-                    .dropna(subset=['longitude', 'latitude']),
+                data=combined.loc[
+                        (combined.datasource == datasource)&
+                        (combined.version=='old'), 
+                        ['longitude', 'latitude']]\
+                            .dropna(subset=['longitude', 'latitude']),
                 get_position='[longitude, latitude]',
-                get_color='[200, 30, 0, 160]',
-                get_radius=20,
-            ),
+                get_color='[255, 255, 0, 160]',
+                get_radius=40,
+            )
         ],
     ))
