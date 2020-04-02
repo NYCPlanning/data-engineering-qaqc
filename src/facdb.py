@@ -4,6 +4,7 @@ def facdb():
     import numpy as np
     import os 
     import pydeck as pdk
+    import plotly.graph_objects as go
 
     st.title('Facilities DB QAQC')
     
@@ -66,6 +67,58 @@ def facdb():
         return qc_tables
 
     qc_tables = get_data()
+
+    def count_comparison(df, width=1000, height=600): 
+        fig = go.Figure()
+        for i in ['count_old', 'count_new', 'diff']:
+            fig.add_trace(
+                go.Bar(
+                    y=df.index,
+                    x=df[i],
+                    name=i,
+                    orientation='h'))
+        fig.update_layout(
+            width=width,
+            height=height,
+            template='plotly_white'
+        )
+        st.plotly_chart(fig)
+
+    """
+    qc_diff visualization
+    """
+    qc_diff=qc_tables['Full Panel Cross Version Comparison']['dataframe']
+    thresh=st.slider('difference threshold', min_value=0, max_value=300, value=5, step=1)
+    qc_diff_factype=qc_diff.groupby('factype').sum()
+    qc_diff_facsubgrp=qc_diff.groupby('facsubgrp').sum()
+    qc_diff_facgroup=qc_diff.groupby('facgroup').sum()
+    qc_diff_facdomain=qc_diff.groupby('facdomain').sum()
+    st.header('Change in Number of Records by factype')
+    st.write(f'diff > {thresh}')
+    count_comparison(qc_diff_factype.loc[qc_diff_factype['diff'].abs() > thresh, :].sort_values('diff'), height=1000)
+    
+    st.header('Change in Number of Records by facsubgrp')
+    st.write(f'diff > {thresh}')
+    count_comparison(qc_diff_facsubgrp.loc[qc_diff_facsubgrp['diff'].abs() > thresh, :].sort_values('diff'))
+    
+    st.header('Change in Number of Records by facgroup')
+    st.write(f'diff > {thresh}')
+    count_comparison(qc_diff_facgroup.loc[qc_diff_facgroup['diff'].abs() > thresh, :].sort_values('diff'))
+    
+    st.header('Change in Number of Records by facdomain')
+    st.write(f'diff > {thresh}')
+    count_comparison(qc_diff_facdomain.loc[qc_diff_facdomain['diff'].abs() > thresh, :].sort_values('diff'))
+
+    st.header('Changes in important factypes')
+    sensitive_factype = ['FIREHOUSE', 'POLICE STATION']
+    st.write(' ,'.join(sensitive_factype))
+    count_comparison(qc_diff_factype.loc[qc_diff_factype.index.isin(sensitive_factype), :].sort_values('diff'))
+
+
+    st.header('New factypes')
+    st.dataframe(qc_diff.loc[qc_diff['count_old'].isna(), :])
+    st.header('Old factypes (retired)')
+    st.dataframe(qc_diff.loc[qc_diff['count_new'].isna(), :])
 
     for key, value in qc_tables.items():
         st.header(key)
