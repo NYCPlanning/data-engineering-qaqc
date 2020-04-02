@@ -88,7 +88,7 @@ def facdb():
     qc_diff visualization
     """
     qc_diff=qc_tables['Full Panel Cross Version Comparison']['dataframe']
-    thresh=st.slider('difference threshold', min_value=0, max_value=300, value=5, step=1)
+    thresh=st.sidebar.slider('difference threshold', min_value=0, max_value=300, value=5, step=1)
     qc_diff_factype=qc_diff.groupby('factype').sum()
     qc_diff_facsubgrp=qc_diff.groupby('facsubgrp').sum()
     qc_diff_facgroup=qc_diff.groupby('facgroup').sum()
