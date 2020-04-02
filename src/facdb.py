@@ -15,6 +15,7 @@ def facdb():
         qc_captype = pd.read_csv(f'{url}/qc_captype.csv')
         qc_capvalues = pd.read_csv(f'{url}/qc_capvalues.csv')
         qc_classification = pd.read_csv(f'{url}/qc_classification.csv')
+        qc_mapped = pd.read_csv(f'{url}/qc_mapped.csv')
         qc_mapped_datasource = pd.read_csv(f'{url}/qc_mapped_datasource.csv')
         qc_mapped_subgroup = pd.read_csv(f'{url}/qc_mapped_subgroup.csv')
         qc_operator = pd.read_csv(f'{url}/qc_operator.csv')
@@ -64,11 +65,11 @@ def facdb():
                     'type': 'table'
                 }, 
             }
-        return qc_tables
+        return qc_tables, qc_diff, qc_mapped
 
-    qc_tables = get_data()
+    qc_tables, qc_diff, qc_mapped = get_data()
 
-    def count_comparison(df, width=1000, height=600): 
+    def count_comparison(df, width=1000, height=1000): 
         fig = go.Figure()
         for i in ['count_old', 'count_new', 'diff']:
             fig.add_trace(
@@ -83,37 +84,49 @@ def facdb():
             template='plotly_white'
         )
         st.plotly_chart(fig)
+    
+    def geom_comparison(df, width=1000, height=600):
+        df['pctwogeom_old'] = df['wogeom_old']/df['count_old']*100
+        df['pctwogeom_new'] = df['wogeom_new']/df['count_new']*100
+        df['diff'] = df['pctwogeom_new'] - df['pctwogeom_old']
+        df = df.loc[df['diff']!= 0, :]
+        df = df.sort_values('diff')
+        fig = go.Figure()
+        for i in ['diff']:
+            fig.add_trace(
+                go.Bar(
+                    y=df.index,
+                    x=df[i].round(2),
+                    name=i,
+                    orientation='h'))
+        fig.update_layout(
+            width=width,
+            height=height,
+            xaxis=dict(title='Percentage'), 
+            template='plotly_white'
+        )
+        st.plotly_chart(fig)
 
     """
     qc_diff visualization
     """
-    qc_diff=qc_tables['Full Panel Cross Version Comparison']['dataframe']
     thresh=st.sidebar.slider('difference threshold', min_value=0, max_value=300, value=5, step=1)
-    qc_diff_factype=qc_diff.groupby('factype').sum()
-    qc_diff_facsubgrp=qc_diff.groupby('facsubgrp').sum()
-    qc_diff_facgroup=qc_diff.groupby('facgroup').sum()
-    qc_diff_facdomain=qc_diff.groupby('facdomain').sum()
-    st.header('Change in Number of Records by factype')
+    level=st.sidebar.selectbox('select a classification level', 
+                            ['datasource', 'factype', 'facsubgrp', 'facgroup', 'facdomain'], index=0)
+    dff = qc_diff.groupby(level).sum()
+    st.header(f'Change in Number of Records by {level}')
     st.write(f'diff > {thresh}')
-    count_comparison(qc_diff_factype.loc[qc_diff_factype['diff'].abs() > thresh, :].sort_values('diff'), height=1000)
-    
-    st.header('Change in Number of Records by facsubgrp')
-    st.write(f'diff > {thresh}')
-    count_comparison(qc_diff_facsubgrp.loc[qc_diff_facsubgrp['diff'].abs() > thresh, :].sort_values('diff'))
-    
-    st.header('Change in Number of Records by facgroup')
-    st.write(f'diff > {thresh}')
-    count_comparison(qc_diff_facgroup.loc[qc_diff_facgroup['diff'].abs() > thresh, :].sort_values('diff'))
-    
-    st.header('Change in Number of Records by facdomain')
-    st.write(f'diff > {thresh}')
-    count_comparison(qc_diff_facdomain.loc[qc_diff_facdomain['diff'].abs() > thresh, :].sort_values('diff'))
+    count_comparison(dff.loc[dff['diff'].abs() > thresh, :].sort_values('diff'))
 
+    st.header(f'Change in percentage mapped Records by {level}')
+    dfff = qc_mapped.groupby(level).sum()
+    geom_comparison(dfff)
+    
     st.header('Changes in important factypes')
     sensitive_factype = ['FIREHOUSE', 'POLICE STATION']
     st.write(' ,'.join(sensitive_factype))
-    count_comparison(qc_diff_factype.loc[qc_diff_factype.index.isin(sensitive_factype), :].sort_values('diff'))
-
+    sensitive=qc_diff.loc[qc_diff.factype.isin(sensitive_factype), :].groupby('factype').sum()
+    count_comparison(sensitive.sort_values('diff'), width=500, height=500)
 
     st.header('New factypes')
     st.dataframe(qc_diff.loc[qc_diff['count_old'].isna(), :])
