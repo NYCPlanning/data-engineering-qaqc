@@ -32,10 +32,6 @@ def facdb():
             return 'color: %s' % color
             
         qc_tables = {
-                'Full Panel Cross Version Comparison':{
-                    'dataframe': qc_diff,
-                    'type': 'dataframe'
-                }, 
                 'Counts by Classification' : {
                     'dataframe': qc_classification,
                     'type': 'dataframe'
@@ -92,7 +88,7 @@ def facdb():
         df = df.loc[df['diff']!= 0, :]
         df = df.sort_values('diff')
         fig = go.Figure()
-        for i in ['diff']:
+        for i in ['pctwogeom_old', 'pctwogeom_new', 'diff']:
             fig.add_trace(
                 go.Bar(
                     y=df.index,
@@ -113,16 +109,26 @@ def facdb():
     thresh=st.sidebar.slider('difference threshold', min_value=0, max_value=300, value=5, step=1)
     level=st.sidebar.selectbox('select a classification level', 
                             ['datasource', 'factype', 'facsubgrp', 'facgroup', 'facdomain'], index=0)
+    st.sidebar.success('''
+        Use the slide bar and drop down to change the difference 
+        threshold and select the attribute to review
+        ''')
     dff = qc_diff.groupby(level).sum()
-    st.header(f'Change in Number of Records by {level}')
+    st.header(f'Change in number of records by {level}')
     st.write(f'diff > {thresh}')
     count_comparison(dff.loc[dff['diff'].abs() > thresh, :].sort_values('diff'))
 
-    st.header(f'Change in percentage mapped Records by {level}')
+    st.header(f'Change in percentage mapped records by {level}')
+    st.write('''
+        Only instances where there is change in the percent 
+        of mapped records and 100% of records are not mapped are reported
+    ''')
     dfff = qc_mapped.groupby(level).sum()
     geom_comparison(dfff)
-    
+
+
     st.header('Changes in important factypes')
+    st.write('There should be little to no change in the number of records with these facility types')
     important_factype = ['FIREHOUSE', 
                         'POLICE STATION',
                         'ACADEMIC LIBRARIES',
@@ -151,10 +157,16 @@ def facdb():
         fig.update_layout(width=1000, height=600)
         st.plotly_chart(fig)
 
+    st.header('New factypes')
+    st.write('Facility types that do not appear in the previous FacDB')
     plotly_table(qc_diff.loc[qc_diff['count_old']==0, :])
     st.header('Old factypes (retired)')
+    st.write('Facility types that do appear in the previous FacDB, but not in the latest version')
     plotly_table(qc_diff.loc[qc_diff['count_new']==0, :])
-
+    st.header('Full Panel Cross Version Comparison')
+    st.write('Reports the difference in the number of records at the most micro level, which is the facility type and data source')
+    plotly_table(qc_diff)
+    
     for key, value in qc_tables.items():
         st.header(key)
         if value['type'] == 'dataframe':
