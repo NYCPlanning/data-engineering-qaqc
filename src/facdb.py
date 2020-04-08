@@ -151,9 +151,9 @@ def facdb():
         fig.update_layout(width=1000, height=600)
         st.plotly_chart(fig)
 
-    plotly_table(qc_diff.loc[qc_diff['count_old'].isna(), :])
+    plotly_table(qc_diff.loc[qc_diff['count_old']==0, :])
     st.header('Old factypes (retired)')
-    plotly_table(qc_diff.loc[qc_diff['count_new'].isna(), :])
+    plotly_table(qc_diff.loc[qc_diff['count_new']==0, :])
 
     for key, value in qc_tables.items():
         st.header(key)
