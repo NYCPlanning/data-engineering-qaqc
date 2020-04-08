@@ -13,7 +13,6 @@ def facdb():
         url = 'https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/latest/output'
         qc_diff = pd.read_csv(f'{url}/qc_diff.csv')
         qc_captype = pd.read_csv(f'{url}/qc_captype.csv')
-        qc_capvalues = pd.read_csv(f'{url}/qc_capvalues.csv')
         qc_classification = pd.read_csv(f'{url}/qc_classification.csv')
         qc_mapped = pd.read_csv(f'{url}/qc_mapped.csv')
         qc_mapped_datasource = pd.read_csv(f'{url}/qc_mapped_datasource.csv')
