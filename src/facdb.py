@@ -123,20 +123,42 @@ def facdb():
     geom_comparison(dfff)
     
     st.header('Changes in important factypes')
-    sensitive_factype = ['FIREHOUSE', 'POLICE STATION']
-    st.write(' ,'.join(sensitive_factype))
-    sensitive=qc_diff.loc[qc_diff.factype.isin(sensitive_factype), :].groupby('factype').sum()
-    count_comparison(sensitive.sort_values('diff'), width=500, height=500)
+    important_factype = ['FIREHOUSE', 
+                        'POLICE STATION',
+                        'ACADEMIC LIBRARIES',
+                        'SPECIAL LIBRARIES',
+                        'EMERGENCY MEDICAL STATION', 
+                        'HOSPITAL',
+                        'NURSING HOME', 
+                        'ADULT DAY CARE', 
+                        'SENIOR CENTER']
+    important=qc_diff.loc[qc_diff.factype.isin(important_factype), :].groupby('factype').sum()
+    count_comparison(important.sort_values('diff'), width=500, height=500)
 
-    st.header('New factypes')
-    st.dataframe(qc_diff.loc[qc_diff['count_old'].isna(), :])
+
+    def plotly_table(df):
+        fig = go.Figure(data=[go.Table(
+            header=dict(values=list(df.columns),
+                        line_color='darkslategray',
+                        fill_color='gray',
+                        font=dict(color='white', size=12),
+                        align='left'),
+            cells=dict(values=[df[i] for i in df.columns],
+                    line_color='darkslategray',
+                    fill_color='white',
+                    align='left'))
+        ])
+        fig.update_layout(width=1000, height=600)
+        st.plotly_chart(fig)
+
+    plotly_table(qc_diff.loc[qc_diff['count_old'].isna(), :])
     st.header('Old factypes (retired)')
-    st.dataframe(qc_diff.loc[qc_diff['count_new'].isna(), :])
+    plotly_table(qc_diff.loc[qc_diff['count_new'].isna(), :])
 
     for key, value in qc_tables.items():
         st.header(key)
         if value['type'] == 'dataframe':
-            st.dataframe(value['dataframe'])
+            plotly_table(value['dataframe'])
         else:
             st.table(value['dataframe'])
 
