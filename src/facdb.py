@@ -73,6 +73,7 @@ def facdb():
         fig.update_layout(
             width=width,
             height=height,
+            yaxis=dict(automargin=True),
             template='plotly_white',
             margin=go.layout.Margin(l=0, r=0, b=0, t=0)
         )
@@ -81,36 +82,57 @@ def facdb():
     def geom_comparison(df, width=1000, height=600):
         fig = go.Figure()
         for i in ['pctwogeom_old', 'pctwogeom_new', 'diff']:
+            if i == 'pctwogeom_old': 
+                tooltip=df.wogeom_old
+                txt='old unmapped counts'
+            elif i == 'pctwogeom_new': 
+                tooltip=df.wogeom_new
+                txt='new unmapped counts'
+            else:
+                tooltip=df.wogeom_new-df.wogeom_old
+                txt='unmapped counts diff'
             fig.add_trace(
                 go.Bar(
                     y=df.index,
                     x=df[i],
                     name=i,
+                    text=[f'{txt}:{i}' for i in tooltip],
                     orientation='h'))
         fig.update_layout(
             width=width,
             height=height,
             xaxis=dict(title='Percentage'), 
+            xaxis_tickformat = '%',
             template='plotly_white',
             margin=go.layout.Margin(l=0, r=0, b=0, t=0)
         )
-        st.plotly_chart(fig)
+        st.plotly_chart(fig,config = dict({'scrollZoom': True}))
 
     """
     qc_diff visualization
     """
-    thresh=st.sidebar.slider('difference threshold', min_value=0, max_value=300, value=5, step=1)
-    level=st.sidebar.selectbox('select a classification level', 
-                            ['datasource', 'factype', 'facsubgrp', 'facgroup', 'facdomain'], index=0)
+    thresh = st.sidebar.slider('difference threshold', min_value=0, max_value=300, value=5, step=1)
+    level = st.sidebar.selectbox(
+                'select a classification level', 
+                ['datasource', 'factype', 'facsubgrp', 'facgroup', 'facdomain'], 
+                index=0)
+
     st.sidebar.success('''
         Use the slide bar and drop down to change the difference 
         threshold and select the attribute to review
         ''')
    
-    dff = qc_diff.groupby(level).sum()
     st.header(f'Change in number of records by {level}')
     st.write(f'diff > {thresh}')
-    count_comparison(dff.loc[dff['diff'].abs() > thresh, :].sort_values('diff'))
+    
+    dff = qc_diff.groupby(level).sum()
+    dff = dff.loc[(dff['diff']!= 0)&(~dff['diff'].isna()), :]
+    if level=='factype':
+        st.warning('plot not available for this level,\
+             refer to the table below for more information')
+    else:
+        count_comparison(dff.loc[dff['diff'].abs() > thresh, :].sort_values('diff'))
+
     st.header(f'Change in counts by {level}')
     dff.insert(0, level, dff.index)
     dff = dff.sort_values('diff')
@@ -121,11 +143,13 @@ def facdb():
     plotly_table(qc_diff.loc[qc_diff['count_old']==0, :])
 
     st.header('Old factypes (retired)')
-    st.write('Facility types that do appear in the previous FacDB, but not in the latest version')
+    st.write('Facility types that do appear in the previous FacDB, \
+        but not in the latest version')
     plotly_table(qc_diff.loc[qc_diff['count_new']==0, :])
 
     st.header('Full Panel Cross Version Comparison')
-    st.write('Reports the difference in the number of records at the most micro level, which is the facility type and data source')
+    st.write('Reports the difference in the number of records at \
+        the most micro level, which is the facility type and data source')
     plotly_table(qc_diff)
 
     """
@@ -138,29 +162,34 @@ def facdb():
     ''')
     dfff = qc_mapped.groupby(level).sum()
     dfff.insert(0, level, dfff.index)
-    dfff['pctwogeom_old'] = dfff['wogeom_old']/dfff['count_old']*100
-    dfff['pctwogeom_new'] = dfff['wogeom_new']/dfff['count_new']*100
+    dfff['pctwogeom_old'] = dfff['wogeom_old']/dfff['count_old']
+    dfff['pctwogeom_new'] = dfff['wogeom_new']/dfff['count_new']
     dfff['pctwogeom_old'] = dfff['pctwogeom_old'].round(2)
     dfff['pctwogeom_new'] = dfff['pctwogeom_new'].round(2)
     dfff['diff'] = dfff['pctwogeom_new'] - dfff['pctwogeom_old']
     dfff['diff'] = dfff['diff'].round(2)
-    dfff = dfff.loc[dfff['diff']!= 0, :]
+    dfff = dfff.loc[(dfff['diff']!= 0)&(~dfff['diff'].isna()), :]
     dfff = dfff.sort_values('diff')
     geom_comparison(dfff)
     st.header(f'Percentage mapped records by {level}')
     plotly_table(dfff)
 
+    """
+    important factypes
+    """
     st.header('Changes in important factypes')
-    st.write('There should be little to no change in the number of records with these facility types')
-    important_factype = ['FIREHOUSE', 
-                        'POLICE STATION',
-                        'ACADEMIC LIBRARIES',
-                        'SPECIAL LIBRARIES',
-                        'EMERGENCY MEDICAL STATION', 
-                        'HOSPITAL',
-                        'NURSING HOME',
-                        'ADULT DAY CARE',
-                        'SENIOR CENTER']
+    st.write('There should be little to no change in the \
+        number of records with these facility types')
+    important_factype = [
+        'FIREHOUSE', 
+        'POLICE STATION',
+        'ACADEMIC LIBRARIES',
+        'SPECIAL LIBRARIES',
+        'EMERGENCY MEDICAL STATION', 
+        'HOSPITAL',
+        'NURSING HOME',
+        'ADULT DAY CARE',
+        'SENIOR CENTER']
     important=qc_diff.loc[qc_diff.factype.isin(important_factype), :].groupby('factype').sum()
     count_comparison(important.sort_values('diff'), width=500, height=500)
     
