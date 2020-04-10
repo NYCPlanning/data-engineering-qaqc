@@ -28,15 +28,15 @@ def geocode():
     function = st.selectbox('pick a function', ['bl', '1b', 'ap', '1a', '1e', 'bn'])
     if function == 'bl': 
         BBL = st.text_input('BBL', '3044237501')
-        url = f'https://geosupport.herokuapp.com/geocode/bl?bbl={BBL}'
+        url = f'https://geo.nycplanningdigital.com/geocode/bl?bbl={BBL}'
     elif function == 'bn':
         BIN = st.text_input('BIN', '3324265')
-        url = f'https://geosupport.herokuapp.com/geocode/bn?bin={BIN}'
+        url = f'https://geo.nycplanningdigital.com/geocode/bn?bin={BIN}'
     else: 
         boro = st.selectbox('borough', ['MN', 'BK', 'QN', 'SI', 'BX'], index=0)
         hnum = st.text_input('house number', '120')
         sname = st.text_input('street name', 'Broadway')
-        url = f'https://geosupport.herokuapp.com/geocode/{function}?house_number={hnum}&street_name={sname}&borough={boro}'
+        url = f'https://geo.nycplanningdigital.com/geocode/{function}?house_number={hnum}&street_name={sname}&borough={boro}'
         
     r = requests.get(url)
     st.write(url)
