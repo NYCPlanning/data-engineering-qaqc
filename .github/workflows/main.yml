@@ -3,7 +3,6 @@ name: Deploy to Dokku - production
 on: [push]
 
 env:
-  DOKKU_HOST: 'nycplanningdigital.com'
   DOKKU_APP_NAME: 'edm-data-engineering'
   DOKKU_REMOTE_BRANCH: 'master'
 jobs:
@@ -18,6 +17,6 @@ jobs:
         uses: woudsma/dokku-deploy-github-action@v1
         with:
           ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
-          dokku-host: ${{ env.DOKKU_HOST }}
+          dokku-host: ${{ secrets.DOKKU_HOST }}
           app-name: ${{ env.DOKKU_APP_NAME }}
           app-remote-branch: ${{ env.DOKKU_REMOTE_BRANCH }}
