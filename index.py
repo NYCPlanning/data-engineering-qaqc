@@ -19,12 +19,42 @@ datasets = {
 def get_blogs(): 
     r = requests.get('https://labs-home-api.herokuapp.com/posts?tag=data')
     result = r.json()['items']
+    css = '''
+        .blog-card {
+        box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
+        transition: 0.3s;
+        width: 558px;
+        height: 100%;
+        margin-bottom: 30px;
+        }
+
+        .blog-card:hover {
+        box-shadow: 0 8px 16px 0 rgba(0,0,0,0.2);
+        }
+
+        .blog-card img {
+            width: 558px;
+            max-height: 200px;
+            overflow: hidden;
+            object-fit: cover;
+        }
+
+        .container {
+        padding: 2px 16px;
+        }
+    '''
     for i in result: 
-        # st.image(i['image'], width=100)
         st.markdown(f'''
-        ### [__{i['title']}__]({i['url']})
-        {datetime.datetime.fromtimestamp(i['created']/1000).strftime("%B %d, %Y")}
-        >{i['description']}
+        <style>
+        {css}
+        </style>
+        <div class="blog-card">
+        <img src="{i['image']}" alt="Avatar" style="width:100%;">
+            <div class="container">
+                <a href="{i['link']}"><h4><b>{i['title']}</b></h4></a>
+                <p>{i['description']}</p>
+            </div>
+        </div>
         ''', unsafe_allow_html=True)
 
 def run():
