@@ -23,7 +23,7 @@ def get_blogs():
         .blog-card {
         box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
         transition: 0.3s;
-        width: 558px;
+        width: 100%;
         height: 100%;
         margin-bottom: 30px;
         }
@@ -33,7 +33,6 @@ def get_blogs():
         }
 
         .blog-card img {
-            width: 558px;
             max-height: 200px;
             overflow: hidden;
             object-fit: cover;
