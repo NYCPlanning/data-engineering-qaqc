@@ -32,13 +32,11 @@ def run():
     app = datasets[name]
     if name == '-':
         st.sidebar.success("Select a dataset above.")
-        # st.text('welcome to the qaqc app')
         st.markdown('''
-        <img style='height:15%; width:15%'
+        <h1><img style='height:10%; width:10%; float:left; vertical-align: baseline; padding: 5px;'
         src="https://raw.githubusercontent.com/NYCPlanning/logo/master/dcp_logo_772.png">
+        Data Engineering</h1>
         ''', unsafe_allow_html=True)
-
-        st.title('EDM Data Engineering')
         
         st.header('Data Products:')
         st.markdown(''' 
