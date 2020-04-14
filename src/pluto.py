@@ -5,6 +5,7 @@ def pluto():
     from sqlalchemy import create_engine
     import plotly.graph_objects as go
     import os 
+    from datetime import datetime
 
     ENGINE=os.environ['ENGINE']
 
@@ -16,14 +17,37 @@ def pluto():
     engine=create_engine(ENGINE)
     @st.cache(suppress_st_warning=True, allow_output_mutation=True)
     def get_data():
+        def convert(dt):
+            try:
+                d = datetime.strptime(dt, "%Y/%m/%d")
+                return d.strftime("%d/%m/%y")
+            except: 
+                return dt
         engine=create_engine(ENGINE)
         df_mismatch=pd.read_sql('SELECT * FROM dcp_pluto.qaqc_mismatch', con=engine)
         df_null=pd.read_sql('SELECT * FROM dcp_pluto.qaqc_null', con=engine)
         df_aggregate=pd.read_sql('SELECT * FROM dcp_pluto.qaqc_aggregate', con=engine)
         source_data_versions=pd.read_csv('https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/latest/output/source_data_versions.csv')
-        return df_mismatch, df_null, df_aggregate, source_data_versions
+        sdv = source_data_versions.to_dict('records')
+        version = {}
+        for i in sdv: 
+            version[i['schema_name']] = i['v']
+        version_text = f'''
+            Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***  
+            Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
+            Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcas_facilities_colp'])}***  
+            Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***  
+            Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries'])}***  
+            Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries'])}***  
+            Department of Finance – Digital Tax Map (DTM): ***{convert(version['dof_dtm'])}***  
+            Department of Finance – Mass Appraisal System (CAMA): ***{convert(version['pluto_input_cama_dof'])}***  
+            Department of Finance – Property Tax System (PTS): ***{convert(version['pluto_pts'])}***  
+            Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
+            Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
+        '''
+        return df_mismatch, df_null, df_aggregate, source_data_versions, version_text
 
-    df_mismatch, df_null, df_aggregate, source_data_versions = get_data()
+    df_mismatch, df_null, df_aggregate, source_data_versions, version_text = get_data()
 
     versions = [i[0] for i in engine.execute('''
             SELECT table_name 
@@ -48,14 +72,14 @@ def pluto():
 
     def create_mismatch(df_mismatch, v1, v2, v3, condo):
         finance_columns = ['assessland', 'assesstot', 'exempttot', 
-                    'residfar', 'commfar', 'facilfar', 
-                    'taxmap', 'appbbl', 'appdate']
+                    'taxmap', 'appbbl', 'appdate', 'plutomapid']
 
         area_columns = ['lotarea', 'bldgarea', 'builtfar', 'comarea', 'resarea', 
                         'officearea', 'retailarea', 'garagearea', 'strgearea', 
                         'factryarea', 'otherarea', 'areasource']
 
-        zoning_columns = ['plutomapid','zonedist1', 'zonedist2', 'zonedist3', 'zonedist4', 
+        zoning_columns = ['residfar', 'commfar', 'facilfar', 
+                        'zonedist1', 'zonedist2', 'zonedist3', 'zonedist4', 
                         'overlay1', 'overlay2', 'spdist1', 'spdist2', 'spdist3', 
                         'ltdheight', 'splitzone', 'zonemap', 'zmcode', 'edesignum']
 
@@ -85,8 +109,9 @@ def pluto():
             r = {key:value for (key,value) in r.items() if key in group}
             y = [r[i] for i in group]
             x = group
-            text = [f'pct: {round(r[i]/total*100, 2)}' for i in group]
-            return go.Scatter(x=x, y=y, mode='lines', name=name, text=text)
+            hovertemplate = '<b>%{x} %{text}</b>'
+            text = [f'{round(r[i]/total*100, 2)}%' for i in group]
+            return go.Scatter(x=x, y=y, mode='lines', name=name, hovertemplate=hovertemplate, text=text)
 
         def generate_graph(v1v2, v2v3, v1v2_total, v2v3_total, group):
             fig = go.Figure()
@@ -189,4 +214,5 @@ def pluto():
     create_null(df_null, v1, v2, v3, condo)
     create_aggregate(df_aggregate, v1, v2, v3, condo)
     st.header('Source Data Versions')
-    st.table(source_data_versions)
+    st.markdown(version_text)
+    st.dataframe(source_data_versions)
