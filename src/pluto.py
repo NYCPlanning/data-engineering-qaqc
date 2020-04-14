@@ -48,7 +48,7 @@ def pluto():
         return df_mismatch, df_null, df_aggregate, source_data_versions, version_text
 
     df_mismatch, df_null, df_aggregate, source_data_versions, version_text = get_data()
-
+    
     versions = [i[0] for i in engine.execute('''
             SELECT table_name 
             FROM information_schema.tables 
@@ -68,6 +68,17 @@ def pluto():
     v3 = versions_order[versions_order.index(v1)-2]
 
     condo = st.sidebar.checkbox('condo')
+    st.sidebar.markdown('''
+    These reports compare the version selected with the previous version (in blue) 
+    and the differences between the previous two versions (in red). 
+    
+    There is an option to look at just **condo lots**. Condos make up a small percentage of lots, 
+    but contain a large percentage of the residential housing. 
+    
+    ~~A second option lets you look at all lots or just **mapped lots**. 
+    Unmapped lots are those with a record in PTS, but no corresponding record in DTM. 
+    This happens because DOF updates are not in sync.~~
+    ''')
     st.text(f'Current version: {v1}, Previous version: {v2}, Previous Previous version: {v3}')
 
     def create_mismatch(df_mismatch, v1, v2, v3, condo):
@@ -96,6 +107,48 @@ def pluto():
                         'bldgdepth', 'ext', 'proxcode', 'irrlotcode', 
                         'lottype', 'bsmtcode', 'yearbuilt', 'yearalter1',
                         'yearalter2', 'landmark', 'condono']
+        groups=[{
+            'title': 'Mismatch graph -- finance', 
+            'columns':finance_columns,
+            'description':'''
+                Assessment and exempt values are updated **twice** a year by DOF. 
+                The tentative roll is released in *mid-January* and the final roll is released in *late May*. 
+                For PLUTO versions created in February, most lots will show a change in assesstot, 
+                with a smaller number of changes for the `assessland` and `exempttot`. 
+                There will also be changes in the June version. Other months should see almost no change for these fields.
+                '''}, 
+        {
+            'title': 'Mismatch graph -- area', 
+            'columns':area_columns,
+            'description': '''
+                The primary source for these fields is **CAMA**. 
+                Updates reflect new construction, as well as updates by assessors for the tentative roll. 
+                Several thousand lots may have updates in February.
+            '''},
+        {
+            'title': 'Mismatch graph -- zoning', 
+            'columns':zoning_columns,
+            'description':'''
+                Unless DCP does a major rezoning, the number of lots with changed values should be **no more than a couple of hundred**. 
+                Lots may get a changed value due to a split/merge or if TRD is cleaning up boundaries between zoning districts. 
+                `Residfar`, `commfar`, and `facilfar` should change only when there is a change to `zonedist1` or `overlay1`.
+            '''},
+        {
+            'title': 'Mismatch graph -- geo', 
+            'columns':geo_columns,
+            'description':'''
+                These fields are updated from **Geosupport**. Changes should be minimal unless a municipal service 
+                area changes or more high-rise buildings opt into the composite recycling program. 
+                Check with GRU if more than a small number of lots have changes to municipal service areas.
+            '''},
+        {
+            'title': 'Mismatch graph -- building', 
+            'columns':bldg_columns,
+            'description':'''
+                Changes in these fields are most common in February, after the tentative roll has been released. 
+                Several fields in this group are changed by DCP to improve data quality, including `ownername` and `yearbuilt`. 
+                When these changes are first applied, there will be a spike in the number of lots changed.
+            '''}]
 
         df = df_mismatch.loc[(df_mismatch.condo == str(condo).lower())
                     &(df_mismatch.pair.isin([f'{v1} - {v2}', f'{v2} - {v3}'])), :]
@@ -119,14 +172,11 @@ def pluto():
             fig.add_trace(generate_graph_data(v2v3, v2v3_total, v2v3['pair'], group))
             return fig
         
-        for group in [{'title': 'Mismatch graph -- finance', 'columns':finance_columns}, 
-                    {'title': 'Mismatch graph -- area', 'columns':area_columns},
-                    {'title': 'Mismatch graph -- zoning', 'columns':zoning_columns},
-                    {'title': 'Mismatch graph -- geo', 'columns':geo_columns},
-                    {'title': 'Mismatch graph -- building', 'columns':bldg_columns}]:
+        for group in groups:
             fig = generate_graph(v1v2, v2v3, v1v2_total, v2v3_total, group['columns'])
             fig.update_layout(title=group['title'], template='plotly_white')
             st.plotly_chart(fig)
+            st.info(group['description'])
         st.write(df)
 
     def create_null(df_null, v1, v2, v3, condo):
@@ -179,6 +229,11 @@ def pluto():
         fig.update_layout(title='Null graph', template='plotly_white')
         st.plotly_chart(fig)
         st.write(df)
+        st.info('''
+        The mismatch graphs do not include lots that formerly had a value and are now null, or vice versa. 
+        These differences are captured in the null graph, which shows the percent change in lots with a null value. 
+        Hovering over a point shows you the number of null records in the more recent file. The number of such changes should be small.
+        ''')
 
     def create_aggregate(df_aggregate, v1, v2, v3, condo):
         df = df_aggregate.loc[(df_aggregate.condo == condo)
@@ -210,10 +265,51 @@ def pluto():
         fig.update_layout(title='Aggregate graph', template='plotly_white')
         st.plotly_chart(fig)
         st.write(df)
+        st.info('''
+         In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change. 
+         For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released. 
+         The aggregate graph may show that the aggregated sum increased by 5%. Totals for assessland, assesstot, and exempttot should only change in February and June. 
+         Pay attention to any large changes to residential units (unitsres).
+        ''')
 
     create_mismatch(df_mismatch, v1, v2, v3, condo)
+
     create_null(df_null, v1, v2, v3, condo)
+    
     create_aggregate(df_aggregate, v1, v2, v3, condo)
+    
     st.header('Source Data Versions')
     st.markdown(version_text)
     st.dataframe(source_data_versions)
+
+    ### EXPECTED VALUE
+    st.header('Expected Value Comparison')
+    st.write('if nothing showed up, then it means there aren\'t any expected value change')
+    @st.cache(suppress_st_warning=True, allow_output_mutation=True)
+    def get_expected_value(v1, v2):
+        engine=create_engine(ENGINE)
+        df = pd.read_sql(f"SELECT * FROM dcp_pluto.qaqc_expected where v ~* '{v1}|{v2}'", con=engine)
+        return df
+    exp = get_expected_value(v1,v2)
+    exp_records = exp.to_dict('records')
+    v1_exp = [i['expected'] for i in exp_records if i['v'] == v1][0]
+    v2_exp = [i['expected'] for i in exp_records if i['v'] == v2][0]
+    for field in ['zonedist1','zonedist2','zonedist3',
+                'zonedist4','overlay1','overlay2',
+                'spdist1','spdist2','spdist3',
+                'ext','proxcode','irrlotcode',
+                'lottype','bsmtcode', 'bldgclasslanduse']:
+        val1 = [i['values'] for i in v1_exp if i['field']==field][0]
+        val2 = [i['values'] for i in v2_exp if i['field']==field][0]
+        in1not2 = [i for i in val1 if i not in val2]
+        in2not1 = [i for i in val2 if i not in val1]
+        if len(in1not2) == 0 and len(in2not1) == 0:
+            pass
+        else: 
+            st.markdown(f'### Expected value difference for {field}')
+            if len(in1not2) != 0:
+                st.markdown(f'* in {v1} but not in {v2}:')
+                st.write(in1not2)
+            if len(in2not1) != 0:
+                st.markdown(f'* in {v2} but not in {v1}:')
+                st.write(in2not1)
