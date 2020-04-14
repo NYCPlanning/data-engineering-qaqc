@@ -20,7 +20,7 @@ def pluto():
         def convert(dt):
             try:
                 d = datetime.strptime(dt, "%Y/%m/%d")
-                return d.strftime("%d/%m/%y")
+                return d.strftime("%m/%d/%y")
             except: 
                 return dt
         engine=create_engine(ENGINE)
@@ -195,13 +195,14 @@ def pluto():
                 'strgearea','factryarea','otherarea','assessland',
                 'assesstot','exempttot','firm07_flag','pfirm15_flag']
             x = [(v1[i]/v2[i]-1)*100 for i in y]
-            
+            hovertemplate = '<b>%{x} %{text}</b>'
             return go.Scatter(
                         x=y, 
                         y=x,
                         mode='lines',
                         name=f'{_v1} - {_v2}',
-                        text=[f'pct: {round(i,2)}' for i in x])
+                        hovertemplate=hovertemplate,
+                        text=[f'{round(i,2)}%' for i in x])
 
         fig = go.Figure()
         fig.add_trace(generate_graph(v1, v2))
