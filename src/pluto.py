@@ -48,7 +48,7 @@ def pluto():
         return df_mismatch, df_null, df_aggregate, source_data_versions, version_text
 
     df_mismatch, df_null, df_aggregate, source_data_versions, version_text = get_data()
-    
+
     versions = [i[0] for i in engine.execute('''
             SELECT table_name 
             FROM information_schema.tables 
@@ -67,7 +67,8 @@ def pluto():
     v2 = versions_order[versions_order.index(v1)-1]
     v3 = versions_order[versions_order.index(v1)-2]
 
-    condo = st.sidebar.checkbox('condo')
+    condo = st.sidebar.checkbox('condo only')
+    mapped = st.sidebar.checkbox('mapped only')
     st.sidebar.markdown('''
     These reports compare the version selected with the previous version (in blue) 
     and the differences between the previous two versions (in red). 
@@ -75,13 +76,13 @@ def pluto():
     There is an option to look at just **condo lots**. Condos make up a small percentage of lots, 
     but contain a large percentage of the residential housing. 
     
-    ~~A second option lets you look at all lots or just **mapped lots**. 
+    A second option lets you look at all lots or just **mapped lots**. 
     Unmapped lots are those with a record in PTS, but no corresponding record in DTM. 
-    This happens because DOF updates are not in sync.~~
+    This happens because DOF updates are not in sync.
     ''')
     st.text(f'Current version: {v1}, Previous version: {v2}, Previous Previous version: {v3}')
 
-    def create_mismatch(df_mismatch, v1, v2, v3, condo):
+    def create_mismatch(df_mismatch, v1, v2, v3, condo, mapped):
         finance_columns = ['assessland', 'assesstot', 'exempttot', 
                     'taxmap', 'appbbl', 'appdate', 'plutomapid']
 
@@ -150,7 +151,8 @@ def pluto():
                 When these changes are first applied, there will be a spike in the number of lots changed.
             '''}]
 
-        df = df_mismatch.loc[(df_mismatch.condo == str(condo).lower())
+        df = df_mismatch.loc[(df_mismatch.condo == condo) 
+                    & (df_mismatch.mapped == mapped)
                     &(df_mismatch.pair.isin([f'{v1} - {v2}', f'{v2} - {v3}'])), :]
 
         v1v2 = df.loc[df_mismatch.pair==f'{v1} - {v2}', :].to_dict('records')[0]
@@ -179,8 +181,9 @@ def pluto():
             st.info(group['description'])
         st.write(df)
 
-    def create_null(df_null, v1, v2, v3, condo):
+    def create_null(df_null, v1, v2, v3, condo, mapped):
         df = df_null.loc[(df_null.condo == condo)
+                    & (df_null.mapped == mapped)
                     &(df_null.v.isin([v1, v2, v3])), :]
         v1 = df.loc[df.v==v1, :].to_dict('records')[0]
         v2 = df.loc[df.v==v2, :].to_dict('records')[0]
@@ -235,8 +238,9 @@ def pluto():
         Hovering over a point shows you the number of null records in the more recent file. The number of such changes should be small.
         ''')
 
-    def create_aggregate(df_aggregate, v1, v2, v3, condo):
+    def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
         df = df_aggregate.loc[(df_aggregate.condo == condo)
+                    &(df_aggregate.mapped == mapped)
                     &(df_aggregate.v.isin([v1, v2, v3])), :]
         v1 = df.loc[df.v==v1, :].to_dict('records')[0]
         v2 = df.loc[df.v==v2, :].to_dict('records')[0]
@@ -272,16 +276,15 @@ def pluto():
          Pay attention to any large changes to residential units (unitsres).
         ''')
 
-    create_mismatch(df_mismatch, v1, v2, v3, condo)
+    create_mismatch(df_mismatch, v1, v2, v3, condo, mapped)
 
-    create_null(df_null, v1, v2, v3, condo)
+    create_null(df_null, v1, v2, v3, condo, mapped)
     
-    create_aggregate(df_aggregate, v1, v2, v3, condo)
+    create_aggregate(df_aggregate, v1, v2, v3, condo, mapped)
     
     st.header('Source Data Versions')
     st.markdown(version_text)
-    st.dataframe(source_data_versions)
-
+    
     ### EXPECTED VALUE
     st.header('Expected Value Comparison')
     st.write('if nothing showed up, then it means there aren\'t any expected value change')
