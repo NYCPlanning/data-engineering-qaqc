@@ -56,6 +56,10 @@ def pluto():
             AND table_name !~*'qaqc|latest';
             ''').fetchall()]
 
+    versions.remove('18v2_1')
+    versions.remove('19v1')
+    versions.remove('19v2')
+    
     versions_order = [
                 '18v2_1', 
                 '19v1', '19v2', 
