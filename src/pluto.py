@@ -98,7 +98,8 @@ def pluto():
         geo_columns = ['cd', 'ct2010', 'cb2010', 'schooldist',
                     'council', 'zipcode', 'firecomp', 'policeprct', 
                     'healtharea', 'sanitboro', 'sanitsub', 'address',
-                    'borocode', 'bbl', 'tract2010', 'xcoord', 'ycoord', 
+                    'borocode', 'bbl', 'tract2010', 'xcoord', 'ycoord',
+                    'longitude', 'latitude',
                     'sanborn', 'edesignum', 'sanitdistrict', 
                     'healthcenterdistrict', 'histdist', 'firm07_flag', 'pfirm15_flag']
 
@@ -207,7 +208,8 @@ def pluto():
                 'bsmtcode', 'assessland', 'assesstot', 'exempttot', 'yearbuilt',
                 'yearalter1', 'yearalter2', 'histdist', 'landmark', 'builtfar',
                 'residfar', 'commfar', 'facilfar', 'borocode', 'bbl', 'condono',
-                'tract2010', 'xcoord', 'ycoord', 'zonemap', 'zmcode', 'sanborn',
+                'tract2010', 'xcoord', 'ycoord', 'longitude', 'latitude',
+                'zonemap', 'zmcode', 'sanborn',
                 'taxmap', 'edesignum', 'appbbl', 'appdate', 'plutomapid', 'version',
                 'sanitdistrict', 'healthcenterdistrict', 'firm07_flag', 'pfirm15_flag']
             x = []
