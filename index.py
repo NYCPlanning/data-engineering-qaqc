@@ -57,23 +57,28 @@ def get_blogs():
         ''', unsafe_allow_html=True)
 
 def run():
+    st.sidebar.markdown('''
+    <div stule="margin-left: auto; margin-right: auto;">
+    <img style='width:40%; margin: 0 auto 2rem auto;display:block;'
+        src="https://raw.githubusercontent.com/NYCPlanning/logo/master/dcp_logo_772.png">
+    </div>
+    ''', unsafe_allow_html=True)
     name = st.sidebar.selectbox('select a dataset for qaqc', list(datasets.keys()), index=0)
     app = datasets[name]
     if name == '-':
         st.sidebar.success("Select a dataset above.")
         st.markdown('''
-        <h1><img style='height:10%; width:10%; float:left; vertical-align: baseline; padding: 5px;'
-        src="https://raw.githubusercontent.com/NYCPlanning/logo/master/dcp_logo_772.png">
-        Data Engineering</h1>
+        <h1 style="font-size:3rem;">📊 Data Engineering</h1>
         ''', unsafe_allow_html=True)
-        
-        st.header('Data Products:')
-        st.markdown(''' 
-        + [PLUTO](https://github.com/NYCPlanning/db-pluto/)
-        + [Zoning Tax Lots](https://github.com/NYCPlanning/db-zoningtaxlots)
-        + Facilities DB (coming soon)
-        + Developments DB (coming soon)
-        ''', unsafe_allow_html=True)
+        st.info('''
+        Welcome to the QAQC Portal 🎉! This is a one stop shop for 
+        core **Data Engineering** data products, including PLUTO, Zoning Tax Lots,
+        The Facilities database and more. 
+
+        You can find data QAQC dashboard through the dropdown menu on the left.
+        If you have questions, let us know on [gitter](https://gitter.im/NYCPlanning/community)
+        or open up an [issue](https://github.com/NYCPlanning/data-engineering/issues) on Github.
+        ''')
 
         st.header('Read more on Medium')
         get_blogs()
