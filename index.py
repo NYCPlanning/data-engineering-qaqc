@@ -8,15 +8,16 @@ import requests
 import datetime
 
 datasets = {
-    '-':None,
-    'PLUTO':pluto, 
+    '-': None,
+    'PLUTO': pluto,
     'Zoning Tax Lots': ztl,
     'Facilities DB': facdb,
     'Developments DB': devdb,
     'Geosupport Demo': geocode
 }
 
-def get_blogs(): 
+
+def get_blogs():
     r = requests.get('https://labs-home-api.herokuapp.com/posts?tag=data')
     result = r.json()['items']
     css = '''
@@ -42,7 +43,7 @@ def get_blogs():
         padding: 2px 16px;
         }
     '''
-    for i in result: 
+    for i in result:
         st.markdown(f'''
         <style>
         {css}
@@ -56,6 +57,7 @@ def get_blogs():
         </div>
         ''', unsafe_allow_html=True)
 
+
 def run():
     st.sidebar.markdown('''
     <div stule="margin-left: auto; margin-right: auto;">
@@ -63,7 +65,9 @@ def run():
         src="https://raw.githubusercontent.com/NYCPlanning/logo/master/dcp_logo_772.png">
     </div>
     ''', unsafe_allow_html=True)
-    name = st.sidebar.selectbox('select a dataset for qaqc', list(datasets.keys()), index=0)
+    name = st.sidebar.selectbox(
+        'select a dataset for qaqc', list(
+            datasets.keys()), index=0)
     app = datasets[name]
     if name == '-':
         st.sidebar.success("Select a dataset above.")
@@ -71,9 +75,9 @@ def run():
         <h1 style="font-size:3rem;">📊 Data Engineering</h1>
         ''', unsafe_allow_html=True)
         st.info('''
-        Welcome to the QAQC Portal 🎉! This is a one stop shop for 
+        Welcome to the QAQC Portal 🎉! This is a one stop shop for
         core **Data Engineering** data products, including PLUTO, Zoning Tax Lots,
-        The Facilities database and more. 
+        The Facilities database and more.
 
         You can find data QAQC dashboard through the dropdown menu on the left.
         If you have questions, let us know on [gitter](https://gitter.im/NYCPlanning/community)
@@ -84,6 +88,7 @@ def run():
         get_blogs()
     else:
         app()
+
 
 if __name__ == "__main__":
     run()

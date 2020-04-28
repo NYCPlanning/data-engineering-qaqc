@@ -1,12 +1,13 @@
-def facdb(): 
+def facdb():
     import streamlit as st
     import pandas as pd
     import numpy as np
-    import os 
+    import os
     import pydeck as pdk
     import plotly.graph_objects as go
 
     st.title('Facilities DB QAQC')
+
     def plotly_table(df):
         fig = go.Figure(data=[go.Table(
             header=dict(values=list(df.columns),
@@ -15,9 +16,9 @@ def facdb():
                         font=dict(color='white', size=12),
                         align='center'),
             cells=dict(values=[df[i] for i in df.columns],
-                    line_color='darkslategray',
-                    fill_color='white',
-                    align='left'))
+                       line_color='darkslategray',
+                       fill_color='white',
+                       align='left'))
         ])
         fig.update_layout(
             template='plotly_white',
@@ -36,32 +37,32 @@ def facdb():
         qc_proptype = pd.read_csv(f'{url}/qc_proptype.csv')
 
         qc_tables = {
-                'Facility subgroup classification' : {
-                    'dataframe': qc_classification,
-                    'type': 'dataframe'
-                }, 
-                'Operator' : {
-                    'dataframe': qc_operator,
-                    'type': 'dataframe'
-                }, 
-                'Oversight' : {
-                    'dataframe': qc_oversight,
-                    'type': 'dataframe'
-                }, 
-                'Property Types' : {
-                    'dataframe': qc_proptype,
-                    'type': 'table'
-                }, 
-                'Capacity Types' : {
-                    'dataframe': qc_captype,
-                    'type': 'table'
-                }, 
-            }
+            'Facility subgroup classification': {
+                'dataframe': qc_classification,
+                'type': 'dataframe'
+            },
+            'Operator': {
+                'dataframe': qc_operator,
+                'type': 'dataframe'
+            },
+            'Oversight': {
+                'dataframe': qc_oversight,
+                'type': 'dataframe'
+            },
+            'Property Types': {
+                'dataframe': qc_proptype,
+                'type': 'table'
+            },
+            'Capacity Types': {
+                'dataframe': qc_captype,
+                'type': 'table'
+            },
+        }
         return qc_tables, qc_diff, qc_mapped
 
     qc_tables, qc_diff, qc_mapped = get_data()
 
-    def count_comparison(df, width=1000, height=1000): 
+    def count_comparison(df, width=1000, height=1000):
         fig = go.Figure()
         for i in ['count_old', 'count_new', 'diff']:
             fig.add_trace(
@@ -78,19 +79,19 @@ def facdb():
             margin=go.layout.Margin(l=0, r=0, b=0, t=0)
         )
         st.plotly_chart(fig)
-    
+
     def geom_comparison(df, width=1000, height=600):
         fig = go.Figure()
         for i in ['pctwogeom_old', 'pctwogeom_new', 'diff']:
-            if i == 'pctwogeom_old': 
-                tooltip=df.wogeom_old
-                txt='old unmapped counts'
-            elif i == 'pctwogeom_new': 
-                tooltip=df.wogeom_new
-                txt='new unmapped counts'
+            if i == 'pctwogeom_old':
+                tooltip = df.wogeom_old
+                txt = 'old unmapped counts'
+            elif i == 'pctwogeom_new':
+                tooltip = df.wogeom_new
+                txt = 'new unmapped counts'
             else:
-                tooltip=df.wogeom_new-df.wogeom_old
-                txt='unmapped counts diff'
+                tooltip = df.wogeom_new - df.wogeom_old
+                txt = 'unmapped counts diff'
             fig.add_trace(
                 go.Bar(
                     y=df.index,
@@ -101,37 +102,43 @@ def facdb():
         fig.update_layout(
             width=width,
             height=height,
-            xaxis=dict(title='Percentage'), 
-            xaxis_tickformat = '%',
+            xaxis=dict(title='Percentage'),
+            xaxis_tickformat='%',
             template='plotly_white',
             margin=go.layout.Margin(l=0, r=0, b=0, t=0)
         )
-        st.plotly_chart(fig,config = dict({'scrollZoom': True}))
+        st.plotly_chart(fig, config=dict({'scrollZoom': True}))
 
     """
     qc_diff visualization
     """
-    thresh = st.sidebar.slider('difference threshold', min_value=0, max_value=300, value=5, step=1)
+    thresh = st.sidebar.slider(
+        'difference threshold',
+        min_value=0,
+        max_value=300,
+        value=5,
+        step=1)
     level = st.sidebar.selectbox(
-                'select a classification level', 
-                ['datasource', 'factype', 'facsubgrp', 'facgroup', 'facdomain'], 
-                index=0)
+        'select a classification level',
+        ['datasource', 'factype', 'facsubgrp', 'facgroup', 'facdomain'],
+        index=0)
 
     st.sidebar.success('''
-        Use the slide bar and drop down to change the difference 
+        Use the slide bar and drop down to change the difference
         threshold and select the attribute to review
         ''')
-   
+
     st.header(f'Change in number of records by {level}')
     st.write(f'diff > {thresh}')
-    
+
     dff = qc_diff.groupby(level).sum()
-    dff = dff.loc[(dff['diff']!= 0)&(~dff['diff'].isna()), :]
-    if level=='factype':
+    dff = dff.loc[(dff['diff'] != 0) & (~dff['diff'].isna()), :]
+    if level == 'factype':
         st.warning('plot not available for this level,\
              refer to the table below for more information')
     else:
-        count_comparison(dff.loc[dff['diff'].abs() > thresh, :].sort_values('diff'))
+        count_comparison(dff.loc[dff['diff'].abs() >
+                                 thresh, :].sort_values('diff'))
 
     st.header(f'Change in counts by {level}')
     dff.insert(0, level, dff.index)
@@ -140,12 +147,12 @@ def facdb():
 
     st.header('New factypes')
     st.write('Facility types that do not appear in the previous FacDB')
-    plotly_table(qc_diff.loc[qc_diff['count_old']==0, :])
+    plotly_table(qc_diff.loc[qc_diff['count_old'] == 0, :])
 
     st.header('Old factypes (retired)')
     st.write('Facility types that do appear in the previous FacDB, \
         but not in the latest version')
-    plotly_table(qc_diff.loc[qc_diff['count_new']==0, :])
+    plotly_table(qc_diff.loc[qc_diff['count_new'] == 0, :])
 
     st.header('Full Panel Cross Version Comparison')
     st.write('Reports the difference in the number of records at \
@@ -157,18 +164,18 @@ def facdb():
     """
     st.header(f'Change in percentage mapped records by {level}')
     st.write('''
-        Only instances where there is change in the percent 
+        Only instances where there is change in the percent
         of mapped records and 100% of records are not mapped are reported
     ''')
     dfff = qc_mapped.groupby(level).sum()
     dfff.insert(0, level, dfff.index)
-    dfff['pctwogeom_old'] = dfff['wogeom_old']/dfff['count_old']
-    dfff['pctwogeom_new'] = dfff['wogeom_new']/dfff['count_new']
+    dfff['pctwogeom_old'] = dfff['wogeom_old'] / dfff['count_old']
+    dfff['pctwogeom_new'] = dfff['wogeom_new'] / dfff['count_new']
     dfff['pctwogeom_old'] = dfff['pctwogeom_old'].round(2)
     dfff['pctwogeom_new'] = dfff['pctwogeom_new'].round(2)
     dfff['diff'] = dfff['pctwogeom_new'] - dfff['pctwogeom_old']
     dfff['diff'] = dfff['diff'].round(2)
-    dfff = dfff.loc[(dfff['diff']!= 0)&(~dfff['diff'].isna()), :]
+    dfff = dfff.loc[(dfff['diff'] != 0) & (~dfff['diff'].isna()), :]
     dfff = dfff.sort_values('diff')
     geom_comparison(dfff)
     st.header(f'Percentage mapped records by {level}')
@@ -181,23 +188,22 @@ def facdb():
     st.write('There should be little to no change in the \
         number of records with these facility types')
     important_factype = [
-        'FIREHOUSE', 
+        'FIREHOUSE',
         'POLICE STATION',
         'ACADEMIC LIBRARIES',
         'SPECIAL LIBRARIES',
-        'EMERGENCY MEDICAL STATION', 
+        'EMERGENCY MEDICAL STATION',
         'HOSPITAL',
         'NURSING HOME',
         'ADULT DAY CARE',
         'SENIOR CENTER']
-    important=qc_diff.loc[qc_diff.factype.isin(important_factype), :].groupby('factype').sum()
+    important = qc_diff.loc[qc_diff.factype.isin(
+        important_factype), :].groupby('factype').sum()
     count_comparison(important.sort_values('diff'), width=500, height=500)
-    
+
     for key, value in qc_tables.items():
         st.header(key)
         if value['type'] == 'dataframe':
             plotly_table(value['dataframe'])
         else:
             st.table(value['dataframe'])
-
-    
