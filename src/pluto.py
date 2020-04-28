@@ -36,17 +36,17 @@ def pluto():
         for i in sdv:
             version[i['schema_name']] = i['v']
         version_text = f'''
-            Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***
-            Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***
-            Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcas_facilities_colp'])}***
-            Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***
-            Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries'])}***
-            Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries'])}***
-            Department of Finance – Digital Tax Map (DTM): ***{convert(version['dof_dtm'])}***
-            Department of Finance – Mass Appraisal System (CAMA): ***{convert(version['pluto_input_cama_dof'])}***
-            Department of Finance – Property Tax System (PTS): ***{convert(version['pluto_pts'])}***
-            Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***
-            Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***
+            Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***  
+            Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
+            Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcas_facilities_colp'])}***  
+            Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***  
+            Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries'])}***  
+            Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries'])}***  
+            Department of Finance – Digital Tax Map (DTM): ***{convert(version['dof_dtm'])}***  
+            Department of Finance – Mass Appraisal System (CAMA): ***{convert(version['pluto_input_cama_dof'])}***  
+            Department of Finance – Property Tax System (PTS): ***{convert(version['pluto_pts'])}***  
+            Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
+            Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
         '''
         return df_mismatch, df_null, df_aggregate, source_data_versions, version_text
 
@@ -94,76 +94,33 @@ def pluto():
         f'Current version: {v1}, Previous version: {v2}, Previous Previous version: {v3}')
 
     def create_mismatch(df_mismatch, v1, v2, v3, condo, mapped):
-        finance_columns = ['assessland', 'assesstot', 'exempttot',
-                           'taxmap', 'appbbl', 'appdate', 'plutomapid']
+        finance_columns = ['assessland', 'assesstot', 'exempttot', 
+                    'taxmap', 'appbbl', 'appdate', 'plutomapid']
 
-        area_columns = [
-            'lotarea',
-            'bldgarea',
-            'builtfar',
-            'comarea',
-            'resarea',
-            'officearea',
-            'retailarea',
-            'garagearea',
-            'strgearea',
-            'factryarea',
-            'otherarea',
-            'areasource']
+        area_columns = ['lotarea', 'bldgarea', 'builtfar', 'comarea', 'resarea', 
+                        'officearea', 'retailarea', 'garagearea', 'strgearea', 
+                        'factryarea', 'otherarea', 'areasource']
 
-        zoning_columns = [
-            'residfar',
-            'commfar',
-            'facilfar',
-            'zonedist1',
-            'zonedist2',
-            'zonedist3',
-            'zonedist4',
-            'overlay1',
-            'overlay2',
-            'spdist1',
-            'spdist2',
-            'spdist3',
-            'ltdheight',
-            'splitzone',
-            'zonemap',
-            'zmcode',
-            'edesignum']
+        zoning_columns = ['residfar', 'commfar', 'facilfar', 
+                        'zonedist1', 'zonedist2', 'zonedist3', 'zonedist4', 
+                        'overlay1', 'overlay2', 'spdist1', 'spdist2', 'spdist3', 
+                        'ltdheight', 'splitzone', 'zonemap', 'zmcode', 'edesignum']
 
-        geo_columns = [
-            'cd',
-            'ct2010',
-            'cb2010',
-            'schooldist',
-            'council',
-            'zipcode',
-            'firecomp',
-            'policeprct',
-            'healtharea',
-            'sanitboro',
-            'sanitsub',
-            'address',
-            'borocode',
-            'bbl',
-            'tract2010',
-            'xcoord',
-            'ycoord',
-            'longitude',
-            'latitude',
-            'sanborn',
-            'edesignum',
-            'sanitdistrict',
-            'healthcenterdistrict',
-            'histdist',
-            'firm07_flag',
-            'pfirm15_flag']
+        geo_columns = ['cd', 'ct2010', 'cb2010', 'schooldist',
+                    'council', 'zipcode', 'firecomp', 'policeprct', 
+                    'healtharea', 'sanitboro', 'sanitsub', 'address',
+                    'borocode', 'bbl', 'tract2010', 'xcoord', 'ycoord',
+                    'longitude', 'latitude',
+                    'sanborn', 'edesignum', 'sanitdistrict', 
+                    'healthcenterdistrict', 'histdist', 'firm07_flag', 'pfirm15_flag']
 
-        bldg_columns = ['bldgclass', 'landuse', 'easements', 'ownertype',
-                        'ownername', 'numbldgs', 'numfloors', 'unitsres',
-                        'unitstotal', 'lotfront', 'lotdepth', 'bldgfront',
-                        'bldgdepth', 'ext', 'proxcode', 'irrlotcode',
+        bldg_columns = ['bldgclass', 'landuse', 'easements', 'ownertype', 
+                        'ownername', 'numbldgs', 'numfloors', 'unitsres', 
+                        'unitstotal', 'lotfront', 'lotdepth', 'bldgfront', 
+                        'bldgdepth', 'ext', 'proxcode', 'irrlotcode', 
                         'lottype', 'bsmtcode', 'yearbuilt', 'yearalter1',
                         'yearalter2', 'landmark', 'condono']
+
         groups = [{
             'title': 'Mismatch graph -- finance',
             'columns': finance_columns,
@@ -274,95 +231,24 @@ def pluto():
             total1 = v1['total']
             total2 = v2['total']
 
-            y = [
-                'borough',
-                'block',
-                'lot',
-                'cd',
-                'ct2010',
-                'cb2010',
-                'schooldist',
-                'council',
-                'zipcode',
-                'firecomp',
-                'policeprct',
-                'healtharea',
-                'sanitboro',
-                'sanitsub',
-                'address',
-                'zonedist1',
-                'zonedist2',
-                'zonedist3',
-                'zonedist4',
-                'overlay1',
-                'overlay2',
-                'spdist1',
-                'spdist2',
-                'spdist3',
-                'ltdheight',
-                'splitzone',
-                'bldgclass',
-                'landuse',
-                'easements',
-                'ownertype',
-                'ownername',
-                'lotarea',
-                'bldgarea',
-                'comarea',
-                'resarea',
-                'officearea',
-                'retailarea',
-                'garagearea',
-                'strgearea',
-                'factryarea',
-                'otherarea',
-                'areasource',
-                'numbldgs',
-                'numfloors',
-                'unitsres',
-                'unitstotal',
-                'lotfront',
-                'lotdepth',
-                'bldgfront',
-                'bldgdepth',
-                'ext',
-                'proxcode',
-                'irrlotcode',
-                'lottype',
-                'bsmtcode',
-                'assessland',
-                'assesstot',
-                'exempttot',
-                'yearbuilt',
-                'yearalter1',
-                'yearalter2',
-                'histdist',
-                'landmark',
-                'builtfar',
-                'residfar',
-                'commfar',
-                'facilfar',
-                'borocode',
-                'bbl',
-                'condono',
-                'tract2010',
-                'xcoord',
-                'ycoord',
-                'longitude',
-                'latitude',
-                'zonemap',
-                'zmcode',
-                'sanborn',
-                'taxmap',
-                'edesignum',
-                'appbbl',
-                'appdate',
-                'plutomapid',
-                'version',
-                'sanitdistrict',
-                'healthcenterdistrict',
-                'firm07_flag',
-                'pfirm15_flag']
+            y = ['borough', 'block', 'lot', 'cd', 'ct2010', 'cb2010',
+                'schooldist', 'council', 'zipcode', 'firecomp', 'policeprct',
+                'healtharea', 'sanitboro', 'sanitsub', 'address', 'zonedist1',
+                'zonedist2', 'zonedist3', 'zonedist4', 'overlay1', 'overlay2',
+                'spdist1', 'spdist2', 'spdist3', 'ltdheight', 'splitzone', 'bldgclass',
+                'landuse', 'easements', 'ownertype', 'ownername', 'lotarea', 'bldgarea',
+                'comarea', 'resarea', 'officearea', 'retailarea', 'garagearea',
+                'strgearea', 'factryarea', 'otherarea', 'areasource', 'numbldgs',
+                'numfloors', 'unitsres', 'unitstotal', 'lotfront', 'lotdepth',
+                'bldgfront', 'bldgdepth', 'ext', 'proxcode', 'irrlotcode', 'lottype',
+                'bsmtcode', 'assessland', 'assesstot', 'exempttot', 'yearbuilt',
+                'yearalter1', 'yearalter2', 'histdist', 'landmark', 'builtfar',
+                'residfar', 'commfar', 'facilfar', 'borocode', 'bbl', 'condono',
+                'tract2010', 'xcoord', 'ycoord', 'longitude', 'latitude',
+                'zonemap', 'zmcode', 'sanborn',
+                'taxmap', 'edesignum', 'appbbl', 'appdate', 'plutomapid', 'version',
+                'sanitdistrict', 'healthcenterdistrict', 'firm07_flag', 'pfirm15_flag']
+            
             x = []
             for i in y:
                 pct1 = v1[i] / total1
@@ -437,7 +323,11 @@ def pluto():
     create_aggregate(df_aggregate, v1, v2, v3, condo, mapped)
 
     st.header('Source Data Versions')
-    st.markdown(version_text)
+    code=st.checkbox('code')
+    if code:
+        st.code(version_text)
+    else:
+        st.markdown(version_text)
 
     # EXPECTED VALUE
     st.header('Expected Value Comparison')
