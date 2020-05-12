@@ -6,6 +6,7 @@ def pluto():
     import plotly.graph_objects as go
     import os
     from datetime import datetime
+    import requests
 
     ENGINE = os.environ["ENGINE"]
 
@@ -51,9 +52,10 @@ def pluto():
             Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
             Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
         """
-        return df_mismatch, df_null, df_aggregate, source_data_versions, version_text
+        log = requests.get('https://raw.githubusercontent.com/NYCPlanning/db-pluto/master/maintenance/log.md').text
+        return df_mismatch, df_null, df_aggregate, source_data_versions, version_text, log
 
-    df_mismatch, df_null, df_aggregate, source_data_versions, version_text = get_data()
+    df_mismatch, df_null, df_aggregate, source_data_versions, version_text, log = get_data()
 
     versions = [
         i[0]
@@ -67,14 +69,7 @@ def pluto():
         ).fetchall()
     ]
 
-    versions.remove("18v2_1")
-    versions.remove("19v1")
-    versions.remove("19v2")
-
     versions_order = [
-        "18v2_1",
-        "19v1",
-        "19v2",
         "20v1",
         "20v2",
         "20v3",
@@ -565,3 +560,7 @@ def pluto():
             if len(in2not1) != 0:
                 st.markdown(f"* in {v2} but not in {v1}:")
                 st.write(in2not1)
+    
+    seelog = st.sidebar.checkbox("see build log?")
+    if seelog:
+        st.sidebar.markdown(log)
