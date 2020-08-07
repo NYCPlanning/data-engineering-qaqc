@@ -22,8 +22,6 @@ def ztl():
 
         bbldiff = pd.read_csv(f"{url}qc_bbldiffs.csv", dtype=str, index_col=False)
         bbldiff = bbldiff.fillna("NULL")
-        bbldiff["longitude"] = bbldiff.longitude.astype(float)
-        bbldiff["latitude"] = bbldiff.latitude.astype(float)
 
         last_build = requests.get(f"{url}version.txt").text
 
