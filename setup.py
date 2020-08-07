@@ -7,7 +7,7 @@ setup(
     install_requires=[
         "sqlalchemy",
         "psycopg2-binary",
-        "pandas",
+        "pandas<1.1",
         "numpy",
         "streamlit",
         "plotly",
