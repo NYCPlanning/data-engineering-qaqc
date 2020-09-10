@@ -8,7 +8,7 @@ import requests
 import datetime
 
 datasets = {
-    "-": None,
+    "Home": None,
     "PLUTO": pluto,
     "Zoning Tax Lots": ztl,
     "Facilities DB": facdb,
@@ -62,20 +62,25 @@ def get_blogs():
 
 
 def run():
+    st.beta_set_page_config(page_title="Data Engineering QAQC", page_icon="📊")
     st.sidebar.markdown(
         """
-    <div stule="margin-left: auto; margin-right: auto;">
-    <img style='width:40%; margin: 0 auto 2rem auto;display:block;'
-        src="https://raw.githubusercontent.com/NYCPlanning/logo/master/dcp_logo_772.png">
-    </div>
-    """,
+        <div stule="margin-left: auto; margin-right: auto;">
+        <img style='width:40%; margin: 0 auto 2rem auto;display:block;'
+            src="https://raw.githubusercontent.com/NYCPlanning/logo/master/dcp_logo_772.png">
+        </div>
+        """,
         unsafe_allow_html=True,
     )
-    name = st.sidebar.selectbox(
-        "select a dataset for qaqc", list(datasets.keys()), index=0
-    )
+
+    datasets_list = list(datasets.keys())
+    query_params = st.experimental_get_query_params()
+    name = st.sidebar.selectbox("select a dataset for qaqc", datasets_list, index=0)
+    if name:
+        st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
+
     app = datasets[name]
-    if name == "-":
+    if name == "Home":
         st.sidebar.success("Select a dataset above.")
         st.markdown(
             """
