@@ -52,10 +52,26 @@ def pluto():
             Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
             Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
         """
-        log = requests.get('https://raw.githubusercontent.com/NYCPlanning/db-pluto/master/maintenance/log.md').text
-        return df_mismatch, df_null, df_aggregate, source_data_versions, version_text, log
+        log = requests.get(
+            "https://raw.githubusercontent.com/NYCPlanning/db-pluto/master/maintenance/log.md"
+        ).text
+        return (
+            df_mismatch,
+            df_null,
+            df_aggregate,
+            source_data_versions,
+            version_text,
+            log,
+        )
 
-    df_mismatch, df_null, df_aggregate, source_data_versions, version_text, log = get_data()
+    (
+        df_mismatch,
+        df_null,
+        df_aggregate,
+        source_data_versions,
+        version_text,
+        log,
+    ) = get_data()
 
     versions = [
         i[0]
@@ -70,6 +86,8 @@ def pluto():
     ]
 
     versions_order = [
+        "19v1",
+        "19v2",
         "20v1",
         "20v2",
         "20v3",
@@ -87,6 +105,7 @@ def pluto():
     v1 = st.sidebar.selectbox(
         "Pick a version of PLUTO:", versions, index=len(versions) - 1
     )
+    
     v2 = versions_order[versions_order.index(v1) - 1]
     v3 = versions_order[versions_order.index(v1) - 2]
 
@@ -560,7 +579,7 @@ def pluto():
             if len(in2not1) != 0:
                 st.markdown(f"* in {v2} but not in {v1}:")
                 st.write(in2not1)
-    
+
     seelog = st.sidebar.checkbox("see build log?")
     if seelog:
         st.sidebar.markdown(log)
