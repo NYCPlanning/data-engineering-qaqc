@@ -42,7 +42,7 @@ def pluto():
         version_text = f"""
             Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***  
             Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
-            Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcas_facilities_colp'])}***  
+            Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcp_colp'])}***  
             Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***  
             Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries'])}***  
             Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries'])}***  
