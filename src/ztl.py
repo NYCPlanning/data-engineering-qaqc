@@ -15,45 +15,16 @@ def ztl():
         source_data_versions = pd.read_csv(
             f"{url}source_data_versions.csv", index_col=False
         )
-
-        qaqc_frequency = pd.read_csv(f"{url}qaqc_frequency.csv", index_col=False)
         qaqc_bbl = pd.read_csv(f"{url}qaqc_bbl.csv", index_col=False)
         qaqc_mismatch = pd.read_csv(f"{url}qaqc_mismatch.csv", index_col=False)
-
         bbldiff = pd.read_csv(f"{url}qc_bbldiffs.csv", dtype=str, index_col=False)
         bbldiff = bbldiff.fillna("NULL")
-
         last_build = requests.get(f"{url}version.txt").text
-
-        qc_frequencychanges = pd.read_csv(
-            f"{url}qc_frequencychanges.csv", index_col=False
-        )
-        qc_frequencychanges["percent"] = (
-            qc_frequencychanges["countnew"] / qc_frequencychanges["countold"] - 1
-        ) * 100
-        qc_frequencychanges["percent"] = qc_frequencychanges["percent"].round(4)
-
-        qc_versioncomparison = pd.read_csv(
-            f"{url}qc_versioncomparison.csv", index_col=False
-        )
-        qc_versioncomparisonnownullcount = pd.read_csv(
-            f"{url}qc_versioncomparisonnownullcount.csv", index_col=False
-        )
-        qc_versioncomparisonnownullcount["percent"] = (
-            qc_versioncomparisonnownullcount["newnullcount"]
-            / qc_versioncomparisonnownullcount["oldnullcount"]
-            - 1
-        ) * 100
-
         return (
             source_data_versions,
             bbldiff,
             last_build,
-            qc_frequencychanges,
-            qc_versioncomparison,
-            qc_versioncomparisonnownullcount,
             qaqc_mismatch,
-            qaqc_frequency,
             qaqc_bbl,
         )
 
@@ -61,17 +32,13 @@ def ztl():
         source_data_versions,
         bbldiff,
         last_build,
-        qc_frequencychanges,
-        qc_versioncomparison,
-        qc_versioncomparisonnownullcount,
         qaqc_mismatch,
-        qaqc_frequency,
-        qaqc_bbl,
+        qaqc_bbl
     ) = get_data()
 
     st.title("Zoning Tax Lots QAQC")
     st.markdown(
-        f"![CI](https://github.com/NYCPlanning/db-zoningtaxlots/workflows/CI/badge.svg) last build: {last_build}"
+        f"[![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml) last build: {last_build}"
     )
 
     meta = {
@@ -103,126 +70,61 @@ def ztl():
             "limitedheightdistrict",
         ],
     }
-    lookup = {
-        "commercialoverlay1": "co1",
-        "commercialoverlay2": "co2",
-        "zoningdistrict1": "zd1",
-        "zoningdistrict2": "zd2",
-        "zoningdistrict3": "zd3",
-        "zoningdistrict4": "zd4",
-        "specialdistrict1": "sd1",
-        "specialdistrict2": "sd2",
-        "specialdistrict3": "sd3",
-        "zoningmapcode": "zmc",
-        "zoningmapnumber": "zmn",
-        "limitedheightdistrict": "lhd",
-    }
+    
+    # TOTAL QAQC DIFF BY BOROUGH =============================
+    total_diff_by_borough = bbldiff.groupby(['boroughcode']).size().to_dict()
+    st.header('Total BBL Counts with Value Changes by Borough')
+    st.markdown(f'''
+    Manhattan: **{total_diff_by_borough.get('1', '0')}**, Bronx: **{total_diff_by_borough.get('2', '0')}**, 
+    Brooklyn: **{total_diff_by_borough.get('3', '0')}**, Queens: **{total_diff_by_borough.get('4', '0')}**,
+    Staten Island: **{total_diff_by_borough.get('5', '0')}**
+    ''')
+    # TOTAL QAQC DIFF BY BOROUGH =============================
 
-    group = st.selectbox(
-        "select column group:", list(meta.keys()), index=len(meta.keys()) - 1
-    )
-    if group != "All":
-        column = st.selectbox("select column:", meta[group])
+    # Aggregated QAQC MISMATCH ===============================
+    total_mismatch = qaqc_mismatch[['version', 'version_prev']]
+    total_mismatch['total difference'] = qaqc_mismatch[[
+        "zoningdistrict1","zoningdistrict2","zoningdistrict3",
+        "zoningdistrict4", "commercialoverlay1", "commercialoverlay2",
+        "specialdistrict1", "specialdistrict2", "specialdistrict3",
+        "limitedheightdistrict", "zoningmapnumber", "zoningmapcode"
+    ]].sum(axis=1)
 
-    st.header("qc_bbldiffs")
-    if group == "All":
-        df = bbldiff
-    else:
-        col = lookup[column]
-        df = bbldiff.loc[
-            bbldiff[f"{col}new"] != bbldiff[f"{col}prev"],
-            ["bblnew", f"{col}new", f"{col}prev"],
-        ]
-        df = df.dropna(subset=[f"{col}new", f"{col}prev"])
-        df.columns = ["bbl", f"{col}new", f"{col}prev"]
+    st.header("Total BBL Pairwise Value Mismatch by Version")
+    st.write(total_mismatch)
+    # Aggregated QAQC MISMATCH ===============================
 
-    st.dataframe(df)
-    st.markdown(
-        """
-    Contains the old and new values for BBLs with changes from the last version.
-    + Layer qc_bbldiffs, the new zoning shapefiles, and the current Digital tax map onto a map.
-    + Sort qc_bbldiffs by BBL
-    + Verify that the zoning changes for each BBL meet one of the following criteria:
-        + Recent zoning change
-        + Adjustment to boundary
-        + Change in tax lot
-    + Verify all lots in newly rezoned areas have new values
-    """
-    )
-
+    # PLOTTING FUNCTION ======================================
     def create_plot(df, group):
         fig = go.Figure()
         for i in group:
-            average = df[i].mean().round().astype(int)
             fig.add_trace(
                 go.Scatter(
                     x=df["version"],
-                    y=df[i] - average,
+                    y=df[i],
                     mode="lines",
                     name=i,
-                    text=[f"count:{j} average:{average}" for j in df[i]],
+                    text=[f"count:{j}" for j in df[i]],
                 )
             )
-        fig.add_shape(
-            type="line",
-            x0=0,
-            x1=df.shape[0],
-            y1=0,
-            y0=0,
-            line=dict(color="MediumPurple", width=1, dash="dot"),
-        )
         fig.update_layout(
             template="plotly_white",
             xaxis=dict(title="Version"),
-            yaxis=dict(title="Difference from Average"),
+            yaxis=dict(title="Difference"),
         )
         st.plotly_chart(fig)
+    # PLOTTING FUNCTION ======================================  
 
-    st.header("Frequency Changes")
-    st.dataframe(
-        qc_frequencychanges.loc[
-            qc_frequencychanges.field.isin(meta[group])
-        ].style.format({"percent": "{:,.2f}%".format})
-    )
+    # LINEGRAPH BY EACH BOUNDARY TYPE ========================
+    st.header("BBL Pairwise Value Mismatch by Field Category")
+    change_by_category = qaqc_mismatch[['version', 'version_prev']]
+    category = ['Commercial Overlay', 'Zoning Districts', 'Special Districts', 'Other']
+    for cat in category:
+        change_by_category[cat] = qaqc_mismatch[meta[cat]].sum(axis=1)
+    create_plot(change_by_category, category)
+    # LINEGRAPH BY EACH BOUNDARY TYPE ========================
 
-    st.header(group)
-    create_plot(qaqc_frequency, meta[group])
-    # st.header('Zoning Districts')
-    # create_plot(qaqc_frequency, zd)
-    # st.header('Special Districts')
-    # create_plot(qaqc_frequency, sp)
-    # st.header('Other')
-    # create_plot(qaqc_frequency, other)
-
-    st.dataframe(qaqc_mismatch.loc[:, ["version", "version_prev"] + meta[group]])
-
-    st.header("Version Comparison")
-    st.dataframe(
-        qc_versioncomparison.loc[
-            qc_versioncomparison.field.isin(meta[group])
-        ].style.format({"percent": "{:,.2f}%".format})
-    )
-    st.markdown(
-        """
-    Compares the value differences between this version and
-    the previous version, showing the number of records with a
-    change in value and the percentage of these fields that changed.
-    """
-    )
-
-    st.header("Version Comparison -- Null Count")
-    st.dataframe(
-        qc_versioncomparisonnownullcount.loc[
-            qc_versioncomparisonnownullcount.field.isin(meta[group])
-        ].style.format({"percent": "{:,.2f}%".format})
-    )
-    st.markdown(
-        """
-    reports the number of records that changed
-    from null to a value or vice versa.
-    """
-    )
-
+    # BBL ADDED / REMOVED ====================================
     st.header("BBLs added/removed")
     create_plot(qaqc_bbl, ["added", "removed"])
 
@@ -234,6 +136,9 @@ def ztl():
     values or from BBL changes.
     """
     )
+    # BBL ADDED / REMOVED ====================================
 
+    # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
     st.table(source_data_versions.sort_values(by=["schema_name"], ascending=True))
+    # SOURCE DATA REPORT  ====================================
