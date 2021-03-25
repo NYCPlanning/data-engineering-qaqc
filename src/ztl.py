@@ -19,13 +19,18 @@ def ztl():
         qaqc_mismatch = pd.read_csv(f"{url}qaqc_mismatch.csv", index_col=False)
         bbldiff = pd.read_csv(f"{url}qc_bbldiffs.csv", dtype=str, index_col=False)
         bbldiff = bbldiff.fillna("NULL")
+        qaqc_null = pd.read_csv(
+            f"{url}qaqc_null.csv", index_col=False
+        )
         last_build = requests.get(f"{url}version.txt").text
+
         return (
             source_data_versions,
             bbldiff,
             last_build,
             qaqc_mismatch,
             qaqc_bbl,
+            qaqc_null
         )
 
     (
@@ -33,7 +38,8 @@ def ztl():
         bbldiff,
         last_build,
         qaqc_mismatch,
-        qaqc_bbl
+        qaqc_bbl,
+        qaqc_null
     ) = get_data()
 
     st.title("Zoning Tax Lots QAQC")
@@ -92,6 +98,7 @@ def ztl():
 
     st.header("Total BBL Pairwise Value Mismatch by Version")
     st.write(total_mismatch)
+    st.write('Total number of BBLs that have differing values between versions')
     # Aggregated QAQC MISMATCH ===============================
 
     # PLOTTING FUNCTION ======================================
@@ -127,16 +134,18 @@ def ztl():
     # BBL ADDED / REMOVED ====================================
     st.header("BBLs added/removed")
     create_plot(qaqc_bbl, ["added", "removed"])
+    # BBL ADDED / REMOVED ====================================
 
+    # Value to NULL Comparison ===============================
+    st.header("BBL Pairwise NULL to Value and Value to NULL Counts")
+    st.write(qaqc_null[['field', 'value_to_null', 'null_to_value']])
     st.markdown(
-        """
-    Shows how many records have non-null values for each field
-    in the old and new version. Note that changes to the number
-    of records with a value may result from changes to null
-    values or from BBL changes.
+    """
+    - `value_to_null`: for given field, count of records with values in previous version and NULL in current version
+    - `null_to_value`: for given field, count of records with NULL in previous version and values in current version
     """
     )
-    # BBL ADDED / REMOVED ====================================
+    # Value to NULL Comparison ===============================
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
