@@ -331,127 +331,112 @@ def pluto():
         df = df_null.loc[
             (df_null.condo == condo)
             & (df_null.mapped == mapped)
-            & (df_null.v.isin([v1, v2, v3])),
+            & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
             :,
         ]
-        v1 = df.loc[df.v == v1, :].to_dict("records")[0]
-        v2 = df.loc[df.v == v2, :].to_dict("records")[0]
-        v3 = df.loc[df.v == v3, :].to_dict("records")[0]
+        v1v2 = df.loc[df_mismatch.pair == f"{v1} - {v2}", :].to_dict("records")[0]
+        v2v3 = df.loc[df_mismatch.pair == f"{v2} - {v3}", :].to_dict("records")[0]
+        v1v2_total = v1v2.pop("total")
+        v2v3_total = v2v3.pop("total")
 
-        def generate_graph(v1, v2):
-            _v1 = v1["v"]
-            _v2 = v2["v"]
-            total1 = v1["total"]
-            total2 = v2["total"]
+        y = [
+            "borough",
+            "block",
+            "lot",
+            "cd",
+            "ct2010",
+            "cb2010",
+            "schooldist",
+            "council",
+            "zipcode",
+            "firecomp",
+            "policeprct",
+            "healtharea",
+            "sanitboro",
+            "sanitsub",
+            "address",
+            "zonedist1",
+            "zonedist2",
+            "zonedist3",
+            "zonedist4",
+            "overlay1",
+            "overlay2",
+            "spdist1",
+            "spdist2",
+            "spdist3",
+            "ltdheight",
+            "splitzone",
+            "bldgclass",
+            "landuse",
+            "easements",
+            "ownertype",
+            "ownername",
+            "lotarea",
+            "bldgarea",
+            "comarea",
+            "resarea",
+            "officearea",
+            "retailarea",
+            "garagearea",
+            "strgearea",
+            "factryarea",
+            "otherarea",
+            "areasource",
+            "numbldgs",
+            "numfloors",
+            "unitsres",
+            "unitstotal",
+            "lotfront",
+            "lotdepth",
+            "bldgfront",
+            "bldgdepth",
+            "ext",
+            "proxcode",
+            "irrlotcode",
+            "lottype",
+            "bsmtcode",
+            "assessland",
+            "assesstot",
+            "exempttot",
+            "yearbuilt",
+            "yearalter1",
+            "yearalter2",
+            "histdist",
+            "landmark",
+            "builtfar",
+            "residfar",
+            "commfar",
+            "facilfar",
+            "borocode",
+            "bbl",
+            "condono",
+            "tract2010",
+            "xcoord",
+            "ycoord",
+            "longitude",
+            "latitude",
+            "zonemap",
+            "zmcode",
+            "sanborn",
+            "taxmap",
+            "edesignum",
+            "appbbl",
+            "appdate",
+            "plutomapid",
+            "version",
+            "sanitdistrict",
+            "healthcenterdistrict",
+            "firm07_flag",
+            "pfirm15_flag",
+        ]
 
-            y = [
-                "borough",
-                "block",
-                "lot",
-                "cd",
-                "ct2010",
-                "cb2010",
-                "schooldist",
-                "council",
-                "zipcode",
-                "firecomp",
-                "policeprct",
-                "healtharea",
-                "sanitboro",
-                "sanitsub",
-                "address",
-                "zonedist1",
-                "zonedist2",
-                "zonedist3",
-                "zonedist4",
-                "overlay1",
-                "overlay2",
-                "spdist1",
-                "spdist2",
-                "spdist3",
-                "ltdheight",
-                "splitzone",
-                "bldgclass",
-                "landuse",
-                "easements",
-                "ownertype",
-                "ownername",
-                "lotarea",
-                "bldgarea",
-                "comarea",
-                "resarea",
-                "officearea",
-                "retailarea",
-                "garagearea",
-                "strgearea",
-                "factryarea",
-                "otherarea",
-                "areasource",
-                "numbldgs",
-                "numfloors",
-                "unitsres",
-                "unitstotal",
-                "lotfront",
-                "lotdepth",
-                "bldgfront",
-                "bldgdepth",
-                "ext",
-                "proxcode",
-                "irrlotcode",
-                "lottype",
-                "bsmtcode",
-                "assessland",
-                "assesstot",
-                "exempttot",
-                "yearbuilt",
-                "yearalter1",
-                "yearalter2",
-                "histdist",
-                "landmark",
-                "builtfar",
-                "residfar",
-                "commfar",
-                "facilfar",
-                "borocode",
-                "bbl",
-                "condono",
-                "tract2010",
-                "xcoord",
-                "ycoord",
-                "longitude",
-                "latitude",
-                "zonemap",
-                "zmcode",
-                "sanborn",
-                "taxmap",
-                "edesignum",
-                "appbbl",
-                "appdate",
-                "plutomapid",
-                "version",
-                "sanitdistrict",
-                "healthcenterdistrict",
-                "firm07_flag",
-                "pfirm15_flag",
-            ]
-
-            x = []
-            for i in y:
-                pct1 = v1[i] / total1
-                pct2 = v2[i] / total2
-                if pct2 != 0:
-                    x.append(round(100 * (pct1 - pct2) / pct2, 4))
-                else:
-                    x.append(None)
-
-            return go.Scatter(
-                x=y,
-                y=x,
-                mode="lines",
-                name=f"{_v1} - {_v2}",
-                text=[f"count_in_{_v1} : {v1[i]}" for i in y],
-            )
-
+        x12 = []
+        x23 = []
+        for i in y:
+            pct12 = v1v2[i] / v1v2_total
+            pct23 = v2v3[i] / v2v3_total
+           
+       
         fig = go.Figure()
         fig.add_trace(generate_graph(v1, v2))
         fig.add_trace(generate_graph(v2, v3))
@@ -527,7 +512,7 @@ def pluto():
 
     create_mismatch(df_mismatch, v1, v2, v3, condo, mapped)
 
-    create_null(df_null, v1, v2, v3, condo, mapped)
+    # create_null(df_null, v1, v2, v3, condo, mapped)
 
     create_aggregate(df_aggregate, v1, v2, v3, condo, mapped)
 
