@@ -334,12 +334,12 @@ def pluto():
             & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
             :,
         ]
-        v1v2 = df.loc[df_mismatch.pair == f"{v1} - {v2}", :].to_dict("records")[0]
-        v2v3 = df.loc[df_mismatch.pair == f"{v2} - {v3}", :].to_dict("records")[0]
+        v1v2 = df.loc[df_null.pair == f"{v1} - {v2}", :].to_dict("records")[0]
+        v2v3 = df.loc[df_null.pair == f"{v2} - {v3}", :].to_dict("records")[0]
         v1v2_total = v1v2.pop("total")
         v2v3_total = v2v3.pop("total")
 
-        y = [
+        x = [
             "borough",
             "block",
             "lot",
@@ -430,16 +430,21 @@ def pluto():
             "pfirm15_flag",
         ]
 
-        x12 = []
-        x23 = []
-        for i in y:
-            pct12 = v1v2[i] / v1v2_total
-            pct23 = v2v3[i] / v2v3_total
-           
+        def generate_graph(r, total, title):
+            y = [r[i] for i in x]
+            text = [f"{round(r[i]/total*100, 2)}%" for i in x]
+            return go.Scatter(
+                x=x,
+                y=y,
+                mode="lines",
+                name=title,
+                hovertemplate="<b>%{x} %{text}</b>",
+                text=text
+            ) 
        
         fig = go.Figure()
-        fig.add_trace(generate_graph(v1, v2))
-        fig.add_trace(generate_graph(v2, v3))
+        fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
+        fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
         fig.update_layout(title="Null graph", template="plotly_white")
         st.plotly_chart(fig)
         st.write(df)
@@ -512,7 +517,7 @@ def pluto():
 
     create_mismatch(df_mismatch, v1, v2, v3, condo, mapped)
 
-    # create_null(df_null, v1, v2, v3, condo, mapped)
+    create_null(df_null, v1, v2, v3, condo, mapped)
 
     create_aggregate(df_aggregate, v1, v2, v3, condo, mapped)
 
