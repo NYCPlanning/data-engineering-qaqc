@@ -5,6 +5,7 @@ def facdb():
     import os
     import pydeck as pdk
     import plotly.graph_objects as go
+    import requests
 
     st.title("Facilities DB QAQC")
 
@@ -33,9 +34,19 @@ def facdb():
         )
         st.plotly_chart(fig)
 
+    def get_branches():
+        url = "https://api.github.com/repos/nycplanning/db-facilities/branches"
+        response = requests.get(url).json()
+        return [r['name'] for r in response]
+    
+    branches = get_branches()
+    branch=st.sidebar.selectbox(
+        "select a branch", branches, index=branches.index('develop'),
+    )
+
     @st.cache(suppress_st_warning=True, allow_output_mutation=True)
-    def get_data():
-        url = "https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/latest/output"
+    def get_data(branch=branch):
+        url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/{branch}/latest/output"
         qc_diff = pd.read_csv(f"{url}/qc_diff.csv")
         qc_captype = pd.read_csv(f"{url}/qc_captype.csv")
         qc_classification = pd.read_csv(f"{url}/qc_classification.csv")
@@ -56,7 +67,7 @@ def facdb():
         }
         return qc_tables, qc_diff, qc_mapped
 
-    qc_tables, qc_diff, qc_mapped = get_data()
+    qc_tables, qc_diff, qc_mapped = get_data(branch)
 
     def count_comparison(df, width=1000, height=1000):
         fig = go.Figure()
