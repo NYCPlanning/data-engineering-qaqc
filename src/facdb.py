@@ -53,7 +53,6 @@ def facdb():
         qc_mapped = pd.read_csv(f"{url}/qc_mapped.csv")
         qc_operator = pd.read_csv(f"{url}/qc_operator.csv")
         qc_oversight = pd.read_csv(f"{url}/qc_oversight.csv")
-        qc_proptype = pd.read_csv(f"{url}/qc_proptype.csv")
 
         qc_tables = {
             "Facility subgroup classification": {
@@ -62,7 +61,6 @@ def facdb():
             },
             "Operator": {"dataframe": qc_operator, "type": "dataframe"},
             "Oversight": {"dataframe": qc_oversight, "type": "dataframe"},
-            "Property Types": {"dataframe": qc_proptype, "type": "table"},
             "Capacity Types": {"dataframe": qc_captype, "type": "table"},
         }
         return qc_tables, qc_diff, qc_mapped
