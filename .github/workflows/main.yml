@@ -20,3 +20,5 @@ jobs:
           dokku-host: ${{ secrets.DOKKU_HOST }}
           app-name: ${{ env.DOKKU_APP_NAME }}
           app-remote-branch: ${{ env.DOKKU_REMOTE_BRANCH }}
+          git-push-flags: --force
+
