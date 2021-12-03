@@ -44,8 +44,8 @@ def pluto():
             Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
             Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcp_colp'])}***  
             Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***  
-            Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries'])}***  
-            Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries'])}***  
+            Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries_wi'])}***  
+            Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries_wi'])}***  
             Department of Finance – Digital Tax Map (DTM): ***{convert(version['dof_dtm'])}***  
             Department of Finance – Mass Appraisal System (CAMA): ***{convert(version['pluto_input_cama_dof'])}***  
             Department of Finance – Property Tax System (PTS): ***{convert(version['pluto_pts'])}***  
@@ -135,7 +135,7 @@ def pluto():
     st.text(
         f"Current version: {v1}, Previous version: {v2}, Previous Previous version: {v3}"
     )
-
+# test
     def create_mismatch(df_mismatch, v1, v2, v3, condo, mapped):
         finance_columns = [
             "assessland",
@@ -184,6 +184,8 @@ def pluto():
 
         geo_columns = [
             "cd",
+            # "bct2020",
+            # "bctcb2020",
             "ct2010",
             "cb2010",
             "schooldist",
@@ -344,6 +346,8 @@ def pluto():
             "block",
             "lot",
             "cd",
+            # "bct2020",
+            # "bctcb2020",
             "ct2010",
             "cb2010",
             "schooldist",
