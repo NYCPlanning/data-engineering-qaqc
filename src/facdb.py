@@ -123,25 +123,34 @@ def facdb():
         """
         qc_diff visualization
         """
-        thresh = st.sidebar.slider(
-            "difference threshold", min_value=0, max_value=300, value=5, step=1
-        )
         level = st.sidebar.selectbox(
             "select a classification level",
             ["datasource", "factype", "facsubgrp", "facgroup", "facdomain"],
             index=0,
         )
+        st.sidebar.success(
+            """
+            Use the dropdown input bar to select an attribute to review
+            """
+        )
+        dff = qc_diff.groupby(level).sum()
+        thresh = st.sidebar.number_input(
+            "difference threshold",
+            min_value=0,
+            max_value=dff["diff"].max() - 1,
+            value=5,
+            step=1,
+        )
 
         st.sidebar.success(
             """
-            Use the slide bar and drop down to change the difference
-            threshold and select the attribute to review
+            Use the number input bar to change the difference
+            threshold
             """
         )
         st.header(f"Change in number of records by {level}")
         st.write(f"diff > {thresh}")
 
-        dff = qc_diff.groupby(level).sum()
         dff = dff.loc[(dff["diff"] != 0) & (~dff["diff"].isna()), :]
         if level == "factype":
             st.warning(
@@ -233,12 +242,12 @@ def facdb():
                 st.table(value["dataframe"])
 
     if general_or_classification == "General review":
-        st.sidebar.write(
+        st.sidebar.success(
             "This option displays tables not specific to any classification level."
         )
         general_review()
     elif general_or_classification == "Review by classification level":
-        st.sidebar.write(
+        st.sidebar.success(
             "This option displays info on change in total number of records and \
             change in number of records mapped"
         )
