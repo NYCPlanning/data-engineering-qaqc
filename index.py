@@ -19,7 +19,7 @@ datasets = {
 
 
 def run():
-    st.beta_set_page_config(page_title="Data Engineering QAQC", page_icon="📊")
+    st.set_page_config(page_title="Data Engineering QAQC", page_icon="📊")
     st.sidebar.markdown(
         """
         <div stule="margin-left: auto; margin-right: auto;">

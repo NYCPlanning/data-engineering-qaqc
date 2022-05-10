@@ -37,12 +37,20 @@ def facdb():
     def get_branches():
         url = "https://api.github.com/repos/nycplanning/db-facilities/branches"
         response = requests.get(url).json()
-        return [r['name'] for r in response]
-    
+        return [r["name"] for r in response]
+
     branches = get_branches()
-    branch=st.sidebar.selectbox(
-        "select a branch", branches, index=branches.index('develop'),
+    branch = st.sidebar.selectbox(
+        "select a branch",
+        branches,
+        index=branches.index("develop"),
     )
+
+    general_or_classification = st.sidebar.selectbox(
+        "Would you like to review general QAQC or changes by classification?",
+        ("General review", "Review by classification level"),
+    )
+    st.subheader(general_or_classification)
 
     @st.cache(suppress_st_warning=True, allow_output_mutation=True)
     def get_data(branch=branch):
@@ -111,112 +119,127 @@ def facdb():
         )
         st.plotly_chart(fig, config=dict({"scrollZoom": True}))
 
-    """
-    qc_diff visualization
-    """
-    thresh = st.sidebar.slider(
-        "difference threshold", min_value=0, max_value=300, value=5, step=1
-    )
-    level = st.sidebar.selectbox(
-        "select a classification level",
-        ["datasource", "factype", "facsubgrp", "facgroup", "facdomain"],
-        index=0,
-    )
-
-    st.sidebar.success(
+    def by_classification():
         """
-        Use the slide bar and drop down to change the difference
-        threshold and select the attribute to review
+        qc_diff visualization
         """
-    )
-
-    st.header(f"Change in number of records by {level}")
-    st.write(f"diff > {thresh}")
-
-    dff = qc_diff.groupby(level).sum()
-    dff = dff.loc[(dff["diff"] != 0) & (~dff["diff"].isna()), :]
-    if level == "factype":
-        st.warning(
-            "plot not available for this level,\
-             refer to the table below for more information"
+        thresh = st.sidebar.slider(
+            "difference threshold", min_value=0, max_value=300, value=5, step=1
         )
-    else:
-        count_comparison(dff.loc[dff["diff"].abs() > thresh, :].sort_values("diff"))
+        level = st.sidebar.selectbox(
+            "select a classification level",
+            ["datasource", "factype", "facsubgrp", "facgroup", "facdomain"],
+            index=0,
+        )
 
-    st.header(f"Change in counts by {level}")
-    dff.insert(0, level, dff.index)
-    dff = dff.sort_values("diff")
-    plotly_table(dff)
+        st.sidebar.success(
+            """
+            Use the slide bar and drop down to change the difference
+            threshold and select the attribute to review
+            """
+        )
+        st.header(f"Change in number of records by {level}")
+        st.write(f"diff > {thresh}")
 
-    st.header("New factypes")
-    st.write("Facility types that do not appear in the previous FacDB")
-    plotly_table(qc_diff.loc[qc_diff["count_old"] == 0, :])
-
-    st.header("Old factypes (retired)")
-    st.write(
-        "Facility types that do appear in the previous FacDB, \
-        but not in the latest version"
-    )
-    plotly_table(qc_diff.loc[qc_diff["count_new"] == 0, :])
-
-    st.header("Full Panel Cross Version Comparison")
-    st.write(
-        "Reports the difference in the number of records at \
-        the most micro level, which is the facility type and data source"
-    )
-    plotly_table(qc_diff)
-
-    """
-    qc_mapped visualization
-    """
-    st.header(f"Change in percentage mapped records by {level}")
-    st.write(
-        """
-        Only instances where there is change in the percent
-        of mapped records and 100% of records are not mapped are reported
-    """
-    )
-    dfff = qc_mapped.groupby(level).sum()
-    dfff.insert(0, level, dfff.index)
-    dfff["pctwogeom_old"] = dfff["wogeom_old"] / dfff["count_old"]
-    dfff["pctwogeom_new"] = dfff["wogeom_new"] / dfff["count_new"]
-    dfff["pctwogeom_old"] = dfff["pctwogeom_old"].round(2)
-    dfff["pctwogeom_new"] = dfff["pctwogeom_new"].round(2)
-    dfff["diff"] = dfff["pctwogeom_new"] - dfff["pctwogeom_old"]
-    dfff["diff"] = dfff["diff"].round(2)
-    dfff = dfff.loc[(dfff["diff"] != 0) & (~dfff["diff"].isna()), :]
-    dfff = dfff.sort_values("diff")
-    geom_comparison(dfff)
-    st.header(f"Percentage mapped records by {level}")
-    plotly_table(dfff)
-
-    """
-    important factypes
-    """
-    st.header("Changes in important factypes")
-    st.write(
-        "There should be little to no change in the \
-        number of records with these facility types"
-    )
-    important_factype = [
-        "FIREHOUSE",
-        "POLICE STATION",
-        "ACADEMIC LIBRARIES",
-        "SPECIAL LIBRARIES",
-        "EMERGENCY MEDICAL STATION",
-        "HOSPITAL",
-        "NURSING HOME",
-        "ADULT DAY CARE",
-        "SENIOR CENTER",
-    ]
-    important = (
-        qc_diff.loc[qc_diff.factype.isin(important_factype), :].groupby("factype").sum()
-    )
-    count_comparison(important.sort_values("diff"), width=500, height=500)
-
-    for key, value in qc_tables.items():
-        st.header(key)
-        if value["type"] == "dataframe":
-            plotly_table(value["dataframe"])
+        dff = qc_diff.groupby(level).sum()
+        dff = dff.loc[(dff["diff"] != 0) & (~dff["diff"].isna()), :]
+        if level == "factype":
+            st.warning(
+                "plot not available for this level,\
+                refer to the table below for more information"
+            )
         else:
-            st.table(value["dataframe"])
+            count_comparison(dff.loc[dff["diff"].abs() > thresh, :].sort_values("diff"))
+
+        st.header(f"Change in counts by {level}")
+        dff.insert(0, level, dff.index)
+        dff = dff.sort_values("diff")
+        plotly_table(dff)
+
+        """
+        qc_mapped visualization
+        """
+        st.header(f"Change in percentage mapped records by {level}")
+        st.write(
+            """
+            Only instances where there is change in the percent
+            of mapped records and 100% of records are not mapped are reported
+        """
+        )
+        dfff = qc_mapped.groupby(level).sum()
+        dfff.insert(0, level, dfff.index)
+        dfff["pctwogeom_old"] = dfff["wogeom_old"] / dfff["count_old"]
+        dfff["pctwogeom_new"] = dfff["wogeom_new"] / dfff["count_new"]
+        dfff["pctwogeom_old"] = dfff["pctwogeom_old"].round(2)
+        dfff["pctwogeom_new"] = dfff["pctwogeom_new"].round(2)
+        dfff["diff"] = dfff["pctwogeom_new"] - dfff["pctwogeom_old"]
+        dfff["diff"] = dfff["diff"].round(2)
+        dfff = dfff.loc[(dfff["diff"] != 0) & (~dfff["diff"].isna()), :]
+        dfff = dfff.sort_values("diff")
+        geom_comparison(dfff)
+        st.header(f"Percentage mapped records by {level}")
+        plotly_table(dfff)
+
+    def general_review():
+        st.header("New factypes")
+        st.write("Facility types that do not appear in the previous FacDB")
+        plotly_table(qc_diff.loc[qc_diff["count_old"] == 0, :])
+
+        st.header("Old factypes (retired)")
+        st.write(
+            "Facility types that do appear in the previous FacDB, \
+            but not in the latest version"
+        )
+        plotly_table(qc_diff.loc[qc_diff["count_new"] == 0, :])
+
+        st.header("Full Panel Cross Version Comparison")
+        st.write(
+            "Reports the difference in the number of records at \
+            the most micro level, which is the facility type and data source"
+        )
+        plotly_table(qc_diff)
+
+        """
+        important factypes
+        """
+        st.header("Changes in important factypes")
+        st.write(
+            "There should be little to no change in the \
+            number of records with these facility types"
+        )
+        important_factype = [
+            "FIREHOUSE",
+            "POLICE STATION",
+            "ACADEMIC LIBRARIES",
+            "SPECIAL LIBRARIES",
+            "EMERGENCY MEDICAL STATION",
+            "HOSPITAL",
+            "NURSING HOME",
+            "ADULT DAY CARE",
+            "SENIOR CENTER",
+        ]
+        important = (
+            qc_diff.loc[qc_diff.factype.isin(important_factype), :]
+            .groupby("factype")
+            .sum()
+        )
+        count_comparison(important.sort_values("diff"), width=500, height=500)
+
+        for key, value in qc_tables.items():
+            st.header(key)
+            if value["type"] == "dataframe":
+                plotly_table(value["dataframe"])
+            else:
+                st.table(value["dataframe"])
+
+    if general_or_classification == "General review":
+        st.sidebar.write(
+            "This option displays tables not specific to any classification level."
+        )
+        general_review()
+    elif general_or_classification == "Review by classification level":
+        st.sidebar.write(
+            "This option displays info on change in total number of records and \
+            change in number of records mapped"
+        )
+        by_classification()
