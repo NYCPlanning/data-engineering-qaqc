@@ -5,6 +5,7 @@ def facdb():
     import os
     import pydeck as pdk
     import plotly.graph_objects as go
+    import plotly.express as px
     import requests
 
     st.title("Facilities DB QAQC")
@@ -48,7 +49,7 @@ def facdb():
 
     general_or_classification = st.sidebar.selectbox(
         "Would you like to review general QAQC or changes by classification?",
-        ("General review", "Review by classification level"),
+        ("Review by classification level", "General review"),
     )
     st.subheader(general_or_classification)
 
@@ -119,29 +120,48 @@ def facdb():
         )
         st.plotly_chart(fig, config=dict({"scrollZoom": True}))
 
+    def plot_diff_table(df, rows_to_style):
+        colors = px.colors.qualitative.Plotly
+        st.dataframe(df.style.applymap(
+            lambda x: f'background-color: {colors[0]}' if x else 'background-color: white', 
+            subset=rows_to_style[0:1])
+            .applymap(lambda x: f'background-color: {colors[1]}' if x else 'background-color: white',
+            subset=rows_to_style[1:2])
+            .applymap(lambda x: f'background-color: {colors[2]}' if x else 'background-color: white',
+            subset=rows_to_style[2:3]))
+
     def by_classification():
         """
         qc_diff visualization
         """
-        thresh = st.sidebar.slider(
-            "difference threshold", min_value=0, max_value=300, value=5, step=1
-        )
         level = st.sidebar.selectbox(
             "select a classification level",
             ["datasource", "factype", "facsubgrp", "facgroup", "facdomain"],
             index=0,
         )
+        st.sidebar.success(
+            """
+            Use the dropdown input bar to select an attribute to review
+            """
+        )
+        dff = qc_diff.groupby(level).sum()
+        thresh = st.sidebar.number_input(
+            "difference threshold",
+            min_value=0,
+            max_value=dff["diff"].max() - 1,
+            value=5,
+            step=1,
+        )
 
         st.sidebar.success(
             """
-            Use the slide bar and drop down to change the difference
-            threshold and select the attribute to review
+            Use the number input bar to change the difference
+            threshold
             """
         )
         st.header(f"Change in number of records by {level}")
         st.write(f"diff > {thresh}")
 
-        dff = qc_diff.groupby(level).sum()
         dff = dff.loc[(dff["diff"] != 0) & (~dff["diff"].isna()), :]
         if level == "factype":
             st.warning(
@@ -153,8 +173,10 @@ def facdb():
 
         st.header(f"Change in counts by {level}")
         dff.insert(0, level, dff.index)
-        dff = dff.sort_values("diff")
-        plotly_table(dff)
+        dff = dff.sort_values("diff", key=abs, ascending=False)
+
+        plot_diff_table(dff, ['count_old', 'count_new', 'diff'])
+
 
         """
         qc_mapped visualization
@@ -167,7 +189,7 @@ def facdb():
         """
         )
         dfff = qc_mapped.groupby(level).sum()
-        dfff.insert(0, level, dfff.index)
+        # dfff.insert(0, level, dfff.index)
         dfff["pctwogeom_old"] = dfff["wogeom_old"] / dfff["count_old"]
         dfff["pctwogeom_new"] = dfff["wogeom_new"] / dfff["count_new"]
         dfff["pctwogeom_old"] = dfff["pctwogeom_old"].round(2)
@@ -175,10 +197,14 @@ def facdb():
         dfff["diff"] = dfff["pctwogeom_new"] - dfff["pctwogeom_old"]
         dfff["diff"] = dfff["diff"].round(2)
         dfff = dfff.loc[(dfff["diff"] != 0) & (~dfff["diff"].isna()), :]
-        dfff = dfff.sort_values("diff")
+        dfff.sort_values("diff", key=abs, ascending=False, inplace=True)
+        st.dataframe(dfff)
         geom_comparison(dfff)
+        dfff =  dfff[['pctwogeom_old','pctwogeom_new', 'diff'] + list(dfff.columns[:-3])]
         st.header(f"Percentage mapped records by {level}")
-        plotly_table(dfff)
+        plot_diff_table(dfff, ['pctwogeom_old','pctwogeom_new', 'diff'])
+
+
 
     def general_review():
         st.header("New factypes")
@@ -233,12 +259,12 @@ def facdb():
                 st.table(value["dataframe"])
 
     if general_or_classification == "General review":
-        st.sidebar.write(
+        st.sidebar.success(
             "This option displays tables not specific to any classification level."
         )
         general_review()
     elif general_or_classification == "Review by classification level":
-        st.sidebar.write(
+        st.sidebar.success(
             "This option displays info on change in total number of records and \
             change in number of records mapped"
         )
