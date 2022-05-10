@@ -91,15 +91,15 @@ def facdb():
 
     def geom_comparison(df, width=1000, height=600):
         fig = go.Figure()
-        for i in ["pctwogeom_old", "pctwogeom_new", "diff"]:
-            if i == "pctwogeom_old":
-                tooltip = df.wogeom_old
+        for i in ["pct_mapped_old", "pct_mapped_new", "diff"]:
+            if i == "pct_mapped_old":
+                tooltip = df.pct_mapped_old
                 txt = "old unmapped counts"
-            elif i == "pctwogeom_new":
-                tooltip = df.wogeom_new
+            elif i == "pct_mapped_new":
+                tooltip = df.pct_mapped_new
                 txt = "new unmapped counts"
             else:
-                tooltip = df.wogeom_new - df.wogeom_old
+                tooltip = df.pct_mapped_new - df.pct_mapped_old
                 txt = "unmapped counts diff"
             fig.add_trace(
                 go.Bar(
@@ -190,21 +190,19 @@ def facdb():
         )
         dfff = qc_mapped.groupby(level).sum()
         # dfff.insert(0, level, dfff.index)
-        dfff["pctwogeom_old"] = dfff["wogeom_old"] / dfff["count_old"]
-        dfff["pctwogeom_new"] = dfff["wogeom_new"] / dfff["count_new"]
-        dfff["pctwogeom_old"] = dfff["pctwogeom_old"].round(2)
-        dfff["pctwogeom_new"] = dfff["pctwogeom_new"].round(2)
-        dfff["diff"] = dfff["pctwogeom_new"] - dfff["pctwogeom_old"]
+        dfff["pct_mapped_old"] = dfff["with_geom_old"] / dfff["count_old"]
+        dfff["pct_mapped_new"] = dfff["with_geom_new"] / dfff["count_new"]
+        dfff["with_geom_old"] = dfff["with_geom_old"].round(2)
+        dfff["with_geom_new"] = dfff["with_geom_new"].round(2)
+        dfff["diff"] =  dfff["pct_mapped_new"] - dfff["pct_mapped_old"]
         dfff["diff"] = dfff["diff"].round(2)
         dfff = dfff.loc[(dfff["diff"] != 0) & (~dfff["diff"].isna()), :]
         dfff.sort_values("diff", key=abs, ascending=False, inplace=True)
-        st.dataframe(dfff)
+        # st.dataframe(dfff.style.format({'pct_mapped_old': "{:.2%}"}))
         geom_comparison(dfff)
-        dfff =  dfff[['pctwogeom_old','pctwogeom_new', 'diff'] + list(dfff.columns[:-3])]
+        dfff =  dfff[['pct_mapped_old','pct_mapped_new', 'diff'] + list(dfff.columns[:-3])]
         st.header(f"Percentage mapped records by {level}")
-        plot_diff_table(dfff, ['pctwogeom_old','pctwogeom_new', 'diff'])
-
-
+        plot_diff_table(dfff, ['pct_mapped_old','pct_mapped_new', 'diff'])
 
     def general_review():
         st.header("New factypes")
