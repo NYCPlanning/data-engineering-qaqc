@@ -92,16 +92,16 @@ def facdb():
     def geom_comparison(df, width=1000, height=600):
         fig = go.Figure()
         columns = [
-            ("pct_mapped_old", "with_geom_old", "mapped in old:"),
-            ("pct_mapped_new", "with_geom_new", "mapped in new:"),
-            ("mapped_pct_diff", "mapped_diff", "change in number of mapped units:"),
+            ("pct_mapped_old", "with_geom_old", "mapped in old:", 'old'),
+            ("pct_mapped_new", "with_geom_new", "mapped in new:", 'new'),
+            ("mapped_pct_diff", "mapped_diff", "change in number of mapped units:", 'diff'),
         ]
         for measure in columns:
             fig.add_trace(
                 go.Bar(
                     y=df.index,
                     x=df[measure[0]],
-                    # name=measure,
+                    name=measure[3],
                     customdata=df[[measure[1], "count_new", "count_old"]],
                     hovertemplate=generate_hover(measure),
                     text=["{:.2%}".format(i) for i in df[measure[0]]],
