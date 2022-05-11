@@ -1,13 +1,13 @@
-def facdb():
-    import streamlit as st
-    import pandas as pd
-    import numpy as np
-    import os
-    import pydeck as pdk
-    import plotly.graph_objects as go
-    import plotly.express as px
-    import requests
+import streamlit as st  # type: ignore
+import pandas as pd
+import numpy as np
+import pydeck as pdk  # type: ignore
+import plotly.graph_objects as go  # type: ignore
+import plotly.express as px  # type: ignore
+import requests
 
+
+def facdb():
     st.title("Facilities DB QAQC")
 
     def plotly_table(df):
@@ -92,12 +92,9 @@ def facdb():
     def geom_comparison(df, width=1000, height=600):
         fig = go.Figure()
         columns = [
-             ('pct_mapped_old', 'with_geom_old', 'mapped in old:'),
-             ('pct_mapped_new', 'with_geom_new', 'mapped in new:'),
-             ('mapped_pct_diff', 
-              'mapped_diff', 
-              'change in number of mapped units:'
-             )
+            ("pct_mapped_old", "with_geom_old", "mapped in old:"),
+            ("pct_mapped_new", "with_geom_new", "mapped in new:"),
+            ("mapped_pct_diff", "mapped_diff", "change in number of mapped units:"),
         ]
         for measure in columns:
             fig.add_trace(
@@ -105,11 +102,10 @@ def facdb():
                     y=df.index,
                     x=df[measure[0]],
                     # name=measure,
-                    customdata=df[[measure[1], 'count_new','count_old']],
+                    customdata=df[[measure[1], "count_new", "count_old"]],
                     hovertemplate=generate_hover(measure),
                     text=["{:.2%}".format(i) for i in df[measure[0]]],
                     orientation="h",
-
                 )
             )
         fig.update_layout(
@@ -123,34 +119,42 @@ def facdb():
         st.plotly_chart(fig, config=dict({"scrollZoom": True}))
 
     def generate_hover(measure):
-        if measure[0] == 'mapped_pct_diff':
+        if measure[0] == "mapped_pct_diff":
             return measure[2] + " %{customdata[0]} <extra></extra>"
-        elif measure[0] == 'pct_mapped_old':
+        elif measure[0] == "pct_mapped_old":
             return measure[2] + "%{customdata[0]}/%{customdata[2]} <extra></extra>"
-        elif measure[0]=='pct_mapped_new':
+        elif measure[0] == "pct_mapped_new":
             return measure[2] + "%{customdata[0]}/%{customdata[1]} <extra></extra>"
-
 
     def plot_diff_table(df, rows_to_style, as_pct=False):
         colors = px.colors.qualitative.Plotly
         to_display = df.copy()
 
-        styled = to_display.style.applymap(
-            lambda x: f'background-color: {colors[0]}' 
-            if x else 'background-color: white', 
-            subset=rows_to_style[0:1]).applymap(
-            lambda x: f'background-color: {colors[1]}'
-            if x else 'background-color: white', 
-            subset=rows_to_style[1:2]).applymap(
-            lambda x: f'background-color: {colors[2]}' 
-            if x else 'background-color: white',
-            subset=rows_to_style[2:3])
+        styled = (
+            to_display.style.applymap(
+                lambda x: f"background-color: {colors[0]}"
+                if x
+                else "background-color: white",
+                subset=rows_to_style[0:1],
+            )
+            .applymap(
+                lambda x: f"background-color: {colors[1]}"
+                if x
+                else "background-color: white",
+                subset=rows_to_style[1:2],
+            )
+            .applymap(
+                lambda x: f"background-color: {colors[2]}"
+                if x
+                else "background-color: white",
+                subset=rows_to_style[2:3],
+            )
+        )
 
         if as_pct:
-            styled = styled.format({r:"{:.2%}".format for r in rows_to_style})
+            styled = styled.format({r: "{:.2%}".format for r in rows_to_style})
 
         st.dataframe(styled)
-            
 
     def by_classification():
         """
@@ -197,8 +201,7 @@ def facdb():
         dff.insert(0, level, dff.index)
         dff = dff.sort_values("diff", key=abs, ascending=False)
 
-        plot_diff_table(dff, ['count_old', 'count_new', 'diff'])
-
+        plot_diff_table(dff, ["count_old", "count_new", "diff"])
 
         """
         qc_mapped visualization
@@ -216,17 +219,21 @@ def facdb():
         dfff["pct_mapped_new"] = dfff["with_geom_new"] / dfff["count_new"]
         dfff["with_geom_old"] = dfff["with_geom_old"].round(2)
         dfff["with_geom_new"] = dfff["with_geom_new"].round(2)
-        dfff['mapped_diff'] = dfff['with_geom_new'] - dfff['with_geom_old']
+        dfff["mapped_diff"] = dfff["with_geom_new"] - dfff["with_geom_old"]
         dfff["mapped_pct_diff"] = dfff["pct_mapped_new"] - dfff["pct_mapped_old"]
         dfff["mapped_pct_diff"] = dfff["mapped_pct_diff"].round(3)
-        dfff = dfff[(dfff["mapped_pct_diff"] != 0 & 
-                    ~dfff["mapped_pct_diff"].isna())]
+        dfff = dfff[(dfff["mapped_pct_diff"] != 0 & ~dfff["mapped_pct_diff"].isna())]
         dfff.sort_values("mapped_pct_diff", ascending=True, inplace=True)
         geom_comparison(dfff)
-        dfff =  dfff[['pct_mapped_old','pct_mapped_new', 'mapped_pct_diff'] +
-         ['mapped_diff'] + list(dfff.columns[:-4])]
+        dfff = dfff[
+            ["pct_mapped_old", "pct_mapped_new", "mapped_pct_diff"]
+            + ["mapped_diff"]
+            + list(dfff.columns[:-4])
+        ]
         st.header(f"Percentage mapped records by {level}")
-        plot_diff_table(dfff, ['pct_mapped_old','pct_mapped_new', 'mapped_pct_diff'], as_pct=True)
+        plot_diff_table(
+            dfff, ["pct_mapped_old", "pct_mapped_new", "mapped_pct_diff"], as_pct=True
+        )
 
     def general_review():
         st.header("New factypes")
