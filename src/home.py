@@ -68,4 +68,4 @@ def home():
     )
 
     st.header("Read more on Medium")
-    get_blogs()
+    # get_blogs()

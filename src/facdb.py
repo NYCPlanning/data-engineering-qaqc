@@ -91,36 +91,34 @@ def facdb():
 
     def geom_comparison(df, width=1000, height=600):
         fig = go.Figure()
-        for i in ["pct_mapped_old", "pct_mapped_new", "diff"]:
-            if i == "pct_mapped_old":
-                tooltip = df.pct_mapped_old
-                txt = "old unmapped counts"
-            elif i == "pct_mapped_new":
-                tooltip = df.pct_mapped_new
-                txt = "new unmapped counts"
-            else:
-                tooltip = df.pct_mapped_new - df.pct_mapped_old
-                txt = "unmapped counts diff"
+        for measure in ["pct_mapped_old", "pct_mapped_new", "diff"]:
+            # if i == "pct_mapped_old":
+            #     tooltip = df.pct_mapped_old
+            # elif i == "pct_mapped_new":
+            #     tooltip = df.pct_mapped_new
+            # else:
+            #     tooltip = df.pct_mapped_new - df.pct_mapped_old
             fig.add_trace(
                 go.Bar(
                     y=df.index,
-                    x=df[i],
-                    name=i,
-                    text=[f"{txt}:{i}" for i in tooltip],
+                    x=df[measure],
+                    name=measure,
+                    text=["{:.2%}".format(i) for i in df[measure]],
                     orientation="h",
+
                 )
             )
         fig.update_layout(
             width=width,
             height=height,
             xaxis=dict(title="Percentage"),
-            xaxis_tickformat="%",
+            xaxis_tickformat=".2%",
             template="plotly_white",
             margin=go.layout.Margin(l=0, r=0, b=0, t=0),
         )
         st.plotly_chart(fig, config=dict({"scrollZoom": True}))
 
-    def plot_diff_table(df, rows_to_style):
+    def plot_diff_table(df, rows_to_style, as_pct=False):
         colors = px.colors.qualitative.Plotly
         st.dataframe(df.style.applymap(
             lambda x: f'background-color: {colors[0]}' if x else 'background-color: white', 
@@ -128,7 +126,8 @@ def facdb():
             .applymap(lambda x: f'background-color: {colors[1]}' if x else 'background-color: white',
             subset=rows_to_style[1:2])
             .applymap(lambda x: f'background-color: {colors[2]}' if x else 'background-color: white',
-            subset=rows_to_style[2:3]))
+            subset=rows_to_style[2:3])
+            .format({r:"{:.2%}".format for r in rows_to_style}))
 
     def by_classification():
         """
@@ -159,7 +158,7 @@ def facdb():
             threshold
             """
         )
-        st.header(f"Change in number of records by {level}")
+        st.header(f"Change in total number of records by {level}")
         st.write(f"diff > {thresh}")
 
         dff = dff.loc[(dff["diff"] != 0) & (~dff["diff"].isna()), :]
@@ -171,7 +170,7 @@ def facdb():
         else:
             count_comparison(dff.loc[dff["diff"].abs() > thresh, :].sort_values("diff"))
 
-        st.header(f"Change in counts by {level}")
+        # st.header(f"Change in counts by {level}")
         dff.insert(0, level, dff.index)
         dff = dff.sort_values("diff", key=abs, ascending=False)
 
@@ -181,11 +180,11 @@ def facdb():
         """
         qc_mapped visualization
         """
-        st.header(f"Change in percentage mapped records by {level}")
+        st.header(f"Change in fraction of mapped records by {level}")
         st.write(
             """
-            Only instances where there is change in the percent
-            of mapped records and 100% of records are not mapped are reported
+            This section only reports instances where there is change in the percent
+            of mapped records
         """
         )
         dfff = qc_mapped.groupby(level).sum()
@@ -194,7 +193,7 @@ def facdb():
         dfff["pct_mapped_new"] = dfff["with_geom_new"] / dfff["count_new"]
         dfff["with_geom_old"] = dfff["with_geom_old"].round(2)
         dfff["with_geom_new"] = dfff["with_geom_new"].round(2)
-        dfff["diff"] =  dfff["pct_mapped_new"] - dfff["pct_mapped_old"]
+        dfff["diff"] = dfff["pct_mapped_new"] - dfff["pct_mapped_old"]
         dfff["diff"] = dfff["diff"].round(2)
         dfff = dfff.loc[(dfff["diff"] != 0) & (~dfff["diff"].isna()), :]
         dfff.sort_values("diff", key=abs, ascending=False, inplace=True)
@@ -202,7 +201,7 @@ def facdb():
         geom_comparison(dfff)
         dfff =  dfff[['pct_mapped_old','pct_mapped_new', 'diff'] + list(dfff.columns[:-3])]
         st.header(f"Percentage mapped records by {level}")
-        plot_diff_table(dfff, ['pct_mapped_old','pct_mapped_new', 'diff'])
+        plot_diff_table(dfff, ['pct_mapped_old','pct_mapped_new', 'diff'], as_pct=True)
 
     def general_review():
         st.header("New factypes")

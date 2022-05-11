@@ -9,7 +9,7 @@ setup(
         "psycopg2-binary",
         "pandas",
         "numpy",
-        "streamlit==0.66.0",
+        "streamlit",
         "plotly",
     ],
     zip_safe=False,
