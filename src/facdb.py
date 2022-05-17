@@ -191,7 +191,7 @@ def facdb():
             """
         )
         st.header(f"Change in total number of records by {level}")
-        st.write(f"diff > {thresh}")
+        st.write(f"total change (positive or negative) > {thresh}")
 
         dff = dff.loc[(dff["diff"] != 0) & (~dff["diff"].isna()), :]
         if level == "factype":
