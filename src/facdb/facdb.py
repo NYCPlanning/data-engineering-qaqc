@@ -5,6 +5,7 @@ import pydeck as pdk  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
 import requests
+from src.facdb.helpers import get_data
 
 
 def facdb():
@@ -46,33 +47,18 @@ def facdb():
         branches,
         index=branches.index("develop"),
     )
+    if st.sidebar.button(
+        label="Refresh data", help="Download newest files from Digital Ocean"
+    ):
+        print("button pressed")
+        st.experimental_memo.clear()
+        get_data(branch)
 
     general_or_classification = st.sidebar.selectbox(
         "Would you like to review general QAQC or changes by classification?",
         ("Review by classification level", "General review"),
     )
     st.subheader(general_or_classification)
-
-    @st.cache(suppress_st_warning=True, allow_output_mutation=True)
-    def get_data(branch=branch):
-        url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/{branch}/latest/output"
-        qc_diff = pd.read_csv(f"{url}/qc_diff.csv")
-        qc_captype = pd.read_csv(f"{url}/qc_captype.csv")
-        qc_classification = pd.read_csv(f"{url}/qc_classification.csv")
-        qc_mapped = pd.read_csv(f"{url}/qc_mapped.csv")
-        qc_operator = pd.read_csv(f"{url}/qc_operator.csv")
-        qc_oversight = pd.read_csv(f"{url}/qc_oversight.csv")
-
-        qc_tables = {
-            "Facility subgroup classification": {
-                "dataframe": qc_classification,
-                "type": "dataframe",
-            },
-            "Operator": {"dataframe": qc_operator, "type": "dataframe"},
-            "Oversight": {"dataframe": qc_oversight, "type": "dataframe"},
-            "Capacity Types": {"dataframe": qc_captype, "type": "table"},
-        }
-        return qc_tables, qc_diff, qc_mapped
 
     qc_tables, qc_diff, qc_mapped = get_data(branch)
 
