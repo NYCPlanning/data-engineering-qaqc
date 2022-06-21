@@ -1,6 +1,8 @@
 name: Deploy to Dokku - production
 
-on: [push]
+
+on: 
+  workflow_dispatch:
 
 env:
   DOKKU_APP_NAME: 'edm-data-engineering'
