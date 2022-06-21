@@ -19,7 +19,7 @@ jobs:
       - name: Deploy
         uses: woudsma/dokku-deploy-github-action@v1
         with:
-          ssh-private-key: ${{ secrets.SSH_PRIVATE_KEY }}
+          ssh-private-key: ${{ secrets.DOKKU_SSH_KEY }}
           dokku-host: ${{ secrets.DOKKU_HOST }}
           app-name: ${{ env.DOKKU_APP_NAME }}
           app-remote-branch: ${{ env.DOKKU_REMOTE_BRANCH }}
