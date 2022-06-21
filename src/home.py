@@ -51,7 +51,7 @@ def home():
     st.sidebar.success("Select a dataset above.")
     st.markdown(
         """
-    <h1 style="font-size:3rem;">📊 Data Engineering</h1>
+    <h1 style="font-size:3rem;">📊 Data Engineering QAQC</h1>
     """,
         unsafe_allow_html=True,
     )
