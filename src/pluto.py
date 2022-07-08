@@ -7,6 +7,7 @@ def pluto():
     import os
     from datetime import datetime
     import requests
+    import boto3
 
     ENGINE = os.environ["ENGINE"]
 
@@ -17,6 +18,22 @@ def pluto():
     """
     )
 
+    def get_branches():
+        branches=set()
+        resource = boto3.resource(
+            "s3",
+            aws_access_key_id = os.environ["AWS_ACCESS_KEY_ID"],
+            aws_secret_access_key = os.environ["AWS_SECRET_ACCESS_KEY"],
+            endpoint_url = os.environ["AWS_S3_ENDPOINT"]
+        )
+        pub_bucket= resource.Bucket('edm-publishing')
+        for obj in pub_bucket.objects.filter(Prefix='db-pluto/'):
+            dir_name = obj._key.split('/')[1]
+            if not dir_name.isnumeric(): #When I come back on monday: filter out dates
+                branches.add(dir_name)
+        return branches
+    branches = get_branches()
+    print(branches)
     engine = create_engine(ENGINE)
 
     @st.cache(suppress_st_warning=True, allow_output_mutation=True)
