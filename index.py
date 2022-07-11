@@ -1,5 +1,5 @@
 import streamlit as st
-from src.pluto import pluto
+from src.pluto.pluto import pluto
 from src.ztl import ztl
 from src.facdb.facdb import facdb
 from src.devdb import devdb
@@ -38,7 +38,7 @@ def run():
             datasets_list,
             index=datasets_list.index(query_params["page"][0]),
         )
-    else: 
+    else:
         name = "Home"
 
     if name:
