@@ -15,20 +15,22 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/output/qaqc"
     rv["df_mismatch"] = csv_from_DO(f"{url}/qaqc_mismatch.csv")
     rv["df_null"] = csv_from_DO(f"{url}/qaqc_null.csv")
-    rv["df_aggregate"] =csv_from_DO(f"{url}/qaqc_aggregate.csv")
+    rv["df_aggregate"] = csv_from_DO(f"{url}/qaqc_aggregate.csv")
     df_expected = csv_from_DO(f"{url}/qaqc_expected.csv")
-    df_expected['expected'] = df_expected['expected'].apply(json.loads)
+    df_expected["expected"] = df_expected["expected"].apply(json.loads)
     rv["df_expected"] = df_expected
-    
+
     source_data_versions = pd.read_csv(
         f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/output/source_data_versions.csv"
     )
-    rv['source_data_version'] = source_data_versions
+    rv["source_data_version"] = source_data_versions
     sdv = source_data_versions.to_dict("records")
     version = {}
     for i in sdv:
         version[i["schema_name"]] = i["v"]
-    rv['version_text'] = f"""
+    rv[
+        "version_text"
+    ] = f"""
         Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***  
         Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
         Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcp_colp'])}***  
@@ -79,5 +81,6 @@ def blacklist_branches(branches):
             rv.append(b)
     return rv
 
+
 def csv_from_DO(url):
-    return pd.read_csv(url, true_values=['t'], false_values=['f'])
+    return pd.read_csv(url, true_values=["t"], false_values=["f"])

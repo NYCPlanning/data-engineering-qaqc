@@ -9,15 +9,12 @@ def pluto():
     import requests
     from src.pluto.helpers import get_branches, get_data
 
-
     st.title("PLUTO QAQC")
     st.markdown(
         """
     ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/NYCPlanning/db-pluto?label=version) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/CI?label=CI) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/CAMA%20Processing?label=CAMA) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/PTS%20processing?label=PTS)
     """
     )
-
-
 
     branches = get_branches()
     branch = st.sidebar.selectbox(
@@ -43,7 +40,8 @@ def pluto():
         "21v2",
         "21v3",
         "21v4",
-        "22v1"]
+        "22v1",
+    ]
 
     versions_order = [
         "19v1",
@@ -261,8 +259,6 @@ def pluto():
             :,
         ]
 
-        print(f'v1={v1}, v2={v2},')
-        print(df)
         v1v2 = df.loc[df.pair == f"{v1} - {v2}", :].to_dict("records")[0]
         v2v3 = df.loc[df.pair == f"{v2} - {v3}", :].to_dict("records")[0]
         v1v2_total = v1v2.pop("total")
