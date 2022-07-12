@@ -11,7 +11,8 @@ setup(
         "numpy",
         "streamlit",
         "plotly",
-        "python-dotenv"
+        "python-dotenv",
+        "json"
     ],
     zip_safe=False,
 )
