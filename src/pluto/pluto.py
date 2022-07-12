@@ -488,7 +488,7 @@ def pluto():
 
     def create_expected(df, v1, v2):
 
-        exp = df[df["v"] == f"{v1}|{v2}"]
+        exp = df[df["v"].isin([v1, v2])]
 
         exp_records = exp.to_dict("records")
         v1_exp = [i["expected"] for i in exp_records if i["v"] == v1][0]

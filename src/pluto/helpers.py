@@ -2,6 +2,7 @@ import boto3
 import re
 import pandas as pd
 from datetime import datetime
+import json
 from typing import Dict
 import os
 from dotenv import load_dotenv
@@ -15,7 +16,10 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv["df_mismatch"] = csv_from_DO(f"{url}/qaqc_mismatch.csv")
     rv["df_null"] = csv_from_DO(f"{url}/qaqc_null.csv")
     rv["df_aggregate"] =csv_from_DO(f"{url}/qaqc_aggregate.csv")
-    rv["df_expected"] = csv_from_DO(f"{url}/qaqc_expected.csv")
+    df_expected = csv_from_DO(f"{url}/qaqc_expected.csv")
+    df_expected['expected'] = df_expected['expected'].apply(json.loads)
+    rv["df_expected"] = df_expected
+    
     source_data_versions = pd.read_csv(
         f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/output/source_data_versions.csv"
     )
