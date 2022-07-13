@@ -1,6 +1,27 @@
 import streamlit as st
 import pandas as pd
 
+remove_branches = [
+    "524_AddPOPSNumber",
+    "528-Manager-Address-Approach",
+    "528-usairports-update-source",
+    "530-docker-compose-postgres-install-issue",
+    "532-update-moeo-socialservicesitelocations",
+    "534-q2-update-check-dataloading",
+    "535-Fix-Fooddrops",
+    "543-No-Build-On-Push",
+    "546-Metadata-Output",
+    "547-update-dcp-pops-version",
+    "549-QAQC-compare-to-all-records",
+    "553-Clarify-QAQC-Mapped",
+    "554-update-dot-data",
+    "558-remove-special-character-moeo-sonyc",
+    "559-update-projection-shapefile",
+    "560-doe-lcgms-latest",
+    "563-Update-TextileDrop",
+    "567_MOEOProgramName",
+    "574-Rename-POPS-Number",
+]
 
 @st.experimental_memo
 def get_data(branch):

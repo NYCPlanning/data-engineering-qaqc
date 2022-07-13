@@ -5,7 +5,8 @@ import pydeck as pdk  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
 import requests
-from src.facdb.helpers import get_data
+from src.facdb.helpers import get_data, remove_branches
+
 
 
 def facdb():
@@ -42,10 +43,11 @@ def facdb():
         return [r["name"] for r in response]
 
     branches = get_branches()
+    filter_branches = [b for b in branches if b not in remove_branches]
     branch = st.sidebar.selectbox(
         "select a branch",
-        branches,
-        index=branches.index("develop"),
+        filter_branches,
+        index=filter_branches.index("develop"),
     )
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
