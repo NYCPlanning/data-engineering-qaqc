@@ -32,17 +32,19 @@ def run():
 
     datasets_list = list(datasets.keys())
     query_params = st.experimental_get_query_params()
+    
     if query_params:
-        name = st.sidebar.selectbox(
-            "select a dataset for qaqc",
-            datasets_list,
-            index=datasets_list.index(query_params["page"][0]),
-        )
-    else: 
+        name = query_params["page"][0]
+    else:
         name = "Home"
 
-    if name:
-        st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
+    name = st.sidebar.selectbox(
+        "select a dataset for qaqc",
+        datasets_list,
+        index=datasets_list.index(name)
+    )
+
+    st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
 
     app = datasets[name]
     app()
