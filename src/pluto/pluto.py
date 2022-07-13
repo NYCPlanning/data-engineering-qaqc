@@ -20,7 +20,7 @@ def pluto():
     branch = st.sidebar.selectbox(
         "select a branch",
         branches,
-        index=branches.index("317-QAQC-to-DO"),
+        index=branches.index("main"),
     )
 
     data = get_data(branch)
