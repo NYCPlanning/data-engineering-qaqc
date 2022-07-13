@@ -466,7 +466,7 @@ def pluto():
         """
         )
 
-    def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
+     def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
         df = df_aggregate.loc[
             (df_aggregate.condo == condo)
             & (df_aggregate.mapped == mapped)
@@ -500,14 +500,17 @@ def pluto():
                 "pfirm15_flag",
             ]
             x = [(v1[i] / v2[i] - 1) * 100 for i in y]
+            real_v1 = [v1[i] for i in y]
+            real_v2 = [v2[i] for i in y]
             hovertemplate = "<b>%{x} %{text}</b>"
+            text=[f"{item}%" for item in(zip([round(a,2) for a in x],[round(b,2) for b in real_v1],[round(c,2) for c in real_v2]))]
             return go.Scatter(
                 x=y,
                 y=x,
                 mode="lines",
                 name=f"{_v1} - {_v2}",
                 hovertemplate=hovertemplate,
-                text=[f"{round(i,2)}%" for i in x],
+                text=text,
             )
 
         fig = go.Figure()
@@ -518,12 +521,13 @@ def pluto():
         st.write(df)
         st.info(
             """
-         In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change.
+         Please note that the y-axis represents percent change over different versions. In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change.
          For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
          The aggregate graph may show that the aggregated sum increased by 5%. Totals for assessland, assesstot, and exempttot should only change in February and June.
          Pay attention to any large changes to residential units (unitsres).
         """
         )
+
 
     create_mismatch(df_mismatch, v1, v2, v3, condo, mapped)
 
