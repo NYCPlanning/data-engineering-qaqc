@@ -12,7 +12,7 @@ load_dotenv()
 
 def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/output/qaqc"
+    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output/qaqc"
     rv["df_mismatch"] = csv_from_DO(f"{url}/qaqc_mismatch.csv")
     rv["df_null"] = csv_from_DO(f"{url}/qaqc_null.csv")
     rv["df_aggregate"] = csv_from_DO(f"{url}/qaqc_aggregate.csv")
