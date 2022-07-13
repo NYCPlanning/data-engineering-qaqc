@@ -439,7 +439,7 @@ def pluto():
             "firm07_flag",
             "pfirm15_flag",
         ]
-
+        
         def generate_graph(r, total, title):
             y = [r[i] for i in x]
             text = [f"{round(r[i]/total*100, 2)}%" for i in x]
@@ -465,8 +465,8 @@ def pluto():
         Hovering over a point shows you the number of null records in the more recent file. The number of such changes should be small.
         """
         )
-
-     def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
+        
+    def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
         df = df_aggregate.loc[
             (df_aggregate.condo == condo)
             & (df_aggregate.mapped == mapped)
@@ -527,7 +527,6 @@ def pluto():
          Pay attention to any large changes to residential units (unitsres).
         """
         )
-
 
     create_mismatch(df_mismatch, v1, v2, v3, condo, mapped)
 
