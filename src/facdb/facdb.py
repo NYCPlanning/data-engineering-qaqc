@@ -40,14 +40,14 @@ def facdb():
     def get_branches():
         url = "https://api.github.com/repos/nycplanning/db-facilities/branches"
         response = requests.get(url).json()
-        return [r["name"] for r in response]
+        all_branches = [r["name"] for r in response]
+        return [b for b in all_branches if b not in remove_branches] #filter branches no longer needed in qaqc
 
     branches = get_branches()
-    filter_branches = [b for b in branches if b not in remove_branches]
     branch = st.sidebar.selectbox(
         "select a branch",
-        filter_branches,
-        index=filter_branches.index("develop"),
+        branches,
+        index=branches.index("develop"),
     )
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
