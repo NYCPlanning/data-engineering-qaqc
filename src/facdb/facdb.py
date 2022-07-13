@@ -8,7 +8,6 @@ import requests
 from src.facdb.helpers import get_data, remove_branches
 
 
-
 def facdb():
     st.title("Facilities DB QAQC")
 
@@ -41,7 +40,9 @@ def facdb():
         url = "https://api.github.com/repos/nycplanning/db-facilities/branches"
         response = requests.get(url).json()
         all_branches = [r["name"] for r in response]
-        return [b for b in all_branches if b not in remove_branches] #filter branches no longer needed in qaqc
+        return [
+            b for b in all_branches if b not in remove_branches
+        ]  # filter branches no longer needed in qaqc
 
     branches = get_branches()
     branch = st.sidebar.selectbox(
@@ -52,7 +53,7 @@ def facdb():
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
     ):
-        print("button pressed")
+
         st.experimental_memo.clear()
         get_data(branch)
 

@@ -21,13 +21,13 @@ remove_branches = [
     "563-Update-TextileDrop",
     "567_MOEOProgramName",
     "574-Rename-POPS-Number",
-    "Address-Poetry-Merge-Conflict", 
+    "Address-Poetry-Merge-Conflict",
     "dataloading-issue-template",
 ]
 
+
 @st.experimental_memo
 def get_data(branch):
-    print("running get_data()")
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/{branch}/latest/output"
     qc_diff = pd.read_csv(f"{url}/qc_diff.csv")
     qc_captype = pd.read_csv(f"{url}/qc_captype.csv")
