@@ -21,6 +21,8 @@ remove_branches = [
     "563-Update-TextileDrop",
     "567_MOEOProgramName",
     "574-Rename-POPS-Number",
+    "Address-Poetry-Merge-Conflict", 
+    "dataloading-issue-template",
 ]
 
 @st.experimental_memo
