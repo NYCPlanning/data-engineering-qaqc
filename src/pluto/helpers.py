@@ -21,7 +21,7 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv["df_expected"] = df_expected
 
     source_data_versions = pd.read_csv(
-        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/output/source_data_versions.csv"
+        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output/source_data_versions.csv"
     )
     rv["source_data_version"] = source_data_versions
     sdv = source_data_versions.to_dict("records")
@@ -77,7 +77,7 @@ def blacklist_branches(branches):
         if (
             re.match(r"[0-9]{2}v[0-9]", b) is None
             and re.match(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", b) is None
-        ):
+        ) and b != 'latest':
             rv.append(b)
     return rv
 
