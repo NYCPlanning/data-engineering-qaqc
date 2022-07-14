@@ -1,4 +1,4 @@
-FROM python:3.6-slim as build
+FROM python:3.9-slim as build
 
 WORKDIR /app
 
