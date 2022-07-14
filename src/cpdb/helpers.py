@@ -7,7 +7,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-def get_data(branch) -> dict:
+def get_data(branch, table) -> dict:
     rv = {}
 
     client = boto3.client(
@@ -16,24 +16,32 @@ def get_data(branch) -> dict:
         aws_secret_access_key = os.getenv("AWS_SECRET_ACCESS_KEY"),
         endpoint_url = os.getenv("AWS_S3_ENDPOINT")
     )
-    for table in ['magency', 'sagency']:
-        obj = client.get_object(
-            Bucket="edm-private",
-            Key=f"db-cpdb/{branch}/latest/output/analysis/cpdb_summarystats_{table}.csv",
-        )
-        s = str(obj["Body"].read(), "utf8")
-        data = StringIO(s)
-        df = pd.read_csv(data, encoding='utf8')
-        rv[table] = df
+    #for table in ['magency', 'sagency']:
+    obj = client.get_object(
+        Bucket="edm-private",
+        Key=f"db-cpdb/{branch}/latest/output/analysis/cpdb_summarystats_{table}.csv",
+    )
+    s = str(obj["Body"].read(), "utf8")
+    data = StringIO(s)
+    df = pd.read_csv(data, encoding='utf8')
+    rv[table] = df
 
-        # this could be modified once open data for cpdb is set up
-        obj = client.get_object(
-            Bucket="edm-private",
-            Key=f"db-cpdb/{branch}/2022-04-15/output/analysis/cpdb_summarystats_{table}.csv",
-        )
-        s = str(obj["Body"].read(), "utf8")
-        data = StringIO(s)
-        df = pd.read_csv(data, encoding='utf8')
-        rv['pre_' + table] = df
+    # this could be modified once open data for cpdb is set up
+    obj = client.get_object(
+        Bucket="edm-private",
+        Key=f"db-cpdb/{branch}/2022-04-15/output/analysis/cpdb_summarystats_{table}.csv",
+    )
+    s = str(obj["Body"].read(), "utf8")
+    data = StringIO(s)
+    df = pd.read_csv(data, encoding='utf8')
+    rv['pre_' + table] = df
 
     return rv
+
+def get_commit_cols(df: pd.DataFrame):
+
+    full_cols = df.columns
+    
+    cols = [c for c in full_cols if "commit" in c]
+
+    return cols
