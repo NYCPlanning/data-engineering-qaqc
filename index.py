@@ -4,6 +4,7 @@ from src.ztl import ztl
 from src.facdb.facdb import facdb
 from src.devdb import devdb
 from src.geocode import geocode
+from src.cpdb.cpdb import cpdb
 from src.home import home
 import requests
 import datetime
@@ -15,6 +16,7 @@ datasets = {
     "Facilities DB": facdb,
     "Developments DB": devdb,
     "Geosupport Demo": geocode,
+    "Capital Projects DB": cpdb
 }
 
 
