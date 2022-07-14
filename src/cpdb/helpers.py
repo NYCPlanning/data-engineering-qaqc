@@ -26,4 +26,14 @@ def get_data(branch) -> dict:
         df = pd.read_csv(data, encoding='utf8')
         rv[table] = df
 
+        # this could be modified once open data for cpdb is set up
+        obj = client.get_object(
+            Bucket="edm-private",
+            Key=f"db-cpdb/{branch}/2022-04-15/output/analysis/cpdb_summarystats_{table}.csv",
+        )
+        s = str(obj["Body"].read(), "utf8")
+        data = StringIO(s)
+        df = pd.read_csv(data, encoding='utf8')
+        rv['pre_' + table] = df
+
     return rv
