@@ -9,7 +9,6 @@ load_dotenv()
 
 def get_data(branch) -> dict:
     rv = {}
-    # url = f"https://edm-private.nyc3.digitaloceanspaces.com/db-cpdb/{branch}/latest/output/analysis"
 
     client = boto3.client(
         "s3",
@@ -26,6 +25,5 @@ def get_data(branch) -> dict:
         data = StringIO(s)
         df = pd.read_csv(data, encoding='utf8')
         rv[table] = df
-    # rv['magency'] = pd.read_csv(f"{url}/cpdb_summarystats_magency.csv")
-    # rv['sagency'] = pd.read_csv(f"{url}/cpdb_summarystats_sagency.csv")
+
     return rv
