@@ -503,7 +503,9 @@ def pluto():
             real_v1 = [v1[i] for i in y]
             real_v2 = [v2[i] for i in y]
             hovertemplate = "<b>%{x} %{text}</b>"
-            text=[f"{item}%" for item in(zip([round(a,2) for a in x],[round(b,2) for b in real_v1],[round(c,2) for c in real_v2]))]
+            #add tooltips with order <percent change, value from v1, value from v2>
+            tooltip= zip([round(a,2) for a in x],[round(b,2) for b in real_v1],[round(c,2) for c in real_v2])
+            text=[f"{item}%" for item in tooltip]
             return go.Scatter(
                 x=y,
                 y=x,
@@ -521,10 +523,13 @@ def pluto():
         st.write(df)
         st.info(
             """
-         Please note that the y-axis represents percent change over different versions. In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change.
+         The aggregate graph provides insights into the magnitude of the change, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
          For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
-         The aggregate graph may show that the aggregated sum increased by 5%. Totals for assessland, assesstot, and exempttot should only change in February and June.
-         Pay attention to any large changes to residential units (unitsres).
+         The aggregate graph may show that the aggregated sum increased by 5% compared with the previous version.\n
+         Special Notices:\n
+         1. Y-axis represents percent change over the previous version. \n
+         2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+         3. Pay attention to any large changes to residential units (unitsres).
         """
         )
 
