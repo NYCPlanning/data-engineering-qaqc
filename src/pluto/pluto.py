@@ -538,7 +538,8 @@ def pluto():
         st.plotly_chart(figure)
         st.info(
             """
-            This report shows the number of records altered by DCP to correct errors in the underlying data, grouped by the field altered. See [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) for a full accounting of the changes made for the latest version
+            This report shows the number of records altered by DCP to correct errors in the underlying data, grouped by the field altered. 
+            See [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) for a full accounting of the changes made for the latest version
             in the PLUTO change file.
             """
         )
