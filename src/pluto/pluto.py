@@ -521,6 +521,33 @@ def pluto():
                     st.markdown(f"* in {v2} but not in {v1}:")
                     st.write(in2not1)
 
+    def create_corrections(df):
+        def generate_trace(v1):
+            hovertemplate = "<b>%{x} - %{y}</b>"
+            return go.Scatter(
+                y=v1,
+                x=v1.index,
+                mode="lines",
+                name="Pluto Corrections",
+                hovertemplate=hovertemplate,
+                text=v1.index
+            )
+        def generate_graph(v1):
+            fig = go.Figure()
+            fig.add_trace(generate_trace(v1))
+            fig.update_yaxes(title_text="# of Corrected Records")
+            fig.update_xaxes(title_text="Field")
+            fig.update_layout(title="Corrected Records by Field", template="plotly_white")
+            return fig
+
+        def field_correction_counts(df):
+            return df.groupby(['field']).size()
+        
+        figure = generate_graph(field_correction_counts(df))
+        
+        st.header("Corrections")
+        st.plotly_chart(figure)
+
     create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
     create_null(data["df_null"], v1, v2, v3, condo, mapped)
@@ -541,3 +568,6 @@ def pluto():
     )
 
     create_expected(data["df_expected"], v1, v2)
+
+    create_corrections(data["pluto_corrections"])
+
