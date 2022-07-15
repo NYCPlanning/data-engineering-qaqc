@@ -44,5 +44,5 @@ def get_commit_cols(df: pd.DataFrame):
     return cols
 
 def get_diff_dataframe(df: pd.DataFrame, df_pre: pd.DataFrame):
-    diff = df.iloc[:, 1:].subtract(df_pre.iloc[:, 1:])
+    diff = df.sub(df_pre, fill_value=0)
     return diff

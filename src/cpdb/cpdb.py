@@ -1,8 +1,11 @@
 from operator import index
+from unicodedata import name
 import streamlit as st  # type: ignore
 import pandas as pd
 from src.cpdb.helpers import get_data, get_commit_cols, get_diff_dataframe
 import plotly.express as px
+import plotly.graph_objects as go
+
 
 def cpdb():
     st.title("Capital Projects DB QAQC")
@@ -50,7 +53,8 @@ def cpdb():
     # sort the values based on projects/commitments and get the top ten agencies
     df_bar = df.sort_values(by=viz_keys[view_type]["values"][0], ascending=False).head(10)
     st.plotly_chart(
-        px.bar(df_bar, 
+        px.bar(
+            df_bar, 
             x=df_bar.index, 
             y=viz_keys[view_type]["values"],
             barmode='group'
@@ -60,4 +64,34 @@ def cpdb():
     st.header("Compare Previous vs. Latest Managing Agency Table")
     #diff_manage = data['magency'][["magencyacro"] + get_commit_cols(data['sagency'])]
     diff = get_diff_dataframe(df, df_pre)
-    st.dataframe(diff)
+    #st.dataframe(diff)
+    #st.dataframe(df)
+
+    df_bar_diff = diff.sort_values(by=viz_keys[view_type]["values"][0], ascending=True)
+    
+    fig = go.Figure(
+        [
+            go.Bar(name="diff",
+                x=df_bar_diff[viz_keys[view_type]["values"][0]], 
+                y=df_bar_diff.index,
+                orientation='h'
+            ),
+            go.Bar(name="latest",
+                x=df[viz_keys[view_type]["values"][0]], 
+                y=df.index,
+                orientation='h'
+            ),
+            go.Bar(name="previous",
+                x=df_pre[viz_keys[view_type]["values"][0]], 
+                y=df_pre.index,
+                orientation='h'
+            ),
+        ]
+    )
+
+    fig.update_layout(
+        barmode="group"
+    )
+
+    
+    st.plotly_chart(fig)
