@@ -16,9 +16,9 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv["df_mismatch"] = csv_from_DO(f"{url}/qaqc_mismatch.csv")
     rv["df_null"] = csv_from_DO(f"{url}/qaqc_null.csv")
     rv["df_aggregate"] = csv_from_DO(f"{url}/qaqc_aggregate.csv")
-    df_expected = csv_from_DO(f"{url}/qaqc_expected.csv")
-    df_expected["expected"] = df_expected["expected"].apply(json.loads)
-    rv["df_expected"] = df_expected
+    rv["df_expected"] = csv_from_DO(f"{url}/qaqc_expected.csv", kwargs={'converters':{'expected': json.loads}})
+    # df_expected["expected"] = df_expected["expected"].apply(json.loads)
+    # rv["df_expected"] = df_expected
 
     source_data_versions = pd.read_csv(
         f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output/source_data_versions.csv"
@@ -84,5 +84,5 @@ def blacklist_branches(branches):
     return rv
 
 
-def csv_from_DO(url):
-    return pd.read_csv(url, true_values=["t"], false_values=["f"])
+def csv_from_DO(url, kwargs={}):
+    return pd.read_csv(url, true_values=["t"], false_values=["f"], **kwargs)
