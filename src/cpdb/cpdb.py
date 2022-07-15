@@ -25,6 +25,13 @@ def cpdb():
 
     st.header('Previous Managing Agency Summary Stats')
     
+    st.caption(
+        body="""There are mainly three ways to look at the existing qaqc tables. 
+        First, you can either focus on the managing agencies or the sponsoring agencies for the projects. 
+        Second, you can choose either to focus on the number of projects by your choice of agency type or the commitment amount for the projects. 
+        Third, you could view the only a subcategory of the projects that outlined by the Capital Planning database. 
+        """
+    )
     #st.dataframe(data['pre_magency'])
 
     # getting the 
@@ -62,7 +69,13 @@ def cpdb():
     )
 
     st.header("Compare Previous vs. Latest Managing Agency Table")
-    #diff_manage = data['magency'][["magencyacro"] + get_commit_cols(data['sagency'])]
+    st.caption(
+        body="""Comparing the latest summary stats table with the same table from the last version. 
+        It highlights any changes from version to version. Even though as the underlying data Capital Commitment Plan does not meant to be identical 
+        over time but the outliers scenarios still should raise red flags. 
+        """
+    )
+
     diff = get_diff_dataframe(df, df_pre)
     #st.dataframe(diff)
     #st.dataframe(df)
