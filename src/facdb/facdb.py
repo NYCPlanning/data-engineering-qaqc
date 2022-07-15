@@ -5,7 +5,7 @@ import pydeck as pdk  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
 import requests
-from src.facdb.helpers import get_data
+from src.facdb.helpers import get_data, remove_branches
 
 
 def facdb():
@@ -39,7 +39,10 @@ def facdb():
     def get_branches():
         url = "https://api.github.com/repos/nycplanning/db-facilities/branches"
         response = requests.get(url).json()
-        return [r["name"] for r in response]
+        all_branches = [r["name"] for r in response]
+        return [
+            b for b in all_branches if b not in remove_branches
+        ]  # filter branches no longer needed in qaqc
 
     branches = get_branches()
     branch = st.sidebar.selectbox(
@@ -50,7 +53,7 @@ def facdb():
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
     ):
-        print("button pressed")
+
         st.experimental_memo.clear()
         get_data(branch)
 
