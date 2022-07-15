@@ -72,30 +72,32 @@ def cpdb():
     st.caption(
         body="""Comparing the latest summary stats table with the same table from the last version. 
         It highlights any changes from version to version. Even though as the underlying data Capital Commitment Plan does not meant to be identical 
-        over time but the outliers scenarios still should raise red flags. 
+        over time but the outliers scenarios still should raise red flags.  
+        the key functionality for this graphics that is distinct from rest of the application is the choice to view the total projects vs. mapped projects
+        using the dropdown box below. 
         """
     )
-
+    map_option = st.radio(label="choose 0 if you want to see results for entire universe of projects. Otherwise, mapped projects only.", options=[0, 1])
     diff = get_diff_dataframe(df, df_pre)
     #st.dataframe(diff)
     #st.dataframe(df)
 
-    df_bar_diff = diff.sort_values(by=viz_keys[view_type]["values"][0], ascending=True)
+    df_bar_diff = diff.sort_values(by=viz_keys[view_type]["values"][map_option], ascending=True)
     
     fig = go.Figure(
         [
             go.Bar(name="diff",
-                x=df_bar_diff[viz_keys[view_type]["values"][0]], 
+                x=df_bar_diff[viz_keys[view_type]["values"][map_option]], 
                 y=df_bar_diff.index,
                 orientation='h'
             ),
             go.Bar(name="latest",
-                x=df[viz_keys[view_type]["values"][0]], 
+                x=df[viz_keys[view_type]["values"][map_option]], 
                 y=df.index,
                 orientation='h'
             ),
             go.Bar(name="previous",
-                x=df_pre[viz_keys[view_type]["values"][0]], 
+                x=df_pre[viz_keys[view_type]["values"][map_option]], 
                 y=df_pre.index,
                 orientation='h'
             ),
