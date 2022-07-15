@@ -73,10 +73,12 @@ def convert(dt):
 def blacklist_branches(branches):
     """For pluto this is done by programmatically, can also be hard-coded"""
     rv = []
+    version_regex = r"[0-9]{2}v[0-9]"
+    data_regex = r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
     for b in branches:
         if (
-            re.match(r"[0-9]{2}v[0-9]", b) is None
-            and re.match(r"[0-9]{4}-[0-9]{2}-[0-9]{2}", b) is None
+            re.match(version_regex, b) is None
+            and re.match(data_regex, b) is None
         ) and b != 'latest':
             rv.append(b)
     return rv
