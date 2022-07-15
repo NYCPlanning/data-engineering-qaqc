@@ -39,9 +39,10 @@ def get_data(branch, table) -> dict:
     return rv
 
 def get_commit_cols(df: pd.DataFrame):
-
     full_cols = df.columns
-    
     cols = [c for c in full_cols if "commit" in c]
-
     return cols
+
+def get_diff_dataframe(df: pd.DataFrame, df_pre: pd.DataFrame):
+    diff = df.iloc[:, 1:].subtract(df_pre.iloc[:, 1:])
+    return diff
