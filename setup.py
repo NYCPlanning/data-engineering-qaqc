@@ -12,11 +12,7 @@ setup(
         "streamlit",
         "plotly",
         "python-dotenv",
-<<<<<<< HEAD
-        "json"
-=======
-        "boto3",
->>>>>>> dev
+        "json" "boto3",
     ],
     zip_safe=False,
 )
