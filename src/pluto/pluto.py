@@ -26,59 +26,29 @@ def pluto():
     data = get_data(branch)
 
     versions = [
-        "19v1",
-        "19v2",
-        "20v1",
-        "20v2",
-        "20v3",
-        "20v4",
-        "20v5",
-        "20v6",
-        "20v7",
-        "20v8",
-        "21v1",
-        "21v2",
-        "21v3",
-        "21v4",
         "22v1",
-    ]
-
-    versions_order = [
-        "19v1",
-        "19v2",
-        "20v1",
-        "20v2",
-        "20v3",
-        "20v4",
-        "20v5",
-        "20v6",
-        "20v7",
-        "20v8",
-        "21v1",
-        "21v2",
-        "21v3",
         "21v4",
-        "22v1",
-        "22v2",
-        "22v3",
-        "22v4",
-        "22v5",
-        "22v6",
-        "22v7",
-        "22v8",
-        "22v9",
-        "22v10",
-        "22v11",
-        "22v12",
-        "23v1",
+        "21v3",
+        "21v2",
+        "21v1",
+        "20v8",
+        "20v7",
+        "20v6",
+        "20v5",
+        "20v4",
+        "20v3",
+        "20v2",
+        "20v1",
+        "19v2",
+        "19v1",
     ]
 
     v1 = st.sidebar.selectbox(
-        "Pick a version of PLUTO:", versions, index=len(versions) - 1
+        "Pick a version of PLUTO:", versions, #index=len(versions) - 1
     )
 
-    v2 = versions_order[versions_order.index(v1) - 1]
-    v3 = versions_order[versions_order.index(v1) - 2]
+    v2 = versions[versions.index(v1) + 1]
+    v3 = versions[versions.index(v1) + 2]
 
     condo = st.sidebar.checkbox("condo only")
     mapped = st.sidebar.checkbox("mapped only")
