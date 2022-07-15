@@ -23,10 +23,13 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     df_expected["expected"] = df_expected["expected"].apply(json.loads)
     rv["df_expected"] = df_expected
 
-    rv["pluto_corrections"] = zipped_csv_from_DO(
-        csv_filename="pluto_corrections.csv",
+    pluto_corrections_zip = zip_from_DO(
         zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
         bucket=BUCKET_NAME
+    )
+    rv["pluto_corrections"] = unzip_csv(
+        csv_filename="pluto_corrections.csv",
+        zipfile=pluto_corrections_zip
     )
 
     source_data_versions = pd.read_csv(
@@ -90,13 +93,15 @@ def blacklist_branches(branches):
 def csv_from_DO(url):
     return pd.read_csv(url, true_values=["t"], false_values=["f"])
 
-def zipped_csv_from_DO(csv_filename, zip_filename, bucket):
-    zip_obj = s3_resource().Object(bucket_name=bucket, key=zip_filename)
-
-    buffer = BytesIO(zip_obj.get()["Body"].read())
-    with ZipFile(buffer).open(csv_filename) as csv:
+def unzip_csv(csv_filename, zipfile):
+    with zipfile.open(csv_filename) as csv:
         return pd.read_csv(csv, true_values=["t"], false_values=["f"])
     
+def zip_from_DO(zip_filename, bucket):
+    zip_obj = s3_resource().Object(bucket_name=bucket, key=zip_filename)
+    buffer = BytesIO(zip_obj.get()["Body"].read())
+
+    return ZipFile(buffer)
 
 def s3_resource():
     return boto3.resource(
