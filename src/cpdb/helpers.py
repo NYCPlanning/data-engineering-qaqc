@@ -1,3 +1,4 @@
+#from asyncio.windows_events import NULL
 from io import StringIO
 import streamlit as st
 import os
@@ -6,6 +7,25 @@ import boto3
 from dotenv import load_dotenv
 
 load_dotenv()
+
+viz_keys = {
+    "all categories": {
+        'projects': {
+            "values": ['totalcount', 'mapped'] 
+        }, 
+        'commitments': {
+            "values": ['totalcommit', 'mappedcommit'] 
+        }
+    },
+    "fixed assets": {
+        'projects': {
+            "values": ['totalcount', 'mapped'] 
+        }, 
+        'commitments': {
+            "values": ['totalcommit', 'mappedcommit'] 
+        }
+    }
+}
 
 def get_data(branch, table) -> dict:
     rv = {}
@@ -45,4 +65,18 @@ def get_commit_cols(df: pd.DataFrame):
 
 def get_diff_dataframe(df: pd.DataFrame, df_pre: pd.DataFrame):
     diff = df.sub(df_pre, fill_value=0)
+    return diff
+
+def get_map_percent_diff(df: pd.DataFrame, df_pre: pd.DataFrame, keys: dict):
+    
+    #k = ["totalcommit", "mappedcommit"]
+
+    diff = pd.DataFrame(columns=["percent_mapped", "pre_percent_mapped", "diff_percent_mapped"], index=df.index)
+
+    diff["percent_mapped"] = df[keys["values"][1]] / df[keys["values"][0]]
+    diff["pre_percent_mapped"] = df_pre[keys["values"][1]] / df_pre[keys["values"][0]]
+    diff["diff_percent_mapped"] = diff.percent_mapped - diff.pre_percent_mapped
+    diff.sort_values(by="diff_percent_mapped", inplace=True, ascending=True)
+    #st.dataframe(diff)
+
     return diff

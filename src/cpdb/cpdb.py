@@ -1,13 +1,22 @@
-from operator import index
-from unicodedata import name
+#from operator import index
+#from turtle import width
+#from unicodedata import name
 import streamlit as st  # type: ignore
 import pandas as pd
-from src.cpdb.helpers import get_data, get_commit_cols, get_diff_dataframe
+from src.cpdb.helpers import get_data, get_commit_cols, get_diff_dataframe, get_map_percent_diff, viz_keys
 import plotly.express as px
 import plotly.graph_objects as go
 
 
 def cpdb():
+    # viz_keys = {
+    # 'projects': {
+    #         "values": ['totalcount', 'mapped'] 
+    #     }, 
+    #     'commitments': {
+    #         "values": ['totalcommit', 'mappedcommit'] 
+    #     }
+    # }
     st.title("Capital Projects DB QAQC")
     branch = st.sidebar.selectbox(
         "select a branch",
@@ -21,6 +30,12 @@ def cpdb():
         "select to view by projects or commitment",
         ['projects', 'commitments']
     )
+    
+    subcategory = st.sidebar.selectbox(
+        "choose a subcategoy or entire ",
+        ['all categories', 'fixed asset']
+    )
+    
     data = get_data(branch, agency_type)
 
     st.header('Previous Managing Agency Summary Stats')
@@ -35,18 +50,10 @@ def cpdb():
     #st.dataframe(data['pre_magency'])
 
     # getting the 
-    st.subheader('Top Ten Managing Agencies By Project Count or Commitment')
+    st.subheader(f'Top Ten {agency_type} By {view_type} Latest Version Summary Stats')
     # sorter = st.selectbox('Sort Agencies Based On',
     #     options=('Total Projects', 'Total Commitment Amount'), index=0)
 
-    viz_keys = {
-        'projects': {
-            "values": ['totalcount', 'mapped'] 
-        }, 
-        'commitments': {
-            "values": ['totalcommit', 'mappedcommit'] 
-        }
-    }
     df = data[agency_type].set_index(agency_type + "acro")
     df_pre = data["pre_" + agency_type].set_index(agency_type + "acro")
     #com_cols = get_commit_cols(df)
@@ -77,7 +84,11 @@ def cpdb():
         using the dropdown box below. 
         """
     )
-    map_option = st.radio(label="choose 0 if you want to see results for entire universe of projects. Otherwise, mapped projects only.", options=[0, 1])
+    map_option = {0: "all projects", 1: "mapped only"}
+    map_option = st.radio(label="choose either all projects to compare or mapped projects only.",
+            options=[0, 1],
+            format_func=lambda x: map_option.get(x)
+    )
     diff = get_diff_dataframe(df, df_pre)
     #st.dataframe(diff)
     #st.dataframe(df)
@@ -105,8 +116,49 @@ def cpdb():
     )
 
     fig.update_layout(
-        barmode="group"
+        barmode="group",
+        width=1000,
+        height=1000
     )
 
-    
     st.plotly_chart(fig)
+
+    st.header("Compare Mapping from Previous to Latest Managing Agency Table")
+    
+    st.caption(
+        body="""
+        Another important aspect about the summary stats tables can display to us is the question:
+        How many of the projects/commitments are successfully mapped?  
+        The following chart show the difference between the versions in what percentage of the projects/commitments are mapped. 
+        using the dropdown box below. 
+        """
+    )
+    
+    diff_perc = get_map_percent_diff(df, df_pre, viz_keys[view_type])
+
+    fig3 = go.Figure(
+        [
+            go.Bar(name="diff",
+                x=diff_perc.diff_percent_mapped, 
+                y=diff_perc.index,
+                orientation='h'
+            ),
+            go.Bar(name="latest",
+                x=diff_perc.percent_mapped, 
+                y=diff_perc.index,
+                orientation='h'
+            ),
+            go.Bar(name="previous",
+                x=diff_perc.pre_percent_mapped, 
+                y=diff_perc.index,
+                orientation='h'
+            )
+        ]
+    ) 
+
+    fig3.update_layout(
+        width=1000,
+        height=1000
+    )
+    
+    st.plotly_chart(fig3)
