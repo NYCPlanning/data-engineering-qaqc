@@ -520,8 +520,8 @@ def pluto():
                 return df.loc[df['version'] == version]
         
         st.header("Manual Corrections")
-
-        version = st.selectbox("Select a Version", np.insert(df.version.unique(), 0, 'All'))
+        version_dropdown = np.insert(np.flip(np.sort(df.version.dropna().unique())), 0, 'All')
+        version = st.selectbox("Select a Version", version_dropdown)
 
         df = filter_by_version(df, version)
         
