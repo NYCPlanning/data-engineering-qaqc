@@ -4,6 +4,7 @@ def pluto():
     import numpy as np
     from sqlalchemy import create_engine
     import plotly.graph_objects as go
+    import plotly.express as px
     import os
     from datetime import datetime
     import requests
@@ -521,20 +522,40 @@ def pluto():
                 hovertemplate=hovertemplate,
                 text=v1.index
             )
-        def generate_graph(v1):
-            fig = go.Figure()
-            fig.add_trace(generate_trace(v1))
-            fig.update_yaxes(title_text="# of Corrected Records")
-            fig.update_xaxes(title_text="Field")
-            fig.update_layout(title="Corrected Records by Field", template="plotly_white")
+        def version_title_text(version):
+            if version == "All":
+                return "All Versions"
+            else:
+                return f"Version {version}"
+            
+        def generate_graph(v1, version):
+            fig = px.bar(
+                v1, 
+                x='field',
+                 y='size', 
+                 text='size',
+                 title=f"Corrected Records by Field for {version_title_text(version)}", 
+                 labels={'size': 'Count of Corrected Records', 'field': 'Altered Field'}
+            )
             return fig
 
         def field_correction_counts(df):
-            return df.groupby(['field']).size()
+            return df.groupby(['field']).size().to_frame('size').reset_index()
         
-        figure = generate_graph(field_correction_counts(df))
+        def filter_by_version(df, version):
+            if version == 'All':
+                return df
+            else:
+                return df.loc[df['version'] == version]
         
-        st.header("Corrections")
+        st.header("Manual Corrections")
+
+        version = st.selectbox("Select a Version", np.insert(df.version.unique(), 0, 'All'))
+
+        df = filter_by_version(df, version)
+        
+        figure = generate_graph(field_correction_counts(df), version)
+
         st.plotly_chart(figure)
         st.info(
             """
