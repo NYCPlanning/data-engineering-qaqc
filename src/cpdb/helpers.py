@@ -9,7 +9,8 @@ from dotenv import load_dotenv
 load_dotenv()
 
 viz_keys = {
-    "all categories": {
+    "all categories": 
+    {
         'projects': {
             "values": ['totalcount', 'mapped'] 
         }, 
@@ -17,15 +18,19 @@ viz_keys = {
             "values": ['totalcommit', 'mappedcommit'] 
         }
     },
-    "fixed assets": {
+    "fixed assets": 
+    {
         'projects': {
-            "values": ['totalcount', 'mapped'] 
+            "values": ['fixedasset', 'fixedassetmapped'] 
         }, 
         'commitments': {
-            "values": ['totalcommit', 'mappedcommit'] 
+            "values": ['fixedassetcommit', 'fixedassetmappedcommit'] 
         }
     }
 }
+
+"""a feedback from the group is to have a dictionary from the abbreviation for agency for something more explicity
+where would this list comes from? """
 
 def get_data(branch, table) -> dict:
     rv = {}
@@ -69,14 +74,11 @@ def get_diff_dataframe(df: pd.DataFrame, df_pre: pd.DataFrame):
 
 def get_map_percent_diff(df: pd.DataFrame, df_pre: pd.DataFrame, keys: dict):
     
-    #k = ["totalcommit", "mappedcommit"]
-
     diff = pd.DataFrame(columns=["percent_mapped", "pre_percent_mapped", "diff_percent_mapped"], index=df.index)
 
     diff["percent_mapped"] = df[keys["values"][1]] / df[keys["values"][0]]
     diff["pre_percent_mapped"] = df_pre[keys["values"][1]] / df_pre[keys["values"][0]]
-    diff["diff_percent_mapped"] = diff.percent_mapped - diff.pre_percent_mapped
+    diff["diff_percent_mapped"] = (diff.percent_mapped - diff.pre_percent_mapped) 
     diff.sort_values(by="diff_percent_mapped", inplace=True, ascending=True)
-    #st.dataframe(diff)
-
+    diff = diff * 100 
     return diff
