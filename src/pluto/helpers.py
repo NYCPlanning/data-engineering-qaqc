@@ -91,10 +91,6 @@ def blacklist_branches(branches):
     return rv
 
 
-<<<<<<< HEAD
-def csv_from_DO(url, kwargs={}):
-    return pd.read_csv(url, true_values=["t"], false_values=["f"], **kwargs)
-=======
 def csv_from_DO(url, kwargs={}):
     return pd.read_csv(url, true_values=["t"], false_values=["f"], **kwargs)
 
@@ -115,4 +111,3 @@ def s3_resource():
         aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
         endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
     )
->>>>>>> 4849900... Add in pluto summary graph by field
