@@ -429,10 +429,10 @@ def pluto():
             x = [(v1[i] / v2[i] - 1) * 100 for i in y]
             real_v1 = [v1[i] for i in y]
             real_v2 = [v2[i] for i in y]
-            hovertemplate = "<b>%{x} %{text}</b>"
-            #add tooltips with order <percent change, value from v1, value from v2>
-            tooltip= zip([round(a,2) for a in x],[round(b,2) for b in real_v1],[round(c,2) for c in real_v2])
-            text=[f"{item}%" for item in tooltip]
+            hovertemplate = "<b>%{x}</b> | %{text}"
+            text =[]
+            for n in range(len(y)):
+                text.append('Pct Change: {:.2f}% Prev: {:.2E} Current: {:.2E}'.format(x[n], real_v1[n], real_v2[n]))
             return go.Scatter(
                 x=y,
                 y=x,
@@ -445,7 +445,7 @@ def pluto():
         fig = go.Figure()
         fig.add_trace(generate_graph(v1, v2))
         fig.add_trace(generate_graph(v2, v3))
-        fig.update_layout(title="Aggregate graph", template="plotly_white")
+        fig.update_layout(title="Aggregate graph", template="plotly_white", yaxis={'title':'Percent Change'})
         st.plotly_chart(fig)
         st.write(df)
         st.info(
