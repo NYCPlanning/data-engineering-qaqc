@@ -493,16 +493,6 @@ def pluto():
                     st.write(in2not1)
 
     def create_corrections(df):
-        def generate_trace(v1):
-            hovertemplate = "<b>%{x} - %{y}</b>"
-            return go.Scatter(
-                y=v1,
-                x=v1.index,
-                mode="lines",
-                name="Pluto Corrections",
-                hovertemplate=hovertemplate,
-                text=v1.index
-            )
         def version_title_text(version):
             if version == "All":
                 return "All Versions"
