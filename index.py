@@ -1,5 +1,5 @@
 import streamlit as st
-from src.pluto import pluto
+from src.pluto.pluto import pluto
 from src.ztl import ztl
 from src.facdb.facdb import facdb
 from src.devdb import devdb
@@ -16,7 +16,7 @@ datasets = {
     "Facilities DB": facdb,
     "Developments DB": devdb,
     "Geosupport Demo": geocode,
-    "Capital Projects DB": cpdb
+    "Capital Projects DB": cpdb,
 }
 
 
@@ -34,16 +34,14 @@ def run():
 
     datasets_list = list(datasets.keys())
     query_params = st.experimental_get_query_params()
-    
+
     if query_params:
         name = query_params["page"][0]
     else:
         name = "Home"
 
     name = st.sidebar.selectbox(
-        "select a dataset for qaqc",
-        datasets_list,
-        index=datasets_list.index(name)
+        "select a dataset for qaqc", datasets_list, index=datasets_list.index(name)
     )
 
     st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
