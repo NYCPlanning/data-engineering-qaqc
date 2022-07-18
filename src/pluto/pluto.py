@@ -44,7 +44,8 @@ def pluto():
     ]
 
     v1 = st.sidebar.selectbox(
-        "Pick a version of PLUTO:", versions, #index=len(versions) - 1
+        "Pick a version of PLUTO:",
+        versions,  # index=len(versions) - 1
     )
 
     v2 = versions[versions.index(v1) + 1]
@@ -427,28 +428,45 @@ def pluto():
                 "pfirm15_flag",
             ]
             x = [(v1[i] / v2[i] - 1) * 100 for i in y]
-            hovertemplate = "<b>%{x} %{text}</b>"
+            real_v1 = [v1[i] for i in y]
+            real_v2 = [v2[i] for i in y]
+            hovertemplate = "<b>%{x}</b> %{text}"
+            text = []
+            for n in range(len(y)):
+                text.append(
+                    "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
+                        x[n], real_v1[n], real_v2[n]
+                    )
+                )
             return go.Scatter(
                 x=y,
                 y=x,
                 mode="lines",
                 name=f"{_v1} - {_v2}",
                 hovertemplate=hovertemplate,
-                text=[f"{round(i,2)}%" for i in x],
+                text=text,
             )
 
         fig = go.Figure()
         fig.add_trace(generate_graph(v1, v2))
         fig.add_trace(generate_graph(v2, v3))
-        fig.update_layout(title="Aggregate graph", template="plotly_white")
+        fig.update_layout(
+            title="Aggregate graph",
+            template="plotly_white",
+            yaxis={"title": "Percent Change"},
+        )
         st.plotly_chart(fig)
         st.write(df)
         st.info(
             """
-         In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change.
+         The aggregate graph provides insights into the magnitude of changes, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
          For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
-         The aggregate graph may show that the aggregated sum increased by 5%. Totals for assessland, assesstot, and exempttot should only change in February and June.
-         Pay attention to any large changes to residential units (unitsres).
+         The aggregate graph may show that the aggregated sum of assessments increased by 5% compared with the previous version.\n
+         Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+         Special Notes:\n
+         1. Y-axis represents percent change over the previous version. \n
+         2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+         3. Pay attention to any large changes to residential units (unitsres).
         """
         )
 
