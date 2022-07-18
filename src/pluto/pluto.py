@@ -7,8 +7,7 @@ def pluto():
     import os
     from datetime import datetime
     import requests
-
-    ENGINE = os.environ["ENGINE"]
+    from src.pluto.helpers import get_branches, get_data
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -17,111 +16,39 @@ def pluto():
     """
     )
 
-    engine = create_engine(ENGINE)
+    branches = get_branches()
+    branch = st.sidebar.selectbox(
+        "select a branch",
+        branches,
+        index=branches.index("main"),
+    )
 
-    @st.cache(suppress_st_warning=True, allow_output_mutation=True)
-    def get_data():
-        def convert(dt):
-            try:
-                d = datetime.strptime(dt, "%Y/%m/%d")
-                return d.strftime("%m/%d/%y")
-            except BaseException:
-                return dt
-
-        engine = create_engine(ENGINE)
-        df_mismatch = pd.read_sql("SELECT * FROM dcp_pluto.qaqc_mismatch", con=engine)
-        df_null = pd.read_sql("SELECT * FROM dcp_pluto.qaqc_null", con=engine)
-        df_aggregate = pd.read_sql("SELECT * FROM dcp_pluto.qaqc_aggregate", con=engine)
-        source_data_versions = pd.read_csv(
-            "https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/latest/output/source_data_versions.csv"
-        )
-        sdv = source_data_versions.to_dict("records")
-        version = {}
-        for i in sdv:
-            version[i["schema_name"]] = i["v"]
-        version_text = f"""
-            Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***  
-            Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
-            Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcp_colp'])}***  
-            Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***  
-            Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries_wi'])}***  
-            Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries_wi'])}***  
-            Department of Finance – Digital Tax Map (DTM): ***{convert(version['dof_dtm'])}***  
-            Department of Finance – Mass Appraisal System (CAMA): ***{convert(version['pluto_input_cama_dof'])}***  
-            Department of Finance – Property Tax System (PTS): ***{convert(version['pluto_pts'])}***  
-            Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
-            Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
-        """
-        log = requests.get(
-            "https://raw.githubusercontent.com/NYCPlanning/db-pluto/master/maintenance/log.md"
-        ).text
-        return (
-            df_mismatch,
-            df_null,
-            df_aggregate,
-            source_data_versions,
-            version_text,
-            log,
-        )
-
-    (
-        df_mismatch,
-        df_null,
-        df_aggregate,
-        source_data_versions,
-        version_text,
-        log,
-    ) = get_data()
+    data = get_data(branch)
 
     versions = [
-        i[0]
-        for i in engine.execute(
-            """
-            SELECT table_name
-            FROM information_schema.tables
-            WHERE table_schema = 'dcp_pluto'
-            AND table_name !~*'qaqc|latest';
-            """
-        ).fetchall()
-    ]
-
-    versions_order = [
-        "19v1",
-        "19v2",
-        "20v1",
-        "20v2",
-        "20v3",
-        "20v4",
-        "20v5",
-        "20v6",
-        "20v7",
-        "20v8",
-        "21v1",
-        "21v2",
-        "21v3",
-        "21v4",
         "22v1",
-        "22v2",
-        "22v3",
-        "22v4",
-        "22v5",
-        "22v6",
-        "22v7",
-        "22v8",
-        "22v9",
-        "22v10",
-        "22v11",
-        "22v12",
-        "23v1"
-
+        "21v4",
+        "21v3",
+        "21v2",
+        "21v1",
+        "20v8",
+        "20v7",
+        "20v6",
+        "20v5",
+        "20v4",
+        "20v3",
+        "20v2",
+        "20v1",
+        "19v2",
+        "19v1",
     ]
 
     v1 = st.sidebar.selectbox(
-        "Pick a version of PLUTO:", versions, index=len(versions) - 1
+        "Pick a version of PLUTO:", versions, #index=len(versions) - 1
     )
-    
-    v2 = versions_order[versions_order.index(v1) - 1]
-    v3 = versions_order[versions_order.index(v1) - 2]
+
+    v2 = versions[versions.index(v1) + 1]
+    v3 = versions[versions.index(v1) + 2]
 
     condo = st.sidebar.checkbox("condo only")
     mapped = st.sidebar.checkbox("mapped only")
@@ -141,7 +68,7 @@ def pluto():
     st.text(
         f"Current version: {v1}, Previous version: {v2}, Previous Previous version: {v3}"
     )
-# test
+    # test
     def create_mismatch(df_mismatch, v1, v2, v3, condo, mapped):
         finance_columns = [
             "assessland",
@@ -302,8 +229,8 @@ def pluto():
             :,
         ]
 
-        v1v2 = df.loc[df_mismatch.pair == f"{v1} - {v2}", :].to_dict("records")[0]
-        v2v3 = df.loc[df_mismatch.pair == f"{v2} - {v3}", :].to_dict("records")[0]
+        v1v2 = df.loc[df.pair == f"{v1} - {v2}", :].to_dict("records")[0]
+        v2v3 = df.loc[df.pair == f"{v2} - {v3}", :].to_dict("records")[0]
         v1v2_total = v1v2.pop("total")
         v2v3_total = v2v3.pop("total")
 
@@ -449,9 +376,9 @@ def pluto():
                 mode="lines",
                 name=title,
                 hovertemplate="<b>%{x} %{text}</b>",
-                text=text
-            ) 
-       
+                text=text,
+            )
+
         fig = go.Figure()
         fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
         fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
@@ -533,18 +460,57 @@ def pluto():
         """
         )
 
-    create_mismatch(df_mismatch, v1, v2, v3, condo, mapped)
+    def create_expected(df, v1, v2):
 
-    create_null(df_null, v1, v2, v3, condo, mapped)
+        exp = df[df["v"].isin([v1, v2])]
 
-    create_aggregate(df_aggregate, v1, v2, v3, condo, mapped)
+        exp_records = exp.to_dict("records")
+        v1_exp = [i["expected"] for i in exp_records if i["v"] == v1][0]
+        v2_exp = [i["expected"] for i in exp_records if i["v"] == v2][0]
+        for field in [
+            "zonedist1",
+            "zonedist2",
+            "zonedist3",
+            "zonedist4",
+            "overlay1",
+            "overlay2",
+            "spdist1",
+            "spdist2",
+            "spdist3",
+            "ext",
+            "proxcode",
+            "irrlotcode",
+            "lottype",
+            "bsmtcode",
+            "bldgclasslanduse",
+        ]:
+            val1 = [i["values"] for i in v1_exp if i["field"] == field][0]
+            val2 = [i["values"] for i in v2_exp if i["field"] == field][0]
+            in1not2 = [i for i in val1 if i not in val2]
+            in2not1 = [i for i in val2 if i not in val1]
+            if len(in1not2) == 0 and len(in2not1) == 0:
+                pass
+            else:
+                st.markdown(f"### Expected value difference for {field}")
+                if len(in1not2) != 0:
+                    st.markdown(f"* in {v1} but not in {v2}:")
+                    st.write(in1not2)
+                if len(in2not1) != 0:
+                    st.markdown(f"* in {v2} but not in {v1}:")
+                    st.write(in2not1)
+
+    create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
+
+    create_null(data["df_null"], v1, v2, v3, condo, mapped)
+
+    create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
 
     st.header("Source Data Versions")
     code = st.checkbox("code")
     if code:
-        st.code(version_text)
+        st.code(data["version_text"])
     else:
-        st.markdown(version_text)
+        st.markdown(data["version_text"])
 
     # EXPECTED VALUE
     st.header("Expected Value Comparison")
@@ -552,50 +518,4 @@ def pluto():
         "if nothing showed up, then it means there aren't any expected value change"
     )
 
-    @st.cache(suppress_st_warning=True, allow_output_mutation=True)
-    def get_expected_value(v1, v2):
-        engine = create_engine(ENGINE)
-        df = pd.read_sql(
-            f"SELECT * FROM dcp_pluto.qaqc_expected where v ~* '{v1}|{v2}'", con=engine
-        )
-        return df
-
-    exp = get_expected_value(v1, v2)
-    exp_records = exp.to_dict("records")
-    v1_exp = [i["expected"] for i in exp_records if i["v"] == v1][0]
-    v2_exp = [i["expected"] for i in exp_records if i["v"] == v2][0]
-    for field in [
-        "zonedist1",
-        "zonedist2",
-        "zonedist3",
-        "zonedist4",
-        "overlay1",
-        "overlay2",
-        "spdist1",
-        "spdist2",
-        "spdist3",
-        "ext",
-        "proxcode",
-        "irrlotcode",
-        "lottype",
-        "bsmtcode",
-        "bldgclasslanduse",
-    ]:
-        val1 = [i["values"] for i in v1_exp if i["field"] == field][0]
-        val2 = [i["values"] for i in v2_exp if i["field"] == field][0]
-        in1not2 = [i for i in val1 if i not in val2]
-        in2not1 = [i for i in val2 if i not in val1]
-        if len(in1not2) == 0 and len(in2not1) == 0:
-            pass
-        else:
-            st.markdown(f"### Expected value difference for {field}")
-            if len(in1not2) != 0:
-                st.markdown(f"* in {v1} but not in {v2}:")
-                st.write(in1not2)
-            if len(in2not1) != 0:
-                st.markdown(f"* in {v2} but not in {v1}:")
-                st.write(in2not1)
-
-    seelog = st.sidebar.checkbox("see build log?")
-    if seelog:
-        st.sidebar.markdown(log)
+    create_expected(data["df_expected"], v1, v2)
