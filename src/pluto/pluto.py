@@ -44,7 +44,8 @@ def pluto():
     ]
 
     v1 = st.sidebar.selectbox(
-        "Pick a version of PLUTO:", versions, #index=len(versions) - 1
+        "Pick a version of PLUTO:",
+        versions,  # index=len(versions) - 1
     )
 
     v2 = versions[versions.index(v1) + 1]
@@ -366,7 +367,7 @@ def pluto():
             "firm07_flag",
             "pfirm15_flag",
         ]
-        
+
         def generate_graph(r, total, title):
             y = [r[i] for i in x]
             text = [f"{round(r[i]/total*100, 2)}%" for i in x]
@@ -392,7 +393,7 @@ def pluto():
         Hovering over a point shows you the number of null records in the more recent file. The number of such changes should be small.
         """
         )
-        
+
     def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
         df = df_aggregate.loc[
             (df_aggregate.condo == condo)
@@ -429,10 +430,14 @@ def pluto():
             x = [(v1[i] / v2[i] - 1) * 100 for i in y]
             real_v1 = [v1[i] for i in y]
             real_v2 = [v2[i] for i in y]
-            hovertemplate = "<b>%{x}</b> | %{text}"
-            text =[]
+            hovertemplate = "<b>%{x}</b> %{text}"
+            text = []
             for n in range(len(y)):
-                text.append('Pct Change: {:.2f}% Prev: {:.2E} Current: {:.2E}'.format(x[n], real_v1[n], real_v2[n]))
+                text.append(
+                    "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
+                        x[n], real_v1[n], real_v2[n]
+                    )
+                )
             return go.Scatter(
                 x=y,
                 y=x,
@@ -445,7 +450,11 @@ def pluto():
         fig = go.Figure()
         fig.add_trace(generate_graph(v1, v2))
         fig.add_trace(generate_graph(v2, v3))
-        fig.update_layout(title="Aggregate graph", template="plotly_white", yaxis={'title':'Percent Change'})
+        fig.update_layout(
+            title="Aggregate graph",
+            template="plotly_white",
+            yaxis={"title": "Percent Change"},
+        )
         st.plotly_chart(fig)
         st.write(df)
         st.info(
