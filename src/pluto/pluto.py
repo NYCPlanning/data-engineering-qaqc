@@ -4,6 +4,7 @@ def pluto():
     import numpy as np
     from sqlalchemy import create_engine
     import plotly.graph_objects as go
+    import plotly.express as px
     import os
     from datetime import datetime
     import requests
@@ -600,7 +601,7 @@ def pluto():
             """
         )
         version_dropdown = np.insert(np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())), 0, 'All')
-        version = st.selectbox("Filter the field corrections by PLUTO Version introduced", version_dropdown)
+        version = st.selectbox("Filter the field corrections by the PLUTO Version in which they were first introduced", version_dropdown)
 
         st.subheader("Manual Corrections Applied", anchor="corrections-applied")
         
