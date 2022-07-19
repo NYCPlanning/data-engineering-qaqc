@@ -8,7 +8,7 @@ from dotenv import load_dotenv
 
 load_dotenv()
 
-viz_keys = {
+VIZKEY = {
     "all categories": 
     {
         'projects': {
@@ -82,3 +82,9 @@ def get_map_percent_diff(df: pd.DataFrame, df_pre: pd.DataFrame, keys: dict):
     diff.sort_values(by="diff_percent_mapped", inplace=True, ascending=True)
     diff = diff * 100 
     return diff
+
+def sort_base_on_option(df: pd.DataFrame, subcategory, view_type, map_option, ascending=True):
+
+    df_sort = df.sort_values(by=VIZKEY[subcategory][view_type]["values"][map_option], ascending=ascending)
+    
+    return df_sort

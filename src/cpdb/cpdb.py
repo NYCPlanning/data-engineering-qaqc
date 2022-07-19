@@ -1,6 +1,6 @@
 import streamlit as st  # type: ignore
 import pandas as pd
-from src.cpdb.helpers import get_data, get_commit_cols, get_diff_dataframe, get_map_percent_diff, viz_keys
+from src.cpdb.helpers import get_data, get_commit_cols, get_diff_dataframe, get_map_percent_diff, sort_base_on_option,VIZKEY
 import plotly.express as px
 import plotly.graph_objects as go
 
@@ -48,12 +48,12 @@ def cpdb():
         df_pre.drop(labels=get_commit_cols(df_pre), axis=1, inplace=True)
 
     # sort the values based on projects/commitments and get the top ten agencies
-    df_bar = df.sort_values(by=viz_keys[subcategory][view_type]["values"][0], ascending=False)
+    df_bar = sort_base_on_option(df, subcategory, view_type, map_option=0, ascending=False)
     st.plotly_chart(
         px.bar(
             df_bar, 
             x=df_bar.index, 
-            y=viz_keys[subcategory][view_type]["values"],
+            y=VIZKEY[subcategory][view_type]["values"],
             barmode='group',
             width=1000,
         )
@@ -73,26 +73,23 @@ def cpdb():
             options=[0, 1],
             format_func=lambda x: map_option.get(x)
     )
+    # get the difference dataframe
     diff = get_diff_dataframe(df, df_pre)
-    #st.dataframe(diff)
-    #st.dataframe(df)
-
-    df_bar_diff = diff.sort_values(by=viz_keys[subcategory][view_type]["values"][map_option], ascending=True)
-    
+    df_bar_diff = sort_base_on_option(diff, subcategory, view_type, map_option=map_option)
     fig = go.Figure(
         [
             go.Bar(name="diff",
-                x=df_bar_diff[viz_keys[subcategory][view_type]["values"][map_option]], 
+                x=df_bar_diff[VIZKEY[subcategory][view_type]["values"][map_option]], 
                 y=df_bar_diff.index,
                 orientation='h'
             ),
             go.Bar(name="latest",
-                x=df[viz_keys[subcategory][view_type]["values"][map_option]], 
+                x=df[VIZKEY[subcategory][view_type]["values"][map_option]], 
                 y=df.index,
                 orientation='h'
             ),
             go.Bar(name="previous",
-                x=df_pre[viz_keys[subcategory][view_type]["values"][map_option]], 
+                x=df_pre[VIZKEY[subcategory][view_type]["values"][map_option]], 
                 y=df_pre.index,
                 orientation='h'
             ),
@@ -122,7 +119,7 @@ def cpdb():
         """
     )
     
-    diff_perc = get_map_percent_diff(df, df_pre, viz_keys[subcategory][view_type])
+    diff_perc = get_map_percent_diff(df, df_pre, VIZKEY[subcategory][view_type])
 
     fig3 = go.Figure(
         [
