@@ -105,8 +105,11 @@ def csv_from_DO(url, kwargs={}):
     return pd.read_csv(url, true_values=["t"], false_values=["f"], **kwargs)
 
 def unzip_csv(csv_filename, zipfile):
-    with zipfile.open(csv_filename) as csv:
-        return pd.read_csv(csv, true_values=["t"], false_values=["f"])
+    try:
+        with zipfile.open(csv_filename) as csv:
+            return pd.read_csv(csv, true_values=["t"], false_values=["f"])
+    except: 
+        return None
     
 def zip_from_DO(zip_filename, bucket):
     zip_obj = s3_resource().Object(bucket_name=bucket, key=zip_filename)

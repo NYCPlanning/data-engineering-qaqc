@@ -587,6 +587,10 @@ def pluto():
         applied_corrections = data['pluto_corrections_applied']
         not_applied_corrections = data['pluto_corrections_not_applied']
 
+        if applied_corrections is None or not_applied_corrections is None:
+            st.info("There are no available corrections reports for this branch.")
+            return
+            
         st.markdown(
             """
             PLUTO is created using the best available data from a number of city agencies. To further
@@ -601,9 +605,10 @@ def pluto():
             see the [Pluto Changelog Readme](https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/pluto_change_file_readme.pdf?r=22v1).
             """
         )
+
         version_dropdown = np.insert(np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())), 0, 'All')
         version = st.sidebar.selectbox("Filter the field corrections by the PLUTO Version in which they were first introduced", version_dropdown)
-
+        
         st.subheader("Manual Corrections Applied", anchor="corrections-applied")
         
         create_corrections_section(applied_corrections, version, applied=True)
