@@ -618,13 +618,19 @@ def pluto():
         create_expected(data["df_expected"], v1, v2)
 
     def manual_corrections_report(data):
-        def create_corrections_graph(df, version, applied):
+        def create_corrections_section(df, version, applied):
             def title_text(version, applied):
                 applied_text = "Applied Manual Corrections " if applied else "Manual Corrections Not Applied "
                 version_text = "for All Versions by Field" if version == "All" else f"introduced in Version {version} by Field"
 
                 return applied_text + version_text
-                
+
+            def filter_by_version(df, version):
+                if version == 'All':
+                    return df
+                else:
+                    return df.loc[df['version'] == version]
+
             def generate_graph(v1, version, applied):
                 return px.bar(
                     v1, 
@@ -635,15 +641,14 @@ def pluto():
                     labels={'size': 'Count of Records', 'field': 'Altered Field'}
                 )
 
+            def display_corrections_df(corrections):
+                corrections = corrections.sort_values(by=['version', 'reason', 'bbl'], ascending=[False, True, True])
+
+                st.dataframe(corrections)
+
             def field_correction_counts(df):
                 return df.groupby(['field']).size().to_frame('size').reset_index()
             
-            def filter_by_version(df, version):
-                if version == 'All':
-                    return df
-                else:
-                    return df.loc[df['version'] == version]
-
             def empty_message(applied, version):
                 if applied:
                     st.info(f"No Corrections introduced in Version {version} were applied.")
@@ -658,27 +663,51 @@ def pluto():
                 figure = generate_graph(field_correction_counts(df), version, applied)
                 st.plotly_chart(figure)
 
-        def corrections_section(applied_corrections, not_applied_corrections):
-            st.header("Manual Corrections")
+                display_corrections_df(df)
 
-            version_dropdown = np.insert(np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())), 0, 'All')
-            version = st.selectbox("Select a Version for which manual corrections were first introduced.", version_dropdown)
 
-            # create_corrections(data["pluto_corrections"], version)
-            create_corrections_graph(applied_corrections, version, applied=True)
-            create_corrections_graph(not_applied_corrections, version, applied=False)
+        st.header("Manual Corrections")
 
-            st.info(
-                """
-                This report shows the number of records altered by DCP to correct errors in the underlying data, grouped by the field altered. 
-                See [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) for a full accounting of the changes made for the latest version
-                in the PLUTO change file.
-                """
-            )
+        applied_corrections = data['pluto_corrections_applied']
+        not_applied_corrections = data['pluto_corrections_not_applied']
 
-        corrections_section(
-            applied_corrections=data['pluto_corrections_applied'], 
-            not_applied_corrections=data['pluto_corrections_not_applied']
+        st.markdown(
+            """
+            PLUTO is created using the best available data from a number of city agencies. To further
+            improve data quality, the Department of City Planning (DCP) applies changes to selected field
+            values.
+
+            Each Field Correction is labeled for a version of PLUTO. For programmatic changes, this is version in which the programmatic change was
+            implemented. For research and user reported changes, this is the version in which the BBL
+            change was added to PLUTO_input_research.csv.
+
+            For more information about the structure of the pluto corrections report,
+            see the [Pluto Changelog Readme](https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/pluto_change_file_readme.pdf?r=22v1).
+            """
+        )
+        version_dropdown = np.insert(np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())), 0, 'All')
+        version = st.selectbox("Filter the field corrections by PLUTO Version introduced", version_dropdown)
+
+        st.subheader("Manual Corrections Applied", anchor="corrections-applied")
+        
+        create_corrections_section(applied_corrections, version, applied=True)
+
+        st.subheader("Manual Corrections Not Applied", anchor="corrections-not-applied")
+
+        st.markdown(
+            """ 
+            For each record in the PLUTO Corrections table, PLUTO attempts to correct a record by matching on the BBL and the 
+            Old Value column. As the underlying datasources change and improve, PLUTO records may no longer match the old value 
+            specified in the pluto corrections table. The graph and table below outline the records in the pluto corrections table that failed to be applied for this reason.
+            """
+        )
+        create_corrections_section(not_applied_corrections, version, applied=False)
+
+        st.info(
+            """
+            See [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) for a full accounting of the changes made for the latest version
+            in the PLUTO change file.
+            """
         )
 
     report_type = st.sidebar.selectbox("Choose a Report Type", ["Compare with Previous Version", "Review Manual Corrections"])
