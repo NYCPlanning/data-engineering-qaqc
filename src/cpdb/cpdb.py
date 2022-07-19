@@ -18,12 +18,12 @@ def cpdb():
         format_func=lambda x: agency_label.get(x)
     )
     view_type = st.sidebar.selectbox(
-        "select to view by projects or commitment",
+        "select to view by number of projects or values of commitments in dollars",
         ['projects', 'commitments']
     )
     
     subcategory = st.sidebar.selectbox(
-        "choose a subcategoy or entire ",
+        "choose a subcategoy or entire portfolio",
         ['all categories', 'fixed assets']
     )
     
