@@ -27,8 +27,18 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
         zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
         bucket=BUCKET_NAME
     )
+
     rv["pluto_corrections"] = unzip_csv(
         csv_filename="pluto_corrections.csv",
+        zipfile=pluto_corrections_zip
+    )
+    
+    rv["pluto_corrections_applied"] = unzip_csv(
+        csv_filename="pluto_corrections_applied.csv",
+        zipfile=pluto_corrections_zip
+    )
+    rv["pluto_corrections_not_applied"] = unzip_csv(
+        csv_filename="pluto_corrections_not_applied.csv",
         zipfile=pluto_corrections_zip
     )
 

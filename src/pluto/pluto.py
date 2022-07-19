@@ -511,23 +511,22 @@ def pluto():
                     st.markdown(f"* in {v2} but not in {v1}:")
                     st.write(in2not1)
 
-    def create_corrections(df):
-        def version_title_text(version):
-            if version == "All":
-                return "All Versions"
-            else:
-                return f"Version {version}"
+    def create_corrections_graph(df, version, applied):
+        def title_text(version, applied):
+            applied_text = "Applied Manual Corrections " if applied else "Manual Corrections Not Applied "
+            version_text = "for All Versions by Field" if version == "All" else f"introduced in Version {version} by Field"
+
+            return applied_text + version_text
             
-        def generate_graph(v1, version):
-            fig = px.bar(
+        def generate_graph(v1, version, applied):
+            return px.bar(
                 v1, 
                 x='field',
                  y='size', 
                  text='size',
-                 title=f"Corrected Records by Field for {version_title_text(version)}", 
-                 labels={'size': 'Count of Corrected Records', 'field': 'Altered Field'}
+                 title=title_text(version, applied), 
+                 labels={'size': 'Count of Records', 'field': 'Altered Field'}
             )
-            return fig
 
         def field_correction_counts(df):
             return df.groupby(['field']).size().to_frame('size').reset_index()
@@ -537,16 +536,31 @@ def pluto():
                 return df
             else:
                 return df.loc[df['version'] == version]
-        
-        st.header("Manual Corrections")
-        version_dropdown = np.insert(np.flip(np.sort(df.version.dropna().unique())), 0, 'All')
-        version = st.selectbox("Select a Version", version_dropdown)
+
+        def empty_message(applied, version):
+            if applied:
+                st.info(f"No Corrections introduced in Version {version} were applied.")
+            else:
+                st.info(f"All Corrections introduced in Version {version} were applied.")
 
         df = filter_by_version(df, version)
-        
-        figure = generate_graph(field_correction_counts(df), version)
 
-        st.plotly_chart(figure)
+        if df.empty:
+            empty_message(applied, version)
+        else:
+            figure = generate_graph(field_correction_counts(df), version, applied)
+            st.plotly_chart(figure)
+
+    def corrections_section(applied_corrections, not_applied_corrections):
+        st.header("Manual Corrections")
+
+        version_dropdown = np.insert(np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())), 0, 'All')
+        version = st.selectbox("Select a Version for which manual corrections were first introduced.", version_dropdown)
+
+        # create_corrections(data["pluto_corrections"], version)
+        create_corrections_graph(applied_corrections, version, applied=True)
+        create_corrections_graph(not_applied_corrections, version, applied=False)
+
         st.info(
             """
             This report shows the number of records altered by DCP to correct errors in the underlying data, grouped by the field altered. 
@@ -576,5 +590,7 @@ def pluto():
 
     create_expected(data["df_expected"], v1, v2)
 
-    create_corrections(data["pluto_corrections"])
-
+    corrections_section(
+        applied_corrections=data['pluto_corrections_applied'], 
+        not_applied_corrections=data['pluto_corrections_not_applied']
+    )
