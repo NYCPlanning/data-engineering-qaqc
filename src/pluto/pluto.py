@@ -4,7 +4,6 @@ def pluto():
     import numpy as np
     from sqlalchemy import create_engine
     import plotly.graph_objects as go
-    import plotly.express as px
     import os
     from datetime import datetime
     import requests
@@ -48,78 +47,6 @@ def pluto():
         v1 = st.sidebar.selectbox(
             "Pick a version of PLUTO:",
             versions,  # index=len(versions) - 1
-        )
-
-        v2 = versions[versions.index(v1) + 1]
-        v3 = versions[versions.index(v1) + 2]
-
-        condo = st.sidebar.checkbox("condo only")
-        mapped = st.sidebar.checkbox("mapped only")
-        st.sidebar.markdown(
-            """
-        These reports compare the version selected with the previous version (in blue)
-        and the differences between the previous two versions (in red).
-
-        There is an option to look at just **condo lots**. Condos make up a small percentage of lots,
-        but contain a large percentage of the residential housing.
-
-        A second option lets you look at all lots or just **mapped lots**.
-        Unmapped lots are those with a record in PTS, but no corresponding record in DTM.
-        This happens because DOF updates are not in sync.
-        """
-        )
-        st.text(
-            f"Current version: {v1}, Previous version: {v2}, Previous Previous version: {v3}"
-        )
-        # test
-        def create_mismatch(df_mismatch, v1, v2, v3, condo, mapped):
-        finance_columns = [
-            "assessland",
-            "assesstot",
-            "exempttot",
-            "taxmap",
-            "appbbl",
-            "appdate",
-            "plutomapid",
-        ]
-
-        area_columns = [
-            "lotarea",
-            "bldgarea",
-            "builtfar",
-            "comarea",
-            "resarea",
-            "officearea",
-            "retailarea",
-            "garagearea",
-            "strgearea",
-            "factryarea",
-            "otherarea",
-            "areasource",
-        ]
-
-        zoning_columns = [
-            "residfar",
-            "commfar",
-            "facilfar",
-            "zonedist1",
-            "zonedist2",
-            "zonedist3",
-            "zonedist4",
-            "overlay1",
-            "overlay2",
-            "spdist1",
-            "spdist2",
-            "spdist3",
-            "ltdheight",
-            "splitzone",
-            "zonemap",
-            "zmcode",
-            "edesignum",
-        ]
-
-        v1 = st.sidebar.selectbox(
-            "Pick a version of PLUTO:", versions, #index=len(versions) - 1
         )
 
         v2 = versions[versions.index(v1) + 1]
@@ -441,48 +368,18 @@ def pluto():
                 "firm07_flag",
                 "pfirm15_flag",
             ]
-            x = [(v1[i] / v2[i] - 1) * 100 for i in y]
-            real_v1 = [v1[i] for i in y]
-            real_v2 = [v2[i] for i in y]
-            hovertemplate = "<b>%{x}</b> %{text}"
-            text = []
-            for n in range(len(y)):
-                text.append(
-                    "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
-                        x[n], real_v1[n], real_v2[n]
-                    )
-                )
-            return go.Scatter(
-                x=y,
-                y=x,
-                mode="lines",
-                name=f"{_v1} - {_v2}",
-                hovertemplate=hovertemplate,
-                text=text,
-            )
 
-        fig = go.Figure()
-        fig.add_trace(generate_graph(v1, v2))
-        fig.add_trace(generate_graph(v2, v3))
-        fig.update_layout(
-            title="Aggregate graph",
-            template="plotly_white",
-            yaxis={"title": "Percent Change"},
-        )
-        st.plotly_chart(fig)
-        st.write(df)
-        st.info(
-            """
-         The aggregate graph provides insights into the magnitude of changes, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
-         For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
-         The aggregate graph may show that the aggregated sum of assessments increased by 5% compared with the previous version.\n
-         Totals for assessland, assesstot, and exempttot should only change in February and June.\n
-         Special Notes:\n
-         1. Y-axis represents percent change over the previous version. \n
-         2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
-         3. Pay attention to any large changes to residential units (unitsres).
-        """
-        )
+            def generate_graph(r, total, title):
+                y = [r[i] for i in x]
+                text = [f"{round(r[i]/total*100, 2)}%" for i in x]
+                return go.Scatter(
+                    x=x,
+                    y=y,
+                    mode="lines",
+                    name=title,
+                    hovertemplate="<b>%{x} %{text}</b>",
+                    text=text,
+                )
 
             fig = go.Figure()
             fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
@@ -532,28 +429,45 @@ def pluto():
                     "pfirm15_flag",
                 ]
                 x = [(v1[i] / v2[i] - 1) * 100 for i in y]
-                hovertemplate = "<b>%{x} %{text}</b>"
+                real_v1 = [v1[i] for i in y]
+                real_v2 = [v2[i] for i in y]
+                hovertemplate = "<b>%{x}</b> %{text}"
+                text = []
+                for n in range(len(y)):
+                    text.append(
+                        "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
+                            x[n], real_v1[n], real_v2[n]
+                        )
+                    )
                 return go.Scatter(
                     x=y,
                     y=x,
                     mode="lines",
                     name=f"{_v1} - {_v2}",
                     hovertemplate=hovertemplate,
-                    text=[f"{round(i,2)}%" for i in x],
+                    text=text,
                 )
 
             fig = go.Figure()
             fig.add_trace(generate_graph(v1, v2))
             fig.add_trace(generate_graph(v2, v3))
-            fig.update_layout(title="Aggregate graph", template="plotly_white")
+            fig.update_layout(
+                title="Aggregate graph",
+                template="plotly_white",
+                yaxis={"title": "Percent Change"},
+            )
             st.plotly_chart(fig)
             st.write(df)
             st.info(
                 """
-            In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change.
+            The aggregate graph provides insights into the magnitude of changes, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
             For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
-            The aggregate graph may show that the aggregated sum increased by 5%. Totals for assessland, assesstot, and exempttot should only change in February and June.
-            Pay attention to any large changes to residential units (unitsres).
+            The aggregate graph may show that the aggregated sum of assessments increased by 5% compared with the previous version.\n
+            Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+            Special Notes:\n
+            1. Y-axis represents percent change over the previous version. \n
+            2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+            3. Pay attention to any large changes to residential units (unitsres).
             """
             )
 
@@ -595,6 +509,7 @@ def pluto():
                     if len(in2not1) != 0:
                         st.markdown(f"* in {v2} but not in {v1}:")
                         st.write(in2not1)
+
         create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
         create_null(data["df_null"], v1, v2, v3, condo, mapped)
