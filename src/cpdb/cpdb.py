@@ -36,28 +36,34 @@ def cpdb():
         Third, you could view the only a subcategory of the projects that outlined by the Capital Planning database. 
         """
     )
-    st.header(f'Sorted By Number of {view_type} in the Latest {agency_type} Summary Stats')
+    #st.header(f'Sorted By Number of {view_type} in the Latest {agency_label} Summary Stats')
 
     df = data[agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_" + agency_type].set_index(agency_type + "acro")
+    print(df)
+    df_pre = data["pre_" + agency_type].set_index(agency_type + "acro") 
     if view_type == "commitments":
+        st.header(f'Dollar ($) Value of Commitments by {agency_type} for {subcategory} (Mapped vs Unmapped)')
         df = df[get_commit_cols(df)]
         df_pre = df_pre[get_commit_cols(df_pre)]
     else: 
+        st.header(f'Number of Projects by {agency_type} for {subcategory} (Mapped vs Unmapped)')
         df.drop(labels=get_commit_cols(df), axis=1, inplace=True)
         df_pre.drop(labels=get_commit_cols(df_pre), axis=1, inplace=True)
 
     # sort the values based on projects/commitments and get the top ten agencies
     df_bar = sort_base_on_option(df, subcategory, view_type, map_option=0, ascending=False)
+    print(df_bar.index)
     st.plotly_chart(
         px.bar(
             df_bar, 
             x=df_bar.index, 
             y=VIZKEY[subcategory][view_type]["values"],
+            labels = dict(sagencyacro = "Sponsoring Agency", magencyacro = "Managing Agency"),
             barmode='group',
             width=1000,
         )
     )
+    
 
     st.header(f"Compare Previous vs. Latest {agency_type} Table")
     st.caption(
