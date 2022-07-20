@@ -40,7 +40,7 @@ def pluto():
         "20v2",
         "20v1",
         "19v2",
-        "19v1",
+        "19v1", 
     ]
 
     v1 = st.sidebar.selectbox(
@@ -405,7 +405,7 @@ def pluto():
         v2 = df.loc[df.v == v2, :].to_dict("records")[0]
         v3 = df.loc[df.v == v3, :].to_dict("records")[0]
 
-        def generate_graph(v1, v2):
+def generate_graph(v1, v2):
             _v1 = v1["v"]
             _v2 = v2["v"]
 
@@ -509,6 +509,42 @@ def pluto():
                     st.markdown(f"* in {v2} but not in {v1}:")
                     st.write(in2not1)
 
+
+    def create_outlier(df, v1, condo, mapped):
+        outlier = df.loc[
+            (df.condo == condo)
+            & (df.mapped == mapped)
+            & (df.v == v1),
+            :,
+        ]
+
+        outlier_records = outlier.to_dict("records")
+        v1_out = [i["outlier"] for i in outlier_records if i["v"] == v1][0]
+
+        building_area_increase = [i["values"] for i in v1_out if i["field"] == 'building_area_increase'][0]
+        df1 = pd.DataFrame(building_area_increase)
+        version_pair=df1['pair'].unique()
+        df1=df1.drop(columns=['pair'])
+        df1['bbl']=pd.to_numeric(df1['bbl'], downcast='integer')
+        st.markdown(f'### Table of BBLs with Unreasonable Increase in Building Area {version_pair}')
+        st.dataframe(df1,900,200)
+        st.info('The table displays all BBLs where building area is more than doubled since previous version.')
+
+        st.markdown(f'### Table of BBLs with 50+ unitsres and resarea/unitsres < 300')
+        unitsres_resarea = [i["values"] for i in v1_out if i["field"] == 'unitsres_resarea'][0]
+        df2 = pd.DataFrame(unitsres_resarea)
+        df2['bbl']=pd.to_numeric(df2['bbl'], downcast='integer')
+        st.dataframe(df2,800,200)
+        st.info('The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.')
+
+        st.markdown(f'### Table of BBLs where bldgarea/lotarea > numfloors*2')
+        lotarea_numfloor = [i["values"] for i in v1_out if i["field"] == 'lotarea_numfloor'][0]
+        df3 = pd.DataFrame(lotarea_numfloor)
+        df3['bbl']=pd.to_numeric(df3['bbl'], downcast='integer')
+        st.dataframe(df3,900,200)
+        st.info('The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.')
+    
+    
     create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
     create_null(data["df_null"], v1, v2, v3, condo, mapped)
@@ -529,3 +565,10 @@ def pluto():
     )
 
     create_expected(data["df_expected"], v1, v2)
+
+    # OUTLIER VALUE
+    st.header("OUTLIER ANALYSIS")
+    st.write(
+        "If nothing showed up, then it means there aren't any outlier in the current version."
+    )
+    create_outlier(data["df_outlier"],v1,condo,mapped)

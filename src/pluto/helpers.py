@@ -19,6 +19,15 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv["df_expected"] = csv_from_DO(
         f"{url}/qaqc_expected.csv", kwargs={"converters": {"expected": json.loads}}
     )
+    
+    #rv["df_outlier"] = csv_from_DO(
+        # f"{url}/qaqc_outlier.csv", kwargs={"converters": {"expected": json.loads}}
+        # )
+    df_outlier = pd.read_csv('qaqc_outlier.csv')
+    df_outlier['outlier'] = df_outlier['outlier'].apply(json.loads)
+    rv['df_outlier']=df_outlier
+    
+    
 
     source_data_versions = pd.read_csv(
         f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output/source_data_versions.csv"
@@ -45,7 +54,6 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     """
 
     return rv
-
 
 def get_branches():
     all_branches = set()
