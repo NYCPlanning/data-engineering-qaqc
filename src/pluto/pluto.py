@@ -626,7 +626,7 @@ def pluto():
         not_applied_corrections = data['pluto_corrections_not_applied']
 
         if applied_corrections is None or not_applied_corrections is None:
-            st.info("There are no available corrections reports for this branch.")
+            st.info("There are no available corrections reports for this branch. This is likely due to a problem on the backend with the files on Digital Ocean.")
             return
             
         version_dropdown = np.insert(np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())), 0, 'All')
