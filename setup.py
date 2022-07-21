@@ -13,6 +13,7 @@ setup(
         "plotly",
         "python-dotenv",
         "boto3",
+        "streamlit-aggrid"
     ],
     zip_safe=False,
 )

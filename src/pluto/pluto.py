@@ -9,6 +9,7 @@ def pluto():
     from datetime import datetime
     import requests
     from src.pluto.helpers import get_branches, get_data
+    from st_aggrid import AgGrid
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -560,7 +561,7 @@ def pluto():
             def display_corrections_df(corrections):
                 corrections = corrections.sort_values(by=['version', 'reason', 'bbl'], ascending=[False, True, True])
 
-                st.dataframe(corrections)
+                AgGrid(corrections)
 
             def field_correction_counts(df):
                 return df.groupby(['field']).size().to_frame('size').reset_index()
@@ -635,6 +636,6 @@ def pluto():
 
     if report_type == 'Compare with Previous Version':
         version_comparison_report(data)
-    else:
+    elif report_type == "Review Manual Corrections":
         manual_corrections_report(data)
     
