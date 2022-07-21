@@ -1,5 +1,6 @@
 def pluto():
     import streamlit as st
+    from st_aggrid import AgGrid
     import pandas as pd
     import numpy as np
     from sqlalchemy import create_engine
@@ -509,7 +510,7 @@ def pluto():
                     st.write(in2not1)
 
 
-    def create_outlier(df, v1, condo, mapped):
+    def create_outlier(df, v1, v2, condo, mapped):
         outlier = df.loc[
             (df.condo == condo)
             & (df.mapped == mapped)
@@ -518,32 +519,47 @@ def pluto():
         ]
 
         outlier_records = outlier.to_dict("records")
-        v1_out = [i["outlier"] for i in outlier_records if i["v"] == v1][0]
+        v1_outlier = [i["outlier"] for i in outlier_records if i["v"] == v1][0]
 
-        building_area_increase = [i["values"] for i in v1_out if i["field"] == 'building_area_increase'][0]
-        df1 = pd.DataFrame(building_area_increase)
-        version_pair=df1['pair'].unique()
-        df1=df1.drop(columns=['pair'])
-        df1['bbl']=pd.to_numeric(df1['bbl'], downcast='integer')
+        def display_dataframe(v1_outlier, field):
+            records = [i["values"] for i in v1_outlier if i["field"] == field][0]
+            if records:
+                df = pd.DataFrame(records)
+                if field == 'building_area_increase':
+                    df=df.drop(columns=['pair'])
+                df['bbl']=pd.to_numeric(df['bbl'], downcast='integer')
+                return df,df.shape[0]
+            else:
+                return 'This is no outlier.'
+        
+        version_pair = v1 + '-' + v2
         st.markdown(f'### Table of BBLs with Unreasonable Increase in Building Area {version_pair}')
-        st.dataframe(df1,900,200)
-        st.info('The table displays all BBLs where building area is more than doubled since previous version.')
+        result1=display_dataframe(v1_outlier,'building_area_increase')
+        if type(result1) == str:
+            st.write(result1)
+        else:
+            AgGrid(result1[0])
+            count_outlier=result1[1]
+            st.info(f'There are {count_outlier} outliers in total. The table displays all BBLs where building area is more than doubled since previous version.')
 
         st.markdown(f'### Table of BBLs with 50+ unitsres and resarea/unitsres < 300')
-        unitsres_resarea = [i["values"] for i in v1_out if i["field"] == 'unitsres_resarea'][0]
-        df2 = pd.DataFrame(unitsres_resarea)
-        df2['bbl']=pd.to_numeric(df2['bbl'], downcast='integer')
-        st.dataframe(df2,800,200)
-        st.info('The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.')
+        result2=display_dataframe(v1_outlier,'unitsres_resarea')
+        if type(result2) == str:
+            st.write(result2)
+        else:
+            AgGrid(result2[0])
+            count_outlier=result2[1]
+            st.info(f'There are {count_outlier} outliers in total. The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.')
 
         st.markdown(f'### Table of BBLs where bldgarea/lotarea > numfloors*2')
-        lotarea_numfloor = [i["values"] for i in v1_out if i["field"] == 'lotarea_numfloor'][0]
-        df3 = pd.DataFrame(lotarea_numfloor)
-        df3['bbl']=pd.to_numeric(df3['bbl'], downcast='integer')
-        st.dataframe(df3,900,200)
-        st.info('The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.')
-    
-    
+        result3=display_dataframe(v1_outlier,'lotarea_numfloor')
+        if type(result3) == str:
+            st.write(result3)
+        else:
+            AgGrid(result3[0])
+            count_outlier=result3[1]
+            st.info(f'There are {count_outlier} outliers in total. The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.')
+        
     create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
     create_null(data["df_null"], v1, v2, v3, condo, mapped)
@@ -570,4 +586,4 @@ def pluto():
     st.write(
         "If nothing showed up, then it means there aren't any outlier in the current version."
     )
-    create_outlier(data["df_outlier"],v1,condo,mapped)
+    create_outlier(data["df_outlier"],v1,v2,condo,mapped)
