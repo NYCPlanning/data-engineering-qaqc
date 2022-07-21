@@ -425,7 +425,7 @@ def pluto():
                 "exempttot",
                 "firm07_flag",
                 "pfirm15_flag",
-                ]
+            ]
             x = [(v1[i] / v2[i] - 1) * 100 for i in y]
             real_v1 = [v1[i] for i in y]
             real_v2 = [v2[i] for i in y]
@@ -444,7 +444,7 @@ def pluto():
                 name=f"{_v1} - {_v2}",
                 hovertemplate=hovertemplate,
                 text=text,
-                )
+            )
 
         fig = go.Figure()
         fig.add_trace(generate_graph(v1, v2))
@@ -453,7 +453,7 @@ def pluto():
             title="Aggregate graph",
             template="plotly_white",
             yaxis={"title": "Percent Change"},
-            )
+        )
         st.plotly_chart(fig)
         st.write(df)
         st.info(
