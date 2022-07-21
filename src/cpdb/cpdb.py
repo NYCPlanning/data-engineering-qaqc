@@ -53,16 +53,32 @@ def cpdb():
     # sort the values based on projects/commitments and get the top ten agencies
     df_bar = sort_base_on_option(df, subcategory, view_type, map_option=0, ascending=False)
     print(df_bar.index)
-    st.plotly_chart(
-        px.bar(
+    fig1 = px.bar(
             df_bar, 
             x=df_bar.index, 
             y=VIZKEY[subcategory][view_type]["values"],
             labels = dict(sagencyacro = "Sponsoring Agency", magencyacro = "Managing Agency"),
             barmode='group',
             width=1000,
+            color_discrete_map={
+                "totalcount": "#58508d",
+                "mapped": "#ff6361",
+                "totalcommit" : "#003f5c",
+                "mappedcommit": "#ffa600"
+            }
         )
+
+    fig1.update_yaxes(
+        title="Number of Projects" if view_type == "projects" else "Commitments Amount (USD)"
     )
+    
+    st.plotly_chart(fig1)
+
+    st.caption(
+        body="""This graph highlights the number of Capital Projects with a planned or 
+        allocated Capital commitment by Sponsoring Agency. Both the total number of 
+        projects by agency and the number of projects that have been mapped (successfully geolocated) 
+        are visualized in this chart for comparison purposes.""")
     
 
     st.header(f"Compare Previous vs. Latest {agency_type} Table")
@@ -82,7 +98,7 @@ def cpdb():
     # get the difference dataframe
     diff = get_diff_dataframe(df, df_pre)
     df_bar_diff = sort_base_on_option(diff, subcategory, view_type, map_option=map_option)
-    fig = go.Figure(
+    fig2 = go.Figure(
         [
             go.Bar(name="diff",
                 x=df_bar_diff[VIZKEY[subcategory][view_type]["values"][map_option]], 
@@ -102,17 +118,17 @@ def cpdb():
         ]
     )
 
-    fig.update_layout(
+    fig2.update_layout(
         barmode="group",
         width=1000,
         height=1000
     )
 
-    fig.update_xaxes(
+    fig2.update_xaxes(
         title="Number of Projects" if view_type == "projects" else "Commitments Amount (USD)"
     )
 
-    st.plotly_chart(fig)
+    st.plotly_chart(fig2)
 
     st.header("Compare Mapping from Previous to Latest Managing Agency Table")
     
