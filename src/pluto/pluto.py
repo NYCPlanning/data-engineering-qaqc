@@ -406,69 +406,68 @@ def pluto():
         v3 = df.loc[df.v == v3, :].to_dict("records")[0]
 
         def generate_graph(v1, v2):
-                    _v1 = v1["v"]
-                    _v2 = v2["v"]
-
-                    y = [
-                        "unitsres",
-                        "lotarea",
-                        "bldgarea",
-                        "comarea",
-                        "resarea",
-                        "officearea",
-                        "retailarea",
-                        "garagearea",
-                        "strgearea",
-                        "factryarea",
-                        "otherarea",
-                        "assessland",
-                        "assesstot",
-                        "exempttot",
-                        "firm07_flag",
-                        "pfirm15_flag",
-                    ]
-                    x = [(v1[i] / v2[i] - 1) * 100 for i in y]
-                    real_v1 = [v1[i] for i in y]
-                    real_v2 = [v2[i] for i in y]
-                    hovertemplate = "<b>%{x}</b> %{text}"
-                    text = []
-                    for n in range(len(y)):
-                        text.append(
-                            "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
-                                x[n], real_v1[n], real_v2[n]
-                            )
-                        )
-                    return go.Scatter(
-                        x=y,
-                        y=x,
-                        mode="lines",
-                        name=f"{_v1} - {_v2}",
-                        hovertemplate=hovertemplate,
-                        text=text,
+            _v1 = v1["v"]
+            _v2 = v2["v"]
+            y = [
+                "unitsres",
+                "lotarea",
+                "bldgarea",
+                "comarea",
+                "resarea",
+                "officearea",
+                "retailarea",
+                "garagearea",
+                "strgearea",
+                "factryarea",
+                "otherarea",
+                "assessland",
+                "assesstot",
+                "exempttot",
+                "firm07_flag",
+                "pfirm15_flag",
+                ]
+            x = [(v1[i] / v2[i] - 1) * 100 for i in y]
+            real_v1 = [v1[i] for i in y]
+            real_v2 = [v2[i] for i in y]
+            hovertemplate = "<b>%{x}</b> %{text}"
+            text = []
+            for n in range(len(y)):
+                text.append(
+                    "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
+                        x[n], real_v1[n], real_v2[n]
                     )
+                )
+            return go.Scatter(
+                x=y,
+                y=x,
+                mode="lines",
+                name=f"{_v1} - {_v2}",
+                hovertemplate=hovertemplate,
+                text=text,
+                )
 
-                fig = go.Figure()
-                fig.add_trace(generate_graph(v1, v2))
-                fig.add_trace(generate_graph(v2, v3))
-                fig.update_layout(
-                    title="Aggregate graph",
-                    template="plotly_white",
-                    yaxis={"title": "Percent Change"},
-                )
-                st.plotly_chart(fig)
-                st.write(df)
-                st.info(
-                    """
-                The aggregate graph provides insights into the magnitude of changes, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
-                For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
-                The aggregate graph may show that the aggregated sum of assessments increased by 5% compared with the previous version.\n
-                Totals for assessland, assesstot, and exempttot should only change in February and June.\n
-                Special Notes:\n
-                1. Y-axis represents percent change over the previous version. \n
-                2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
-                3. Pay attention to any large changes to residential units (unitsres).
-                """
-                )
+        fig = go.Figure()
+        fig.add_trace(generate_graph(v1, v2))
+        fig.add_trace(generate_graph(v2, v3))
+        fig.update_layout(
+            title="Aggregate graph",
+            template="plotly_white",
+            yaxis={"title": "Percent Change"},
+            )
+        st.plotly_chart(fig)
+        st.write(df)
+        st.info(
+            """
+            The aggregate graph provides insights into the magnitude of changes, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
+            For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
+            The aggregate graph may show that the aggregated sum of assessments increased by 5% compared with the previous version.\n
+            Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+            Special Notes:\n
+            1. Y-axis represents percent change over the previous version. \n
+            2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+            3. Pay attention to any large changes to residential units (unitsres).
+            """
+            )
 
     def create_expected(df, v1, v2):
 
