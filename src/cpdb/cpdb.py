@@ -61,10 +61,12 @@ def cpdb():
             barmode='group',
             width=1000,
             color_discrete_map={
-                "totalcount": "#58508d",
-                "mapped": "#ff6361",
+                "totalcount": "#2f4b7c",
+                "mapped": "#ff7c43",
                 "totalcommit" : "#003f5c",
-                "mappedcommit": "#ffa600"
+                "mappedcommit": "#ffa600",
+                "fixedassetcommit": "#665191",
+                "fixedassetcommitmapped": "#f95d6a"
             }
         )
 
