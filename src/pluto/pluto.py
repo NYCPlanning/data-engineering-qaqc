@@ -26,6 +26,7 @@ def pluto():
     data = get_data(branch)
 
     versions = [
+        '22v2',
         "22v1",
         "21v4",
         "21v3",
