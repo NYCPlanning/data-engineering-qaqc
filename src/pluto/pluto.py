@@ -458,14 +458,14 @@ def pluto():
         st.write(df)
         st.info(
             """
-            The aggregate graph provides insights into the magnitude of changes, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
-            For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
-            The aggregate graph may show that the aggregated sum of assessments increased by 5% compared with the previous version.\n
-            Totals for assessland, assesstot, and exempttot should only change in February and June.\n
-            Special Notes:\n
-            1. Y-axis represents percent change over the previous version. \n
-            2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
-            3. Pay attention to any large changes to residential units (unitsres).
+        The aggregate graph provides insights into the magnitude of changes, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
+        For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
+        The aggregate graph may show that the aggregated sum of assessments increased by 5% compared with the previous version.\n
+        Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+        Special Notes:\n
+        1. Y-axis represents percent change over the previous version. \n
+        2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
+        3. Pay attention to any large changes to residential units (unitsres).
             """
             )
 
