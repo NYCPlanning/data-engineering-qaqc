@@ -537,26 +537,23 @@ def pluto():
         create_expected(data["df_expected"], v1, v2)
 
     def manual_corrections_report(data):
-        def create_corrections_section(df, version, applied):
-            def title_text(version, applied):
-                applied_text = "Applied Manual Corrections " if applied else "Manual Corrections Not Applied "
-                version_text = "for All Versions by Field" if version == "All" else f"introduced in Version {version} by Field"
+        def filter_by_version(df, version):
+            if version == 'All':
+                return df
+            else:
+                return df.loc[df['version'] == version]
 
-                return applied_text + version_text
+        def version_text(version):
+            return "All Versions" if version == "All" else f"Version {version}"
 
-            def filter_by_version(df, version):
-                if version == 'All':
-                    return df
-                else:
-                    return df.loc[df['version'] == version]
-
-            def generate_graph(v1, version, applied):
+        def display_corrections_figures(df, title):
+            def generate_graph(v1, title):
                 return px.bar(
                     v1, 
                     x='field',
                     y='size', 
                     text='size',
-                    title=title_text(version, applied), 
+                    title=title, 
                     labels={'size': 'Count of Records', 'field': 'Altered Field'}
                 )
 
@@ -568,32 +565,48 @@ def pluto():
             def field_correction_counts(df):
                 return df.groupby(['field']).size().to_frame('size').reset_index()
             
-            def empty_message(applied, version):
-                if applied:
-                    st.info(f"No Corrections introduced in Version {version} were applied.")
-                else:
-                    st.info(f"All Corrections introduced in Version {version} were applied.")
+            figure = generate_graph(field_correction_counts(df), title)
+            st.plotly_chart(figure)
 
-            df = filter_by_version(df, version)
+            display_corrections_df(df)
 
-            if df.empty:
-                empty_message(applied, version)
+        def applied_corrections_section(corrections, version):
+            st.subheader("Manual Corrections Applied", anchor="corrections-applied")
+            st.markdown(
+                """ 
+                For each record in the PLUTO Corrections table, PLUTO attempts to change a record to the New Value column by matching on the BBL and the 
+                Old Value column. The graph and table below outline the records in the pluto corrections table that were successfully applied to PLUTO.
+                """
+            )
+            corrections = filter_by_version(corrections, version)
+
+            if corrections.empty:
+                st.info(f"No Corrections introduced in {version_text(version)} were applied.")   
             else:
-                figure = generate_graph(field_correction_counts(df), version, applied)
-                st.plotly_chart(figure)
+                title_text = f"Applied Manual Corrections introduced in {version_text(version)} by Field"
+                display_corrections_figures(corrections, title_text)
+        
+        def not_applied_corrections_section(corrections, version):
 
-                display_corrections_df(df)
+            st.subheader("Manual Corrections Not Applied", anchor="corrections-not-applied")
+            st.markdown(
+                """ 
+                For each record in the PLUTO Corrections table, PLUTO attempts to correct a record by matching on the BBL and the 
+                Old Value column. As the underlying datasources change and improve, PLUTO records may no longer match the old value 
+                specified in the pluto corrections table. The graph and table below outline the records in the pluto corrections table that failed to be applied for this reason.
+                """
+            )
+            corrections = filter_by_version(corrections, version)
+
+            if corrections.empty:
+                st.info(f"All Corrections introduced in {version_text(version)} were applied.")
+            else:
+                title_text = f"Manual Corrections not Applied introduced in {version_text(version)} by Field"
+                display_corrections_figures(corrections, title_text)
 
 
         st.header("Manual Corrections")
 
-        applied_corrections = data['pluto_corrections_applied']
-        not_applied_corrections = data['pluto_corrections_not_applied']
-
-        if applied_corrections is None or not_applied_corrections is None:
-            st.info("There are no available corrections reports for this branch.")
-            return
-            
         st.markdown(
             """
             PLUTO is created using the best available data from a number of city agencies. To further
@@ -609,24 +622,19 @@ def pluto():
             """
         )
 
+        applied_corrections = data['pluto_corrections_applied']
+        not_applied_corrections = data['pluto_corrections_not_applied']
+
+        if applied_corrections is None or not_applied_corrections is None:
+            st.info("There are no available corrections reports for this branch.")
+            return
+            
         version_dropdown = np.insert(np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())), 0, 'All')
         version = st.sidebar.selectbox("Filter the field corrections by the PLUTO Version in which they were first introduced", version_dropdown)
         
-        st.subheader("Manual Corrections Applied", anchor="corrections-applied")
+        applied_corrections_section(applied_corrections, version)
+        not_applied_corrections_section(not_applied_corrections, version)
         
-        create_corrections_section(applied_corrections, version, applied=True)
-
-        st.subheader("Manual Corrections Not Applied", anchor="corrections-not-applied")
-
-        st.markdown(
-            """ 
-            For each record in the PLUTO Corrections table, PLUTO attempts to correct a record by matching on the BBL and the 
-            Old Value column. As the underlying datasources change and improve, PLUTO records may no longer match the old value 
-            specified in the pluto corrections table. The graph and table below outline the records in the pluto corrections table that failed to be applied for this reason.
-            """
-        )
-        create_corrections_section(not_applied_corrections, version, applied=False)
-
         st.info(
             """
             See [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) for a full accounting of the changes made for the latest version
