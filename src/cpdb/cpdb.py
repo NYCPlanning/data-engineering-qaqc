@@ -65,8 +65,10 @@ def cpdb():
                 "mapped": "#ff7c43",
                 "totalcommit" : "#003f5c",
                 "mappedcommit": "#ffa600",
+                "fixedasset": "#a05195",
+                "fixedassetmapped": "#ffa600",
                 "fixedassetcommit": "#665191",
-                "fixedassetcommitmapped": "#f95d6a"
+                "fixedassetmappedcommit": "#f95d6a"
             }
         )
 
@@ -77,10 +79,7 @@ def cpdb():
     st.plotly_chart(fig1)
 
     st.caption(
-        body="""This graph highlights the number of Capital Projects with a planned or 
-        allocated Capital commitment by Sponsoring Agency. Both the total number of 
-        projects by agency and the number of projects that have been mapped (successfully geolocated) 
-        are visualized in this chart for comparison purposes.""")
+        body="""This graph highlights """)
     
 
     st.header(f"Compare Previous vs. Latest {agency_type} Table")
