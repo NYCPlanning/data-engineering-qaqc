@@ -25,9 +25,9 @@ def pluto():
         index=branches.index("main"),
     )
 
-    data = get_data(branch)
-
     report_type = st.sidebar.selectbox("Choose a Report Type", ["Compare with Previous Version", "Review Manual Corrections"])
+
+    data = get_data(branch)
 
     def version_comparison_report(data):
         versions = [
