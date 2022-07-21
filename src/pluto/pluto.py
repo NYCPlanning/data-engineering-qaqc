@@ -27,6 +27,8 @@ def pluto():
 
     data = get_data(branch)
 
+    report_type = st.sidebar.selectbox("Choose a Report Type", ["Compare with Previous Version", "Review Manual Corrections"])
+
     def version_comparison_report(data):
         versions = [
             "22v2",
@@ -631,8 +633,6 @@ def pluto():
             in the PLUTO change file.
             """
         )
-
-    report_type = st.sidebar.selectbox("Choose a Report Type", ["Compare with Previous Version", "Review Manual Corrections"])
 
     if report_type == 'Compare with Previous Version':
         version_comparison_report(data)
