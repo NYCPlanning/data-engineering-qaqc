@@ -91,7 +91,7 @@ def cpdb():
 
     st.header(f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}")
     st.markdown(f"""  
-        Even though the underlying Capital Commitment Plan is meant change over time, the outliers scenarios still should raise red flags. 
+        Even though the underlying Capital Commitment Plan is meant to change over time, the outliers scenarios still should raise red flags. 
         This chart highlights the top-line changes in {view_type_unit}, with the additional option to view the either all {view_type} or mapped {view_type} only
         using the dropdown box below. Click the "Latest Version" and "Previous Version" labels in the legend to display the total {view_type_unit} for each.
         """
