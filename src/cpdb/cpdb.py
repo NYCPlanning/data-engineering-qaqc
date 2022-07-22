@@ -21,11 +21,14 @@ def cpdb():
         ["sagency", "magency"],
         format_func=lambda x: agency_label.get(x),
     )
+    agency_type_title = agency_label[agency_type]
+    
     view_type = st.sidebar.selectbox(
         "select to view by number of projects or values of commitments in dollars",
         ["projects", "commitments"],
     )
-
+    view_type_title = view_type.capitalize()
+    
     subcategory = st.sidebar.selectbox(
         "choose a subcategoy or entire portfolio", ["all categories", "fixed assets"]
     )
@@ -140,7 +143,7 @@ def cpdb():
 
     st.plotly_chart(fig2)
 
-    st.header(f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_label[agency_type]}")
+    st.header(f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}")
     
     st.markdown(f"""
         Another important aspect about the summary stats tables can display to us is the question:
@@ -177,6 +180,7 @@ def cpdb():
     fig3.update_layout(
         width=1000,
         height=1000,
+        title_text=f"Percentage Mapped of {view_type_title} by Version and {agency_type_title}"
     )
 
     fig3.update_layout(width=1000, height=1000)
@@ -185,5 +189,5 @@ def cpdb():
         title=f"Percentage",
         tickformat= '.2%'
     )
-    fig3.update_yaxes(title=agency_label[agency_type])
+    fig3.update_yaxes(title=agency_type_title)
     st.plotly_chart(fig3)
