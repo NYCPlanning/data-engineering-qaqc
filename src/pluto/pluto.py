@@ -528,38 +528,30 @@ def pluto():
                 if field == 'building_area_increase':
                     df=df.drop(columns=['pair'])
                 df['bbl']=pd.to_numeric(df['bbl'], downcast='integer')
-                return df,df.shape[0]
+                return df
+
+        def display_dataframe(v1_outlier, field):
+            df = fetch_dataframe(v1_outlier, field)
+            if not df:
+                st.write( "There is no outlier.")
             else:
-                return 'There is no outlier.'
-        
+                AgGrid(df)
+                st.info(f'There are {df.shape[0]} outliers in total.')
+
         version_pair = f"{v1}-{v2}"
         st.markdown(f'### Table of BBLs with Unreasonable Increase in Building Area {version_pair}')
-        result1=fetch_dataframe(v1_outlier,'building_area_increase')
-        if type(result1) == str:
-            st.write(result1)
-        else:
-            AgGrid(result1[0])
-            count_outlier=result1[1]
-            st.info(f'There are {count_outlier} outliers in total. The table displays all BBLs where building area is more than doubled since previous version.')
+        display_dataframe(v1_outlier, 'building_area_increase')
+        st.info('The table displays all BBLs where building area is more than doubled since previous version.')
 
         st.markdown(f'### Table of BBLs with 50+ unitsres and resarea/unitsres < 300')
-        result2=fetch_dataframe(v1_outlier,'unitsres_resarea')
-        if type(result2) == str:
-            st.write(result2)
-        else:
-            AgGrid(result2[0])
-            count_outlier=result2[1]
-            st.info(f'There are {count_outlier} outliers in total. The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.')
+        display_dataframe(v1_outlier, 'unitsres_resarea')
+        st.info('The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.')
 
         st.markdown(f'### Table of BBLs where bldgarea/lotarea > numfloors*2')
-        result3=fetch_dataframe(v1_outlier,'lotarea_numfloor')
-        if type(result3) == str:
-            st.write(result3)
-        else:
-            AgGrid(result3[0])
-            count_outlier=result3[1]
-            st.info(f'There are {count_outlier} outliers in total. The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.')
+        display_dataframe(v1_outlier, 'lotarea_numfloor')
+        st.info('The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.')
         
+    
     create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
     create_null(data["df_null"], v1, v2, v3, condo, mapped)
@@ -583,7 +575,4 @@ def pluto():
 
     # OUTLIER VALUE
     st.header("OUTLIER ANALYSIS")
-    st.write(
-        "If nothing showed up, then it means there aren't any outlier in the current version."
-    )
     create_outlier(data["df_outlier"],v1,v2,condo,mapped)
