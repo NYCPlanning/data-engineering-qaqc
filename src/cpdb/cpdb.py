@@ -28,7 +28,7 @@ def cpdb():
         ["projects", "commitments"],
     )
     view_type_title = view_type.capitalize()
-    view_type_unit = "Number of Projects" if view_type == 'projects' else "Commitments Amount (USD)"
+    view_type_unit = "Number of Projects" if view_type == "projects" else "Commitments Amount (USD)"
 
     subcategory = st.sidebar.selectbox(
         "choose a subcategoy or entire portfolio", ["all categories", "fixed assets"]
