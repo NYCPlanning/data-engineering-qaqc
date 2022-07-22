@@ -90,11 +90,10 @@ def cpdb():
     st.plotly_chart(fig1)
 
     st.header(f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}")
-    st.markdown("""Comparing the latest summary stats table with the same table from the last version. 
-        It highlights any changes from version to version. Even though as the underlying data Capital Commitment Plan does not meant to be identical 
-        over time but the outliers scenarios still should raise red flags.  
-        the key functionality for this graphics that is distinct from rest of the application is the choice to view the total projects vs. mapped projects
-        using the dropdown box below.  Click the "Latest Version" and "Previous Version" labels in the legend to display the percentage mapped for each.
+    st.markdown(f"""  
+        Even though the underlying Capital Commitment Plan is meant change over time, the outliers scenarios still should raise red flags. 
+        This chart highlights the top-line changes in {view_type_unit}, with the additional option to view the either all {view_type} or mapped {view_type} only
+        using the dropdown box below. Click the "Latest Version" and "Previous Version" labels in the legend to display the total {view_type_unit} for each.
         """
     )
     map_options = {0: f"all {view_type}", 1: f"mapped {view_type} only"}
