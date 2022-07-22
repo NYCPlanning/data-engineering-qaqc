@@ -87,8 +87,6 @@ def cpdb():
 
     st.plotly_chart(fig1)
 
-    st.caption(body="""This graph highlights """)
-
     st.header(f"Compare Previous vs. Latest {agency_type} Table")
     st.caption(
         body="""Comparing the latest summary stats table with the same table from the last version. 
