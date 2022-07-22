@@ -28,7 +28,8 @@ def cpdb():
         ["projects", "commitments"],
     )
     view_type_title = view_type.capitalize()
-    
+    view_type_unit = "Number of Projects" if view_type == 'projects' else "Commitments Amount (USD)"
+
     subcategory = st.sidebar.selectbox(
         "choose a subcategoy or entire portfolio", ["all categories", "fixed assets"]
     )
@@ -83,28 +84,26 @@ def cpdb():
     )
 
     fig1.update_yaxes(
-        title="Number of Projects"
-        if view_type == "projects"
-        else "Commitments Amount (USD)"
+        title=view_type_unit
     )
 
     st.plotly_chart(fig1)
 
-    st.header(f"Compare Previous vs. Latest {agency_type} Table")
-    st.caption(
-        body="""Comparing the latest summary stats table with the same table from the last version. 
+    st.header(f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}")
+    st.markdown("""Comparing the latest summary stats table with the same table from the last version. 
         It highlights any changes from version to version. Even though as the underlying data Capital Commitment Plan does not meant to be identical 
         over time but the outliers scenarios still should raise red flags.  
         the key functionality for this graphics that is distinct from rest of the application is the choice to view the total projects vs. mapped projects
-        using the dropdown box below. 
+        using the dropdown box below.  Click the "Latest Version" and "Previous Version" labels in the legend to display the percentage mapped for each.
         """
     )
-    map_option = {0: "all projects", 1: "mapped only"}
+    map_options = {0: f"all {view_type}", 1: f"mapped {view_type} only"}
     map_option = st.radio(
-        label="choose either all projects to compare or mapped projects only.",
+        label=f"Choose to compare either all {view_type} or mapped {view_type} only.",
         options=[0, 1],
-        format_func=lambda x: map_option.get(x),
+        format_func=lambda x: map_options.get(x),
     )
+    map_title_text = "Mapped and Unmapped" if map_option == 0 else "Mapped Only"
     # get the difference dataframe
     diff = get_diff_dataframe(df, df_pre)
     df_bar_diff = sort_base_on_option(
@@ -113,33 +112,39 @@ def cpdb():
     fig2 = go.Figure(
         [
             go.Bar(
-                name="diff",
+                name="Difference",
                 x=df_bar_diff[VIZKEY[subcategory][view_type]["values"][map_option]],
                 y=df_bar_diff.index,
                 orientation="h",
             ),
             go.Bar(
-                name="latest",
+                name="Latest Version",
                 x=df[VIZKEY[subcategory][view_type]["values"][map_option]],
                 y=df.index,
                 orientation="h",
+                visible='legendonly'
             ),
             go.Bar(
-                name="previous",
+                name="Previous Version",
                 x=df_pre[VIZKEY[subcategory][view_type]["values"][map_option]],
                 y=df_pre.index,
                 orientation="h",
+                visible='legendonly'
             ),
         ]
     )
-
-    fig2.update_layout(barmode="group", width=1000, height=1000)
+    fig2.update_layout(
+        barmode="group", 
+        width=1000, 
+        height=1000,
+        title_text=f"Total {view_type_unit} by Version and {agency_type_title} ({map_title_text})"
+    )
 
     fig2.update_xaxes(
-        title="Number of Projects"
-        if view_type == "projects"
-        else "Commitments Amount (USD)"
+        title=f"Total {view_type_unit} ({map_title_text})"
     )
+
+    fig2.update_yaxes(title=agency_type_title)
 
     st.plotly_chart(fig2)
 
@@ -182,8 +187,6 @@ def cpdb():
         height=1000,
         title_text=f"Percentage Mapped of {view_type_title} by Version and {agency_type_title}"
     )
-
-    fig3.update_layout(width=1000, height=1000)
 
     fig3.update_xaxes(
         title=f"Percentage",
