@@ -20,7 +20,9 @@ def pluto():
 
     branches = get_branches()
     branch = st.sidebar.selectbox(
-        "select a branch", branches, index=branches.index("main"),
+        "select a branch",
+        branches,
+        index=branches.index("main"),
     )
 
     report_type = st.sidebar.selectbox(
@@ -51,7 +53,8 @@ def pluto():
         ]
 
         v1 = st.sidebar.selectbox(
-            "Pick a version of PLUTO:", versions,  # index=len(versions) - 1
+            "Pick a version of PLUTO:",
+            versions,  # index=len(versions) - 1
         )
 
         v2 = versions[versions.index(v1) + 1]
@@ -523,7 +526,8 @@ def pluto():
 
         def create_outlier(df, v1, v2, condo, mapped):
             outlier = df.loc[
-                (df.condo == condo) & (df.mapped == mapped) & (df.v == v1), :,
+                (df.condo == condo) & (df.mapped == mapped) & (df.v == v1),
+                :,
             ]
 
             outlier_records = outlier.to_dict("records")
