@@ -11,7 +11,8 @@ from io import BytesIO
 
 load_dotenv()
 
-BUCKET_NAME = 'edm-publishing'
+BUCKET_NAME = "edm-publishing"
+
 
 def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv = {}
@@ -28,21 +29,18 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
 
     pluto_corrections_zip = zip_from_DO(
         zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
-        bucket=BUCKET_NAME
+        bucket=BUCKET_NAME,
     )
 
     rv["pluto_corrections"] = unzip_csv(
-        csv_filename="pluto_corrections.csv",
-        zipfile=pluto_corrections_zip
+        csv_filename="pluto_corrections.csv", zipfile=pluto_corrections_zip
     )
-    
+
     rv["pluto_corrections_applied"] = unzip_csv(
-        csv_filename="pluto_corrections_applied.csv",
-        zipfile=pluto_corrections_zip
+        csv_filename="pluto_corrections_applied.csv", zipfile=pluto_corrections_zip
     )
     rv["pluto_corrections_not_applied"] = unzip_csv(
-        csv_filename="pluto_corrections_not_applied.csv",
-        zipfile=pluto_corrections_zip
+        csv_filename="pluto_corrections_not_applied.csv", zipfile=pluto_corrections_zip
     )
 
     source_data_versions = pd.read_csv(
@@ -107,18 +105,21 @@ def blacklist_branches(branches):
 def csv_from_DO(url, kwargs={}):
     return pd.read_csv(url, true_values=["t"], false_values=["f"], **kwargs)
 
+
 def unzip_csv(csv_filename, zipfile):
     try:
         with zipfile.open(csv_filename) as csv:
             return pd.read_csv(csv, true_values=["t"], false_values=["f"])
-    except: 
+    except:
         return None
-    
+
+
 def zip_from_DO(zip_filename, bucket):
     zip_obj = s3_resource().Object(bucket_name=bucket, key=zip_filename)
     buffer = BytesIO(zip_obj.get()["Body"].read())
 
     return ZipFile(buffer)
+
 
 def s3_resource():
     return boto3.resource(

@@ -20,12 +20,13 @@ def pluto():
 
     branches = get_branches()
     branch = st.sidebar.selectbox(
-        "select a branch",
-        branches,
-        index=branches.index("main"),
+        "select a branch", branches, index=branches.index("main"),
     )
 
-    report_type = st.sidebar.selectbox("Choose a Report Type", ["Compare with Previous Version", "Review Manual Corrections"])
+    report_type = st.sidebar.selectbox(
+        "Choose a Report Type",
+        ["Compare with Previous Version", "Review Manual Corrections"],
+    )
 
     data = get_data(branch)
 
@@ -50,8 +51,7 @@ def pluto():
         ]
 
         v1 = st.sidebar.selectbox(
-            "Pick a version of PLUTO:",
-            versions,  # index=len(versions) - 1
+            "Pick a version of PLUTO:", versions,  # index=len(versions) - 1
         )
 
         v2 = versions[versions.index(v1) + 1]
@@ -258,12 +258,18 @@ def pluto():
 
             def generate_graph(v1v2, v2v3, v1v2_total, v2v3_total, group):
                 fig = go.Figure()
-                fig.add_trace(generate_graph_data(v1v2, v1v2_total, v1v2["pair"], group))
-                fig.add_trace(generate_graph_data(v2v3, v2v3_total, v2v3["pair"], group))
+                fig.add_trace(
+                    generate_graph_data(v1v2, v1v2_total, v1v2["pair"], group)
+                )
+                fig.add_trace(
+                    generate_graph_data(v2v3, v2v3_total, v2v3["pair"], group)
+                )
                 return fig
 
             for group in groups:
-                fig = generate_graph(v1v2, v2v3, v1v2_total, v2v3_total, group["columns"])
+                fig = generate_graph(
+                    v1v2, v2v3, v1v2_total, v2v3_total, group["columns"]
+                )
                 fig.update_layout(title=group["title"], template="plotly_white")
                 st.plotly_chart(fig)
                 st.info(group["description"])
@@ -517,10 +523,7 @@ def pluto():
 
         def create_outlier(df, v1, v2, condo, mapped):
             outlier = df.loc[
-                (df.condo == condo)
-                & (df.mapped == mapped)
-                & (df.v == v1),
-                :,
+                (df.condo == condo) & (df.mapped == mapped) & (df.v == v1), :,
             ]
 
             outlier_records = outlier.to_dict("records")
@@ -530,39 +533,42 @@ def pluto():
                 records = [i["values"] for i in v1_outlier if i["field"] == field][0]
                 if records:
                     df = pd.DataFrame(records)
-                    if field == 'building_area_increase':
-                        df=df.drop(columns=['pair'])
-                    df['bbl']=pd.to_numeric(df['bbl'], downcast='integer')
+                    if field == "building_area_increase":
+                        df = df.drop(columns=["pair"])
+                    df["bbl"] = pd.to_numeric(df["bbl"], downcast="integer")
                     return df
                 else:
                     return pd.DataFrame()
 
             version_pair = f"{v1}-{v2}"
-            markdown_dict = {'building_area_increase':f'### Table of BBLs with Unreasonable Increase in Building Area {version_pair}',
-                            'unitsres_resarea':f'### Table of BBLs with 50+ unitsres and resarea/unitsres < 300',
-                            'lotarea_numfloor':f'### Table of BBLs where bldgarea/lotarea > numfloors*2'}
+            markdown_dict = {
+                "building_area_increase": f"### Table of BBLs with Unreasonable Increase in Building Area {version_pair}",
+                "unitsres_resarea": f"### Table of BBLs with 50+ unitsres and resarea/unitsres < 300",
+                "lotarea_numfloor": f"### Table of BBLs where bldgarea/lotarea > numfloors*2",
+            }
 
-            info_dict = {'building_area_increase':'The table displays all BBLs where building area is more than doubled since previous version.',
-                        'unitsres_resarea':'The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.',
-                        'lotarea_numfloor':'The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.'}
+            info_dict = {
+                "building_area_increase": "The table displays all BBLs where building area is more than doubled since previous version.",
+                "unitsres_resarea": "The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.",
+                "lotarea_numfloor": "The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.",
+            }
 
             def display_dataframe(v1_outlier, field):
                 df = fetch_dataframe(v1_outlier, field)
                 if df.empty:
                     st.markdown(markdown_dict[field])
-                    st.write( "There is no outlier.")
+                    st.write("There is no outlier.")
                 else:
                     st.markdown(markdown_dict[field])
                     AgGrid(df)
-                    st.write(f'There are {df.shape[0]} outliers in total.')
+                    st.write(f"There are {df.shape[0]} outliers in total.")
                     st.info(info_dict[field])
-            
-            display_dataframe(v1_outlier, 'building_area_increase')
 
-            display_dataframe(v1_outlier, 'unitsres_resarea')
+            display_dataframe(v1_outlier, "building_area_increase")
 
-            display_dataframe(v1_outlier, 'lotarea_numfloor')
+            display_dataframe(v1_outlier, "unitsres_resarea")
 
+            display_dataframe(v1_outlier, "lotarea_numfloor")
 
         create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
@@ -587,14 +593,14 @@ def pluto():
 
         # OUTLIER VALUE
         st.header("OUTLIER ANALYSIS")
-        create_outlier(data["df_outlier"],v1,v2,condo,mapped)
+        create_outlier(data["df_outlier"], v1, v2, condo, mapped)
 
     def manual_corrections_report(data):
         def filter_by_version(df, version):
-            if version == 'All':
+            if version == "All":
                 return df
             else:
-                return df.loc[df['version'] == version]
+                return df.loc[df["version"] == version]
 
         def version_text(version):
             return "All Versions" if version == "All" else f"Version {version}"
@@ -602,22 +608,24 @@ def pluto():
         def display_corrections_figures(df, title):
             def generate_graph(v1, title):
                 return px.bar(
-                    v1, 
-                    x='field',
-                    y='size', 
-                    text='size',
-                    title=title, 
-                    labels={'size': 'Count of Records', 'field': 'Altered Field'}
+                    v1,
+                    x="field",
+                    y="size",
+                    text="size",
+                    title=title,
+                    labels={"size": "Count of Records", "field": "Altered Field"},
                 )
 
             def display_corrections_df(corrections):
-                corrections = corrections.sort_values(by=['version', 'reason', 'bbl'], ascending=[False, True, True])
+                corrections = corrections.sort_values(
+                    by=["version", "reason", "bbl"], ascending=[False, True, True]
+                )
 
                 AgGrid(corrections)
 
             def field_correction_counts(df):
-                return df.groupby(['field']).size().to_frame('size').reset_index()
-            
+                return df.groupby(["field"]).size().to_frame("size").reset_index()
+
             figure = generate_graph(field_correction_counts(df), title)
             st.plotly_chart(figure)
 
@@ -634,14 +642,18 @@ def pluto():
             corrections = filter_by_version(corrections, version)
 
             if corrections.empty:
-                st.info(f"No Corrections introduced in {version_text(version)} were applied.")   
+                st.info(
+                    f"No Corrections introduced in {version_text(version)} were applied."
+                )
             else:
                 title_text = f"Applied Manual Corrections introduced in {version_text(version)} by Field"
                 display_corrections_figures(corrections, title_text)
-        
+
         def not_applied_corrections_section(corrections, version):
 
-            st.subheader("Manual Corrections Not Applied", anchor="corrections-not-applied")
+            st.subheader(
+                "Manual Corrections Not Applied", anchor="corrections-not-applied"
+            )
             st.markdown(
                 """ 
                 For each record in the PLUTO Corrections table, PLUTO attempts to correct a record by matching on the BBL and the 
@@ -652,11 +664,12 @@ def pluto():
             corrections = filter_by_version(corrections, version)
 
             if corrections.empty:
-                st.info(f"All Corrections introduced in {version_text(version)} were applied.")
+                st.info(
+                    f"All Corrections introduced in {version_text(version)} were applied."
+                )
             else:
                 title_text = f"Manual Corrections not Applied introduced in {version_text(version)} by Field"
                 display_corrections_figures(corrections, title_text)
-
 
         st.header("Manual Corrections")
 
@@ -675,19 +688,28 @@ def pluto():
             """
         )
 
-        applied_corrections = data['pluto_corrections_applied']
-        not_applied_corrections = data['pluto_corrections_not_applied']
+        applied_corrections = data["pluto_corrections_applied"]
+        not_applied_corrections = data["pluto_corrections_not_applied"]
 
         if applied_corrections is None or not_applied_corrections is None:
-            st.info("There are no available corrections reports for this branch. This is likely due to a problem on the backend with the files on Digital Ocean.")
+            st.info(
+                "There are no available corrections reports for this branch. This is likely due to a problem on the backend with the files on Digital Ocean."
+            )
             return
-            
-        version_dropdown = np.insert(np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())), 0, 'All')
-        version = st.sidebar.selectbox("Filter the field corrections by the PLUTO Version in which they were first introduced", version_dropdown)
-        
+
+        version_dropdown = np.insert(
+            np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())),
+            0,
+            "All",
+        )
+        version = st.sidebar.selectbox(
+            "Filter the field corrections by the PLUTO Version in which they were first introduced",
+            version_dropdown,
+        )
+
         applied_corrections_section(applied_corrections, version)
         not_applied_corrections_section(not_applied_corrections, version)
-        
+
         st.info(
             """
             See [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) for a full accounting of the changes made for the latest version
@@ -695,8 +717,7 @@ def pluto():
             """
         )
 
-    if report_type == 'Compare with Previous Version':
+    if report_type == "Compare with Previous Version":
         version_comparison_report(data)
     elif report_type == "Review Manual Corrections":
         manual_corrections_report(data)
-    
