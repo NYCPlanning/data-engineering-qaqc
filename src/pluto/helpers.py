@@ -22,6 +22,9 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv["df_expected"] = csv_from_DO(
         f"{url}/qaqc_expected.csv", kwargs={"converters": {"expected": json.loads}}
     )
+    rv["df_outlier"] = csv_from_DO(
+        f"{url}/qaqc_outlier.csv", kwargs={"converters": {"expected": json.loads}}
+    )
 
     pluto_corrections_zip = zip_from_DO(
         zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
