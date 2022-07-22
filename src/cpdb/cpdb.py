@@ -140,14 +140,13 @@ def cpdb():
 
     st.plotly_chart(fig2)
 
-    st.header("Compare Mapping from Previous to Latest Managing Agency Table")
-
-    st.caption(
-        body="""
+    st.header(f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_label[agency_type]}")
+    
+    st.markdown(f"""
         Another important aspect about the summary stats tables can display to us is the question:
-        How many of the projects/commitments are successfully mapped?  
-        The following chart show the difference between the versions in what percentage of the projects/commitments are mapped. 
-        using the dropdown box below. 
+        How many of the {view_type} are successfully mapped? 
+        This chart shows the change in the percentage of the {view_type} that are mapped between the last two versions. 
+        Click the "Latest Version" and "Previous Version" labels in the legend to display the percentage mapped for each.
         """
     )
 
@@ -155,33 +154,36 @@ def cpdb():
 
     fig3 = go.Figure(
         [
-            go.Bar(
-                name="diff",
-                x=diff_perc.diff_percent_mapped,
+            go.Bar(name="Difference",
+                x=diff_perc.diff_percent_mapped, 
                 y=diff_perc.index,
                 orientation="h",
             ),
-            go.Bar(
-                name="latest",
-                x=diff_perc.percent_mapped,
+            go.Bar(name="Latest Version",
+                x=diff_perc.percent_mapped, 
                 y=diff_perc.index,
-                orientation="h",
+                orientation='h',
+                visible='legendonly'
             ),
-            go.Bar(
-                name="previous",
-                x=diff_perc.pre_percent_mapped,
+            go.Bar(name="Previous Version",
+                x=diff_perc.pre_percent_mapped, 
                 y=diff_perc.index,
-                orientation="h",
-            ),
+                orientation='h',
+                visible='legendonly'
+            )
         ]
+    ) 
+
+    fig3.update_layout(
+        width=1000,
+        height=1000,
     )
 
     fig3.update_layout(width=1000, height=1000)
 
     fig3.update_xaxes(
-        title="Percentage Change in Mapped Projects"
-        if view_type == "project"
-        else "Percentage Change in Mapped Commitments"
+        title=f"Percentage",
+        tickformat= '.2%'
     )
-
+    fig3.update_yaxes(title=agency_label[agency_type])
     st.plotly_chart(fig3)
