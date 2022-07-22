@@ -626,7 +626,7 @@ def pluto():
         def applied_corrections_section(corrections, version):
             st.subheader("Manual Corrections Applied", anchor="corrections-applied")
             st.markdown(
-                """ 
+                """
                 For each record in the PLUTO Corrections table, PLUTO attempts to change a record to the New Value column by matching on the BBL and the 
                 Old Value column. The graph and table below outline the records in the pluto corrections table that were successfully applied to PLUTO.
                 """
