@@ -10,7 +10,7 @@ setup(
         "pandas",
         "numpy",
         "streamlit",
-        "streamlit-aggrid"
+        "streamlit-aggrid",
         "plotly",
         "python-dotenv",
         "boto3",

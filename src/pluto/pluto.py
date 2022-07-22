@@ -521,7 +521,7 @@ def pluto():
         outlier_records = outlier.to_dict("records")
         v1_outlier = [i["outlier"] for i in outlier_records if i["v"] == v1][0]
 
-        def display_dataframe(v1_outlier, field):
+        def fetch_dataframe(v1_outlier, field):
             records = [i["values"] for i in v1_outlier if i["field"] == field][0]
             if records:
                 df = pd.DataFrame(records)
@@ -530,11 +530,11 @@ def pluto():
                 df['bbl']=pd.to_numeric(df['bbl'], downcast='integer')
                 return df,df.shape[0]
             else:
-                return 'This is no outlier.'
+                return 'There is no outlier.'
         
-        version_pair = v1 + '-' + v2
+        version_pair = f"{v1}-{v2}"
         st.markdown(f'### Table of BBLs with Unreasonable Increase in Building Area {version_pair}')
-        result1=display_dataframe(v1_outlier,'building_area_increase')
+        result1=fetch_dataframe(v1_outlier,'building_area_increase')
         if type(result1) == str:
             st.write(result1)
         else:
@@ -543,7 +543,7 @@ def pluto():
             st.info(f'There are {count_outlier} outliers in total. The table displays all BBLs where building area is more than doubled since previous version.')
 
         st.markdown(f'### Table of BBLs with 50+ unitsres and resarea/unitsres < 300')
-        result2=display_dataframe(v1_outlier,'unitsres_resarea')
+        result2=fetch_dataframe(v1_outlier,'unitsres_resarea')
         if type(result2) == str:
             st.write(result2)
         else:
@@ -552,7 +552,7 @@ def pluto():
             st.info(f'There are {count_outlier} outliers in total. The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.')
 
         st.markdown(f'### Table of BBLs where bldgarea/lotarea > numfloors*2')
-        result3=display_dataframe(v1_outlier,'lotarea_numfloor')
+        result3=fetch_dataframe(v1_outlier,'lotarea_numfloor')
         if type(result3) == str:
             st.write(result3)
         else:
