@@ -39,7 +39,6 @@ def cpdb():
         Third, you could view the only a subcategory of the projects that outlined by the Capital Planning database. 
         """
     )
-    # st.header(f'Sorted By Number of {view_type} in the Latest {agency_label} Summary Stats')
 
     df = data[agency_type].set_index(agency_type + "acro")
     df_pre = data["pre_" + agency_type].set_index(agency_type + "acro")
