@@ -529,14 +529,16 @@ def pluto():
                     df=df.drop(columns=['pair'])
                 df['bbl']=pd.to_numeric(df['bbl'], downcast='integer')
                 return df
+            else:
+                return pd.DataFrame()
 
         def display_dataframe(v1_outlier, field):
             df = fetch_dataframe(v1_outlier, field)
-            if not df:
+            if df.empty:
                 st.write( "There is no outlier.")
             else:
                 AgGrid(df)
-                st.info(f'There are {df.shape[0]} outliers in total.')
+                st.write(f'There are {df.shape[0]} outliers in total.')
 
         version_pair = f"{v1}-{v2}"
         st.markdown(f'### Table of BBLs with Unreasonable Increase in Building Area {version_pair}')
