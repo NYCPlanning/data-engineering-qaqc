@@ -77,7 +77,7 @@ def get_map_percent_diff(df: pd.DataFrame, df_pre: pd.DataFrame, keys: dict):
     diff["pre_percent_mapped"] = df_pre[keys["values"][1]] / df_pre[keys["values"][0]]
     diff["diff_percent_mapped"] = diff.percent_mapped - diff.pre_percent_mapped
     diff.sort_values(by="diff_percent_mapped", inplace=True, ascending=True)
-    diff = diff * 100
+
     return diff
 
 
