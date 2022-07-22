@@ -532,28 +532,33 @@ def pluto():
             else:
                 return pd.DataFrame()
 
+        version_pair = f"{v1}-{v2}"
+        markdown_dict = {'building_area_increase':f'### Table of BBLs with Unreasonable Increase in Building Area {version_pair}',
+                         'unitsres_resarea':f'### Table of BBLs with 50+ unitsres and resarea/unitsres < 300',
+                         'lotarea_numfloor':f'### Table of BBLs where bldgarea/lotarea > numfloors*2'}
+
+        info_dict = {'building_area_increase':'The table displays all BBLs where building area is more than doubled since previous version.',
+                     'unitsres_resarea':'The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.',
+                     'lotarea_numfloor':'The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.'}
+
         def display_dataframe(v1_outlier, field):
             df = fetch_dataframe(v1_outlier, field)
             if df.empty:
+                st.markdown(markdown_dict[field])
                 st.write( "There is no outlier.")
             else:
+                st.markdown(markdown_dict[field])
                 AgGrid(df)
                 st.write(f'There are {df.shape[0]} outliers in total.')
-
-        version_pair = f"{v1}-{v2}"
-        st.markdown(f'### Table of BBLs with Unreasonable Increase in Building Area {version_pair}')
-        display_dataframe(v1_outlier, 'building_area_increase')
-        st.info('The table displays all BBLs where building area is more than doubled since previous version.')
-
-        st.markdown(f'### Table of BBLs with 50+ unitsres and resarea/unitsres < 300')
-        display_dataframe(v1_outlier, 'unitsres_resarea')
-        st.info('The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.')
-
-        st.markdown(f'### Table of BBLs where bldgarea/lotarea > numfloors*2')
-        display_dataframe(v1_outlier, 'lotarea_numfloor')
-        st.info('The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.')
+                st.info(info_dict[field])
         
-    
+        display_dataframe(v1_outlier, 'building_area_increase')
+
+        display_dataframe(v1_outlier, 'unitsres_resarea')
+
+        display_dataframe(v1_outlier, 'lotarea_numfloor')
+
+
     create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
     create_null(data["df_null"], v1, v2, v3, condo, mapped)
