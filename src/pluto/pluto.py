@@ -284,11 +284,20 @@ def pluto():
                 & (df_null.mapped == mapped)
                 & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
                 :,
-            ]
-            v1v2 = df.loc[df_null.pair == f"{v1} - {v2}", :].to_dict("records")[0]
-            v2v3 = df.loc[df_null.pair == f"{v2} - {v3}", :].to_dict("records")[0]
-            v1v2_total = v1v2.pop("total")
-            v2v3_total = v2v3.pop("total")
+            ].drop_duplicates()
+
+            v1v2_exist=True
+            v2v3_exist=True
+            try:
+                v1v2 = df.loc[df_null.pair == f"{v1} - {v2}", :].to_dict("records")[0]
+                v1v2_total = v1v2.pop("total")
+            except:
+                v1v2_exist=False
+            try:
+                v2v3 = df.loc[df_null.pair == f"{v2} - {v3}", :].to_dict("records")[0]
+                v2v3_total = v2v3.pop("total")
+            except:
+                v2v3_exist=False
 
             x = [
                 "borough",
@@ -396,8 +405,12 @@ def pluto():
                 )
 
             fig = go.Figure()
-            fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
-            fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
+            if not v1v2_exist and not v2v3_exist:
+                return
+            if v1v2_exist:
+                fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
+            if v2v3_exist:
+                fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
             fig.update_layout(title="Null graph", template="plotly_white")
             st.plotly_chart(fig)
             st.write(df)
