@@ -1,4 +1,5 @@
 import streamlit as st
+
 from src.pluto.pluto import pluto
 from src.ztl import ztl
 from src.facdb.facdb import facdb
@@ -21,7 +22,7 @@ datasets = {
 
 
 def run():
-    st.set_page_config(page_title="Data Engineering QAQC", page_icon="📊")
+    st.set_page_config(page_title="Data Engineering QAQC", page_icon="📊", layout='wide')
     st.sidebar.markdown(
         """
         <div stule="margin-left: auto; margin-right: auto;">
