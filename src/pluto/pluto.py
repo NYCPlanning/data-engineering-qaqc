@@ -525,6 +525,10 @@ def pluto():
                         st.write(in2not1)
 
         def create_outlier(df, v1, v2, condo, mapped):
+            if v1 !='22v2':
+                st.write('There is no outlier report available for selected version.')
+                return 
+                
             outlier = df.loc[
                 (df.condo == condo) & (df.mapped == mapped) & (df.v == v1),
                 :,
