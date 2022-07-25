@@ -48,13 +48,13 @@ def cpdb():
     df_pre = data["pre_" + agency_type].set_index(agency_type + "acro")
     if view_type == "commitments":
         st.header(
-            f"Dollar ($) Value of Commitments by {agency_type} for {subcategory} (Mapped vs Unmapped)"
+            f"Dollar ($) Value of Commitments by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
         )
         df = df[get_commit_cols(df)]
         df_pre = df_pre[get_commit_cols(df_pre)]
     else:
         st.header(
-            f"Number of Projects by {agency_type} for {subcategory} (Mapped vs Unmapped)"
+            f"Number of Projects by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
         )
         df.drop(labels=get_commit_cols(df), axis=1, inplace=True)
         df_pre.drop(labels=get_commit_cols(df_pre), axis=1, inplace=True)
@@ -86,6 +86,8 @@ def cpdb():
     fig1.update_yaxes(
         title=view_type_unit
     )
+
+    fig1.update_layout(legend_title_text="Variable")
 
     st.plotly_chart(fig1)
 
