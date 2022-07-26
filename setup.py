@@ -7,10 +7,13 @@ setup(
     install_requires=[
         "sqlalchemy",
         "psycopg2-binary",
-        "pandas<1.1",
+        "pandas",
         "numpy",
-        "streamlit==1.8.1",
+        "streamlit",
         "plotly",
+        "python-dotenv",
+        "boto3",
+        "streamlit-aggrid"
     ],
     zip_safe=False,
 )
