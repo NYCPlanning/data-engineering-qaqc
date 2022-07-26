@@ -279,17 +279,6 @@ def pluto():
             st.write(df)
 
         def create_null(df_null, v1, v2, v3, condo, mapped):
-            df = df_null.loc[
-                (df_null.condo == condo)
-                & (df_null.mapped == mapped)
-                & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
-                :,
-            ]
-            v1v2 = df.loc[df_null.pair == f"{v1} - {v2}", :].to_dict("records")[0]
-            v2v3 = df.loc[df_null.pair == f"{v2} - {v3}", :].to_dict("records")[0]
-            v1v2_total = v1v2.pop("total")
-            v2v3_total = v2v3.pop("total")
-
             x = [
                 "borough",
                 "block",
@@ -395,9 +384,30 @@ def pluto():
                     text=text,
                 )
 
+            df = df_null.loc[
+                (df_null.condo == condo)
+                & (df_null.mapped == mapped)
+                & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
+                :,
+            ].drop_duplicates()
+
+            v1v2 = df.loc[df_null.pair == f"{v1} - {v2}", :]
+            v2v3 = df.loc[df_null.pair == f"{v2} - {v3}", :]
+
             fig = go.Figure()
-            fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
-            fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
+            if v1v2.empty and v2v3.empty:
+                st.write("Null Graph")
+                st.info("There is no change in NULL values across three versions.")
+                return
+            if not v1v2.empty:
+                v1v2 = v1v2.to_dict("records")[0]
+                v1v2_total = v1v2.pop("total")
+                fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
+            if not v2v3.empty:
+                v2v3 = v2v3.to_dict("records")[0]
+                v2v3_total = v2v3.pop("total")
+                fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
+
             fig.update_layout(title="Null graph", template="plotly_white")
             st.plotly_chart(fig)
             st.write(df)
