@@ -22,13 +22,15 @@ def cpdb():
         format_func=lambda x: agency_label.get(x),
     )
     agency_type_title = agency_label[agency_type]
-    
+
     view_type = st.sidebar.selectbox(
         "select to view by number of projects or values of commitments in dollars",
         ["projects", "commitments"],
     )
     view_type_title = view_type.capitalize()
-    view_type_unit = "Number of Projects" if view_type == "projects" else "Commitments Amount (USD)"
+    view_type_unit = (
+        "Number of Projects" if view_type == "projects" else "Commitments Amount (USD)"
+    )
 
     subcategory = st.sidebar.selectbox(
         "choose a subcategoy or entire portfolio", ["all categories", "fixed assets"]
@@ -83,16 +85,17 @@ def cpdb():
         },
     )
 
-    fig1.update_yaxes(
-        title=view_type_unit
-    )
+    fig1.update_yaxes(title=view_type_unit)
 
     fig1.update_layout(legend_title_text="Variable")
 
     st.plotly_chart(fig1)
 
-    st.header(f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}")
-    st.markdown(f"""  
+    st.header(
+        f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}"
+    )
+    st.markdown(
+        f"""  
         Even though the underlying Capital Commitment Plan is meant to change over time, the outliers scenarios still should raise red flags. 
         This chart highlights the top-line changes in {view_type_unit}, with the additional option to view the either all {view_type} or mapped {view_type} only
         using the dropdown box below. Click the "Latest Version" and "Previous Version" labels in the legend to display the total {view_type_unit} for each.
@@ -123,35 +126,36 @@ def cpdb():
                 x=df[VIZKEY[subcategory][view_type]["values"][map_option]],
                 y=df.index,
                 orientation="h",
-                visible='legendonly'
+                visible="legendonly",
             ),
             go.Bar(
                 name="Previous Version",
                 x=df_pre[VIZKEY[subcategory][view_type]["values"][map_option]],
                 y=df_pre.index,
                 orientation="h",
-                visible='legendonly'
+                visible="legendonly",
             ),
         ]
     )
     fig2.update_layout(
-        barmode="group", 
-        width=1000, 
+        barmode="group",
+        width=1000,
         height=1000,
-        title_text=f"Total {view_type_unit} by Version and {agency_type_title} ({map_title_text})"
+        title_text=f"Total {view_type_unit} by Version and {agency_type_title} ({map_title_text})",
     )
 
-    fig2.update_xaxes(
-        title=f"Total {view_type_unit} ({map_title_text})"
-    )
+    fig2.update_xaxes(title=f"Total {view_type_unit} ({map_title_text})")
 
     fig2.update_yaxes(title=agency_type_title)
 
     st.plotly_chart(fig2)
 
-    st.header(f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}")
-    
-    st.markdown(f"""
+    st.header(
+        f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
+    )
+
+    st.markdown(
+        f"""
         Another important aspect about the summary stats tables can display to us is the question:
         How many of the {view_type} are successfully mapped? 
         This chart shows the change in the percentage of the {view_type} that are mapped between the last two versions. 
@@ -163,35 +167,35 @@ def cpdb():
 
     fig3 = go.Figure(
         [
-            go.Bar(name="Difference",
-                x=diff_perc.diff_percent_mapped, 
+            go.Bar(
+                name="Difference",
+                x=diff_perc.diff_percent_mapped,
                 y=diff_perc.index,
                 orientation="h",
             ),
-            go.Bar(name="Latest Version",
-                x=diff_perc.percent_mapped, 
+            go.Bar(
+                name="Latest Version",
+                x=diff_perc.percent_mapped,
                 y=diff_perc.index,
-                orientation='h',
-                visible='legendonly'
+                orientation="h",
+                visible="legendonly",
             ),
-            go.Bar(name="Previous Version",
-                x=diff_perc.pre_percent_mapped, 
+            go.Bar(
+                name="Previous Version",
+                x=diff_perc.pre_percent_mapped,
                 y=diff_perc.index,
-                orientation='h',
-                visible='legendonly'
-            )
+                orientation="h",
+                visible="legendonly",
+            ),
         ]
-    ) 
+    )
 
     fig3.update_layout(
         width=1000,
         height=1000,
-        title_text=f"Percentage Mapped of {view_type_title} by Version and {agency_type_title}"
+        title_text=f"Percentage Mapped of {view_type_title} by Version and {agency_type_title}",
     )
 
-    fig3.update_xaxes(
-        title=f"Percentage",
-        tickformat= '.2%'
-    )
+    fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
     fig3.update_yaxes(title=agency_type_title)
     st.plotly_chart(fig3)
