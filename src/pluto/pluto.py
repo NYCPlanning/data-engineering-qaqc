@@ -609,7 +609,11 @@ def pluto():
         # EXPECTED VALUE
         st.header("Expected Value Comparison")
         st.write(
-            "if nothing showed up, then it means there aren't any expected value change"
+            """
+            For some fields we report the expected values and descriptions in appendixes of the ReadMe document. 
+            Therefore, it's important for us to know when new values are added to field or a value is no longer present in a field. 
+            If the below is blank, that means that there are no changes in the values in selected fields between the selected and previous version.
+        """
         )
 
         create_expected(data["df_expected"], v1, v2)
