@@ -423,9 +423,8 @@ def pluto():
             st.write(df)
             st.info(
                 """
-            The mismatch graphs do not include lots that formerly had a value and are now null, or vice versa.
-            These differences are captured in the null graph, which shows the percent change in lots with a null value.
-            Hovering over a point shows you the number of null records in the more recent file. The number of such changes should be small.
+                The above graph highlights records that formerly had a value and are now NULL, or vice versa.
+                The number records going from NULL to not NULL or vice versa should be small for any field.
             """
             )
 
