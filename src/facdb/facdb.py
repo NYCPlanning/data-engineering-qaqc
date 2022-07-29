@@ -6,6 +6,7 @@ import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
 import requests
 from src.facdb.helpers import get_data, remove_branches
+from src.constants import COLOR_SCHEME
 
 
 def facdb():
@@ -32,7 +33,9 @@ def facdb():
             ]
         )
         fig.update_layout(
-            template="plotly_white", margin=go.layout.Margin(l=0, r=0, b=0, t=0)
+            template="plotly_white",
+            margin=go.layout.Margin(l=0, r=0, b=0, t=0),
+            colorway=COLOR_SCHEME,
         )
         st.plotly_chart(fig)
 
@@ -75,6 +78,7 @@ def facdb():
             yaxis=dict(automargin=True),
             template="plotly_white",
             margin=go.layout.Margin(l=0, r=0, b=0, t=0),
+            colorway=COLOR_SCHEME,
         )
         st.plotly_chart(fig)
 
@@ -109,6 +113,7 @@ def facdb():
             xaxis_tickformat=".2%",
             template="plotly_white",
             margin=go.layout.Margin(l=0, r=0, b=0, t=0),
+            colorway=COLOR_SCHEME,
         )
         st.plotly_chart(fig, config=dict({"scrollZoom": True}))
 

@@ -10,6 +10,7 @@ from src.cpdb.helpers import (
 )
 import plotly.express as px
 import plotly.graph_objects as go
+from src.constants import COLOR_SCHEME
 
 
 def cpdb():
@@ -73,16 +74,7 @@ def cpdb():
         labels=dict(sagencyacro="Sponsoring Agency", magencyacro="Managing Agency"),
         barmode="group",
         width=1000,
-        color_discrete_map={
-            "totalcount": "#2f4b7c",
-            "mapped": "#ff7c43",
-            "totalcommit": "#003f5c",
-            "mappedcommit": "#ffa600",
-            "fixedasset": "#a05195",
-            "fixedassetmapped": "#ffa600",
-            "fixedassetcommit": "#665191",
-            "fixedassetmappedcommit": "#f95d6a",
-        },
+        color_discrete_sequence=COLOR_SCHEME,
     )
 
     fig1.update_yaxes(title=view_type_unit)
@@ -142,6 +134,7 @@ def cpdb():
         width=1000,
         height=1000,
         title_text=f"Total {view_type_unit} by Version and {agency_type_title} ({map_title_text})",
+        colorway=COLOR_SCHEME,
     )
 
     fig2.update_xaxes(title=f"Total {view_type_unit} ({map_title_text})")
@@ -194,6 +187,7 @@ def cpdb():
         width=1000,
         height=1000,
         title_text=f"Percentage Mapped of {view_type_title} by Version and {agency_type_title}",
+        colorway=COLOR_SCHEME,
     )
 
     fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
