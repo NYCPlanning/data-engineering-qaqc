@@ -4,8 +4,11 @@ import streamlit as st
 
 
 def get_blogs():
-    r = requests.get("https://labs-home-api.herokuapp.com/posts?tag=data")
+    r = requests.get(
+        "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/nyc-planning-digital/tagged/data-engineering"
+    )
     result = r.json()["items"]
+
     css = """
         .blog-card {
         box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
@@ -36,10 +39,10 @@ def get_blogs():
         {css}
         </style>
         <div class="blog-card">
-        <img src="{i['image']}" alt="Avatar" style="width:100%;">
+        <img src="{i['thumbnail']}" alt="Avatar" style="width:100%;">
             <div class="container">
                 <a href="{i['link']}"><h4><b>{i['title']}</b></h4></a>
-                <p>{i['description']}</p>
+                <p>By {i['author']}</p>
             </div>
         </div>
         """,
@@ -68,4 +71,4 @@ def home():
     )
 
     st.header("Read more on Medium")
-    # get_blogs()
+    get_blogs()
