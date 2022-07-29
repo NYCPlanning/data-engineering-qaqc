@@ -189,14 +189,15 @@ def pluto():
 
             groups = [
                 {
-                    "title": "Mismatch graph -- finance",
+                    "title": "Mismatch graph -- finance fields",
                     "columns": finance_columns,
                     "description": """
-                        Assessment and exempt values are updated **twice** a year by DOF.
-                        The tentative roll is released in *mid-January* and the final roll is released in *late May*.
-                        For PLUTO versions created in February, most lots will show a change in assesstot,
-                        with a smaller number of changes for the `assessland` and `exempttot`.
-                        There will also be changes in the June version. Other months should see almost no change for these fields.
+                        DOF updates the assessment and exempt values twice a year. 
+                        The tentative tax roll is released in mid-January and the final tax roll is released in late May. 
+                        We expect the values of the fields in the above graph to change in versions of PLUTO created after the release of the tentative or final roll. 
+                        For the PLUTO version created right after the tentative roll, most lots will show a change in assesstot, with a smaller number of changes for the assessland and exempttot.
+                        There will also be changes to these fields in the version created after the release of the final roll. 
+                        Versions created between roll releases should see almost no change for these fields.
                     """,
                 },
                 {
@@ -280,12 +281,15 @@ def pluto():
                 fig.update_layout(title=group["title"], template="plotly_white")
                 st.plotly_chart(fig)
                 st.info(group["description"])
-            
+
             st.write(df)
-            st.info("""
+            st.info(
+                """
                 This table reports the number of records with differences in a field value between versions. 
                 This table is useful for digging into any anomalies identified using the graphs above.
-            """)
+            """
+            )
+
         def create_null(df_null, v1, v2, v3, condo, mapped):
             x = [
                 "borough",
