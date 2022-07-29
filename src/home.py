@@ -35,7 +35,7 @@ def retrieve_blog_posts():
     ).json()["items"]
 
 
-def get_blogs():
+def display_blog():
     for post in retrieve_blog_posts():
         st.markdown(
             f"""
@@ -75,4 +75,4 @@ def home():
     )
 
     st.header("Read more on Medium")
-    get_blogs()
+    display_blog()
