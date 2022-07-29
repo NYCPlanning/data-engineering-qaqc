@@ -10,6 +10,7 @@ def pluto():
     import requests
     from src.pluto.helpers import get_branches, get_data
     from st_aggrid import AgGrid
+    from src.constants import COLOR_SCHEME
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -278,7 +279,9 @@ def pluto():
                 fig = generate_graph(
                     v1v2, v2v3, v1v2_total, v2v3_total, group["columns"]
                 )
-                fig.update_layout(title=group["title"], template="plotly_white")
+                fig.update_layout(
+                    title=group["title"], template="plotly_white", colorway=COLOR_SCHEME
+                )
                 st.plotly_chart(fig)
                 st.info(group["description"])
             st.write(df)
@@ -413,7 +416,9 @@ def pluto():
                 v2v3_total = v2v3.pop("total")
                 fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
 
-            fig.update_layout(title="Null graph", template="plotly_white")
+            fig.update_layout(
+                title="Null graph", template="plotly_white", colorway=COLOR_SCHEME
+            )
             st.plotly_chart(fig)
             st.write(df)
             st.info(
@@ -484,6 +489,7 @@ def pluto():
                 title="Aggregate graph",
                 template="plotly_white",
                 yaxis={"title": "Percent Change"},
+                colorway=COLOR_SCHEME,
             )
             st.plotly_chart(fig)
             st.write(df)
@@ -641,6 +647,7 @@ def pluto():
                     text="size",
                     title=title,
                     labels={"size": "Count of Records", "field": "Altered Field"},
+                    color_discrete_sequence=COLOR_SCHEME,
                 )
 
             def display_corrections_df(corrections):
