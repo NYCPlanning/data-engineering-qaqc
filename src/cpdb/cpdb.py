@@ -36,7 +36,7 @@ def cpdb():
         "choose a subcategoy or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    data = get_data(branch, agency_type)
+    data = get_data(branch)
 
     st.caption(
         body="""There are mainly three ways to look at the existing qaqc tables. 
