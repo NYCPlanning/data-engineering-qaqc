@@ -51,13 +51,18 @@ def fetch_boto3_data(branch: str, table: str, previous=False):
 
 def get_data(branch) -> dict:
     rv = {}
-    tables = ["analysis/cpdb_summarystats_sagency",
-              "analysis/cpdb_summarystats_magency", "cpdb_adminbounds",
-              ]
-    for t in tables:
+    tables = {
+        "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
+        "others": ["cpdb_adminbounds"]
+    }
+    
+    for t in tables["analysis"]:
+        rv[t] = fetch_boto3_data(branch=branch, table="analysis/"+t)
+        rv["pre_" + t] = fetch_boto3_data(branch=branch, table="analysis/"+t, previous=True)
+    for t in tables["others"]:
         rv[t] = fetch_boto3_data(branch=branch, table=t)
-        rv["pre"+t] = fetch_boto3_data(branch=branch, table=t)
-
+        rv["pre_" + t] = fetch_boto3_data(branch=branch, table=t, previous=True)
+    
     return rv
 
 

@@ -46,8 +46,8 @@ def cpdb():
         """
     )
 
-    df = data[agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_" + agency_type].set_index(agency_type + "acro")
+    df = data["cpdb_summarystats_"+agency_type].set_index(agency_type + "acro")
+    df_pre = data["pre_" + "cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
     if view_type == "commitments":
         st.header(
             f"Dollar ($) Value of Commitments by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
