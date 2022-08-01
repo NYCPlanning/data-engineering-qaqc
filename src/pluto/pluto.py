@@ -420,13 +420,14 @@ def pluto():
                 title="Null graph", template="plotly_white", colorway=COLOR_SCHEME
             )
             st.plotly_chart(fig)
-            st.write(df)
             st.info(
                 """
                 The above graph highlights records that formerly had a value and are now NULL, or vice versa.
                 The number records going from NULL to not NULL or vice versa should be small for any field.
             """
             )
+            st.write(df)
+
 
         def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
             df = df_aggregate.loc[
