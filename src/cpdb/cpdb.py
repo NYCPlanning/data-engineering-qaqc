@@ -2,8 +2,10 @@ import streamlit as st  # type: ignore
 import pandas as pd
 from src.cpdb.helpers import (
     get_data,
+    get_geometries,
     get_commit_cols,
     get_diff_dataframe,
+    get_geometries,
     get_map_percent_diff,
     sort_base_on_option,
     VIZKEY,
@@ -11,6 +13,7 @@ from src.cpdb.helpers import (
 import plotly.express as px
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
+import src.cpdb.components.geometry_visualization_report as geometry_visualization
 
 
 def cpdb():
@@ -38,6 +41,7 @@ def cpdb():
     )
 
     data = get_data(branch, agency_type)
+    geometries = get_geometries(branch)
 
     st.caption(
         body="""There are mainly three ways to look at the existing qaqc tables. 
