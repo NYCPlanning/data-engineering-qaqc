@@ -60,9 +60,13 @@ def cpdb():
 
         Additionally, we have created basic geographic checks to facilitate the QAQC process of the disparate source data we recieve from various city agencies. These checks are not meant to be comprehensive but indicate if a source data geometry is falling outside of the NYC spatial boundaries.
 
-        **Key CPDB QAQC terms:** 
+        ### Key CPDB QAQC terms: 
 
         **Mapped** - refers to a record that is succesfully geocoded and "mapped" to a location in NYC (point, polygon or line)
+        
+        #### Additional Links
+        - [CPDB Github Repo Wiki Page](https://github.com/NYCPlanning/db-cpdb/wiki) 
+        - [Medium Blog on CPDB](https://medium.com/nyc-planning-digital/welcome-to-the-world-dcps-capital-projects-database-693a8b9782ac)
 
         """
     )
