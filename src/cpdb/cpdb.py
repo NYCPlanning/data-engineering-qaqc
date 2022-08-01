@@ -52,13 +52,17 @@ def cpdb():
 
         ### ABOUT QAQC 
 
-        The QAQC page is designed to highlight key measures that can indicate potential data issues in a CPDB build. These graphs are aggregated at the agency level and there are essentially 3 cuts of the data that can be selected and viewed:
+        The QAQC page is designed to highlight key measures that can indicate potential data issues in a CPDB build. These graphs are aggregated at the agency level and there are essentially 3 cuts of the data that can be selected and viewed (w/ additional variation at the graph level):
 
-        1. Type of Agency: Sponsoring Agency OR Managing Agency 
-        2. Focus on the Commitment (Total sum ($) of all commitments) level data OR Project (# of total projects) level data at the specified agency level
-        3. Select by Project/Commitment Category Type: All Categories (fixed asset, lump sum, ITT, Vehicles & equpment) OR only Fixed Asset's
+        1. Type of agency: sponsoring agency OR managing agency 
+        2. Focus on the commitment (Total sum ($) of all commitments) level data OR project (total number/count of projects) level data at the specified agency level
+        3. Select by project/commitment category type: entire portfolio/all categories (fixed asset, lump sum, ITT, Vehicles & equpment) OR only fixed asset
 
         Additionally, we have created basic geographic checks to facilitate the QAQC process of the disparate source data we recieve from various city agencies. These checks are not meant to be comprehensive but indicate if a source data geometry is falling outside of the NYC spatial boundaries.
+
+        **Key CPDB QAQC terms:** 
+
+        **Mapped** - refers to a record that is succesfully geocoded and "mapped" to a location in NYC (point, polygon or line)
 
         """
     )
