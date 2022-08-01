@@ -10,6 +10,7 @@ from src.cpdb.helpers import (
 )
 import plotly.express as px
 import plotly.graph_objects as go
+from src.cpdb.adminbounds import adminbounds
 
 
 def cpdb():
@@ -65,7 +66,6 @@ def cpdb():
     df_bar = sort_base_on_option(
         df, subcategory, view_type, map_option=0, ascending=False
     )
-    print(df_bar.index)
     fig1 = px.bar(
         df_bar,
         x=df_bar.index,
@@ -199,3 +199,20 @@ def cpdb():
     fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
     fig3.update_yaxes(title=agency_type_title)
     st.plotly_chart(fig3)
+    
+    st.header(
+        f"Compare Administrative Boundary Values Between Previous and Latest Versions"
+    )
+
+    st.markdown(
+        f"""
+        Is there any differences in the adminstrative boundary values in previous vs. latest version? 
+        The intended result is that the list is empty and all the admin boundaries are still present in the new output.
+        Otherwise it might indicate that some of spatial join with admin boundaries have failed. 
+        """
+    )
+    # admin bounds 
+    adminbounds_extra_ls = adminbounds(data["cpdb_adminbounds"], data["pre_cpdb_adminbounds"])
+    st.text(",".join(adminbounds_extra_ls))
+
+    
