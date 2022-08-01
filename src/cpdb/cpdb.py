@@ -14,7 +14,7 @@ from src.constants import COLOR_SCHEME
 
 
 def cpdb():
-    st.title("Capital Projects DB QAQC")
+    st.title("Capital Projects Database QAQC")
     branch = st.sidebar.selectbox("select a branch", ["main"])
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
@@ -34,16 +34,32 @@ def cpdb():
     )
 
     subcategory = st.sidebar.selectbox(
-        "choose a subcategoy or entire portfolio", ["all categories", "fixed assets"]
+        "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
     data = get_data(branch, agency_type)
 
-    st.caption(
-        body="""There are mainly three ways to look at the existing qaqc tables. 
-        First, you can either focus on the managing agencies or the sponsoring agencies for the projects. 
-        Second, you can choose either to focus on the number of projects by your choice of agency type or the commitment amount for the projects. 
-        Third, you could view the only a subcategory of the projects that outlined by the Capital Planning database. 
+    st.markdown(
+        body="""
+        
+        ### ABOUT CAPITAL PROJECTS DATABASE
+
+        The Capital Projects Database (CPDB), a data product produced by the New York City (NYC) Department of City Planning (DCP) Capital Planning division, captures key data points on potential, planned, and ongoing capital projects sponsored or managed by a capital agency in and around NYC.
+
+        Information reported in the Capital Commitment Plan published by the NYC Office of Management and Budget (OMB) three times per year is the foundation that CPDB is then built off of; therefore, only the capital projects that appear in the Capital Commitment Plan are reflected in CPDB. Other open data resources are also leveraged to map the capital projects.
+
+        CPDB supports the most comprehensive map of potential, planned, and ongoing capital projects taking place across NYC enabling Planners to better understand and communicate New York City’s capital project portfolio within and across particular agencies. This integrated but not exhaustive view provides a broad understanding of what projects are taking place within a certain area, and a starting point to discovering opportunities for strategic neighborhood planning.
+
+        ### ABOUT QAQC 
+
+        The QAQC page is designed to highlight key measures that can indicate potential data issues in a CPDB build. These graphs are aggregated at the agency level and there are essentially 3 cuts of the data that can be selected and viewed:
+
+        1. Type of Agency: Sponsoring Agency OR Managing Agency 
+        2. Focus on the Commitment (Total sum ($) of all commitments) level data OR Project (# of total projects) level data at the specified agency level
+        3. Select by Project/Commitment Category Type: All Categories (fixed asset, lump sum, ITT, Vehicles & equpment) OR only Fixed Asset's
+
+        Additionally, we have created basic geographic checks to facilitate the QAQC process of the disparate source data we recieve from various city agencies. These checks are not meant to be comprehensive but indicate if a source data geometry is falling outside of the NYC spatial boundaries.
+
         """
     )
 
