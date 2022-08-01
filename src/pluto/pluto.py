@@ -278,10 +278,7 @@ def pluto():
                 fig = generate_graph(
                     v1v2, v2v3, v1v2_total, v2v3_total, group["columns"]
                 )
-                fig.update_layout(
-                    title={"text": group["title"]},
-                    template="plotly_white",
-                )
+                fig.update_layout(title=group["title"], template="plotly_white")
                 st.plotly_chart(fig)
                 st.info(group["description"])
 
