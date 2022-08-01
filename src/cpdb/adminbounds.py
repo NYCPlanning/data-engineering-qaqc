@@ -1,4 +1,9 @@
 def adminbounds(df, pre_df):
     output = list(set(pre_df.admin_boundary_type.unique()) - set(df.admin_boundary_type.unique()))
-    print(output)
+
+    if len(output) == 0:
+        output = "No change"
+    else:
+        ",".join(output)
+
     return output

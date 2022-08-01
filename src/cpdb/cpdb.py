@@ -212,7 +212,7 @@ def cpdb():
         """
     )
     # admin bounds 
-    adminbounds_extra_ls = adminbounds(data["cpdb_adminbounds"], data["pre_cpdb_adminbounds"])
-    st.text(",".join(adminbounds_extra_ls))
+    adminbounds_txt = adminbounds(data["cpdb_adminbounds"], data["pre_cpdb_adminbounds"])
+    st.text(adminbounds_txt)
 
     
