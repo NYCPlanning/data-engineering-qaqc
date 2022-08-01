@@ -428,7 +428,6 @@ def pluto():
             )
             st.write(df)
 
-
         def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
             df = df_aggregate.loc[
                 (df_aggregate.condo == condo)
