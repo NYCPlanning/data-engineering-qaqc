@@ -6,10 +6,12 @@ from src.cpdb.helpers import (
     get_diff_dataframe,
     get_map_percent_diff,
     sort_base_on_option,
+    get_geospatial_check,
     VIZKEY,
 )
 import plotly.express as px
 import plotly.graph_objects as go
+from st_aggrid import AgGrid
 
 
 def cpdb():
@@ -199,3 +201,30 @@ def cpdb():
     fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
     fig3.update_yaxes(title=agency_type_title)
     st.plotly_chart(fig3)
+
+    # add geospatial check section
+    st.header(f"Mapped Capital Projects That Are Not in NYC")
+    st.markdown(
+        f"""
+        We check whether all mapped capital projects are located within the NYC borough boundaries (water included).
+        """
+    )
+
+    def fetch_dataframe(geo_check_records, field):
+        records = [i["values"] for i in geo_check_records if i["field"] == field][0]
+        if records:
+            df = pd.DataFrame(records)
+            return df
+        else:
+            return pd.DataFrame()
+
+    geo_check_records = get_geospatial_check(branch).to_dict("records")
+    if not geo_check_records:
+        st.write("No such projects.")
+    else:
+        geo_check = [i["result"] for i in geo_check_records][0]
+        df = fetch_dataframe(geo_check, "projects_not_within_NYC")
+        if df.empty:
+            st.write("No such projects.")
+        else:
+            AgGrid(df)

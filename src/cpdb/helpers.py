@@ -5,6 +5,7 @@ import os
 import pandas as pd
 import boto3
 from dotenv import load_dotenv
+import json
 
 load_dotenv()
 
@@ -51,8 +52,26 @@ def get_data(branch, table) -> dict:
     data = StringIO(s)
     df = pd.read_csv(data, encoding="utf8")
     rv["pre_" + table] = df
-
     return rv
+
+
+def get_geospatial_check(branch):
+    client = boto3.client(
+        "s3",
+        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+        endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
+    )
+
+    obj = client.get_object(
+        Bucket="edm-private",
+        Key=f"db-cpdb/{branch}/latest/output/geospatial_check.csv",
+    )
+    s = str(obj["Body"].read(), "utf8")
+    data = StringIO(s)
+    df = pd.read_csv(data, encoding="utf8")
+    df["result"] = df["result"].apply(json.loads)
+    return df
 
 
 def get_commit_cols(df: pd.DataFrame):
