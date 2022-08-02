@@ -5,7 +5,6 @@ from src.cpdb.helpers import (
     get_geometries,
     get_commit_cols,
     get_diff_dataframe,
-    get_geometries,
     get_map_percent_diff,
     sort_base_on_option,
     VIZKEY,
