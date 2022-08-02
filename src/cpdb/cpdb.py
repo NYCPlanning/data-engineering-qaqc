@@ -107,7 +107,12 @@ def cpdb():
 
     st.plotly_chart(fig1)
 
-    st.caption(f"""""")
+    st.caption(
+        f"""This graph highlights the {view_type_unit} by {agency_type_title} for {subcategory} broken up by Mapped and Unmapped records grouped by unique NYC municipal agencies. 
+        Typically, large city agencies including DPR (Dept. Parks and Rec.), DEP (Dept. of Environmental Protection), DOT (Dept. of Transportation), DCAS (Dept of Citywide Admin. Services) have the largest count of projects and, generally, the highest capital expenditure. 
+        Some agencies (e.g. HPD [Housing Preservation & Development] often have less total projects but high capital expenditure because of the nature of their projects which are related to building housing across NYC."""
+    )
+
     #### ----- 2nd Graph
     st.header(
         f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}"
