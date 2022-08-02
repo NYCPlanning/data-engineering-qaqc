@@ -6,89 +6,99 @@ from st_aggrid import AgGrid
 from src.constants import COLOR_SCHEME
 
 
-def corrections_report(data):
-    st.header("Manual Corrections")
+class CorrectionsReport:
+    def __init__(self, data) -> None:
+        self.applied_corrections = data["pluto_corrections_applied"]
+        self.not_applied_corrections = data["pluto_corrections_not_applied"]
+        self.version_dropdown = np.insert(
+            np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())),
+            0,
+            "All",
+        )
 
-    st.markdown(
-        """
-        PLUTO is created using the best available data from a number of city agencies. To further
-        improve data quality, the Department of City Planning (DCP) applies changes to selected field
-        values.
+    def __call__(self):
+        st.header("Manual Corrections")
 
-        Each Field Correction is labeled for a version of PLUTO. For programmatic changes, this is version in which the programmatic change was
-        implemented. For research and user reported changes, this is the version in which the BBL
-        change was added to PLUTO_input_research.csv.
+        st.markdown(
+            """
+            PLUTO is created using the best available data from a number of city agencies. To further
+            improve data quality, the Department of City Planning (DCP) applies changes to selected field
+            values.
 
-        For more information about the structure of the pluto corrections report,
-        see the [Pluto Changelog Readme](https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/pluto_change_file_readme.pdf?r=22v1).
-        """
-    )
+            Each Field Correction is labeled for a version of PLUTO. For programmatic changes, this is version in which the programmatic change was
+            implemented. For research and user reported changes, this is the version in which the BBL
+            change was added to PLUTO_input_research.csv.
 
-    applied_corrections = data["pluto_corrections_applied"]
-    not_applied_corrections = data["pluto_corrections_not_applied"]
+            For more information about the structure of the pluto corrections report,
+            see the [Pluto Changelog Readme](https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/pluto_change_file_readme.pdf?r=22v1).
+            """
+        )
 
-    if applied_corrections is None or not_applied_corrections is None:
+        if self.applied_corrections is None or self.not_applied_corrections is None:
+            st.info(
+                "There are no available corrections reports for this branch. This is likely due to a problem on the backend with the files on Digital Ocean."
+            )
+            return
+
+        version = st.sidebar.selectbox(
+            "Filter the field corrections by the PLUTO Version in which they were first introduced",
+            self.version_dropdown,
+        )
+
+        AppliedCorrectionsSection(self.applied_corrections, version)()
+        NotAppliedCorrectionsSection(self.not_applied_corrections, version)()
+
         st.info(
-            "There are no available corrections reports for this branch. This is likely due to a problem on the backend with the files on Digital Ocean."
+            """
+            See [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) for a full accounting of the changes made for the latest version
+            in the PLUTO change file.
+            """
         )
-        return
-
-    version_dropdown = np.insert(
-        np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())),
-        0,
-        "All",
-    )
-    version = st.sidebar.selectbox(
-        "Filter the field corrections by the PLUTO Version in which they were first introduced",
-        version_dropdown,
-    )
-
-    applied_corrections_section(applied_corrections, version)
-    not_applied_corrections_section(not_applied_corrections, version)
-
-    st.info(
-        """
-        See [here](https://www1.nyc.gov/site/planning/data-maps/open-data/dwn-pluto-mappluto.page) for a full accounting of the changes made for the latest version
-        in the PLUTO change file.
-        """
-    )
 
 
-def applied_corrections_section(corrections, version):
-    st.subheader("Manual Corrections Applied", anchor="corrections-applied")
-    st.markdown(
-        """
-        For each record in the PLUTO Corrections table, PLUTO attempts to change a record to the New Value column by matching on the BBL and the 
-        Old Value column. The graph and table below outline the records in the pluto corrections table that were successfully applied to PLUTO.
-        """
-    )
-    corrections = filter_by_version(corrections, version)
+class AppliedCorrectionsSection:
+    def __init__(self, corrections, version) -> None:
+        self.corrections = filter_by_version(corrections, version)
+        self.version_text = version_text(version)
 
-    if corrections.empty:
-        st.info(f"No Corrections introduced in {version_text(version)} were applied.")
-    else:
-        title_text = (
-            f"Applied Manual Corrections introduced in {version_text(version)} by Field"
+    def __call__(self):
+        st.subheader("Manual Corrections Applied", anchor="corrections-applied")
+
+        if self.corrections.empty:
+            st.info(f"No Corrections introduced in {self.version_text} were applied.")
+        else:
+            title_text = (
+                f"Applied Manual Corrections introduced in {self.version_text} by Field"
+            )
+            display_corrections_figures(self.corrections, title_text)
+        st.markdown(
+            """
+            For each record in the PLUTO Corrections table, PLUTO attempts to change a record to the New Value column by matching on the BBL and the 
+            Old Value column. The graph and table below outline the records in the pluto corrections table that were successfully applied to PLUTO.
+            """
         )
-        display_corrections_figures(corrections, title_text)
 
 
-def not_applied_corrections_section(corrections, version):
-    st.subheader("Manual Corrections Not Applied", anchor="corrections-not-applied")
-    st.markdown(
-        """ 
-        For each record in the PLUTO Corrections table, PLUTO attempts to correct a record by matching on the BBL and the 
-        Old Value column. As the underlying datasources change and improve, PLUTO records may no longer match the old value 
-        specified in the pluto corrections table. The graph and table below outline the records in the pluto corrections table that failed to be applied for this reason.
-        """
-    )
-    corrections = filter_by_version(corrections, version)
+class NotAppliedCorrectionsSection:
+    def __init__(self, corrections, version):
+        self.corrections = filter_by_version(corrections, version)
+        self.version_text = version_text(version)
 
-    if corrections.empty:
-        st.info(f"All Corrections introduced in {version_text(version)} were applied.")
-    else:
-        title_text = f"Manual Corrections not Applied introduced in {version_text(version)} by Field"
-        display_corrections_figures(corrections, title_text)
+    def __call__(self):
+        st.subheader("Manual Corrections Not Applied", anchor="corrections-not-applied")
+        st.markdown(
+            """ 
+            For each record in the PLUTO Corrections table, PLUTO attempts to correct a record by matching on the BBL and the 
+            Old Value column. As the underlying datasources change and improve, PLUTO records may no longer match the old value 
+            specified in the pluto corrections table. The graph and table below outline the records in the pluto corrections table that failed to be applied for this reason.
+            """
+        )
+
+        if self.corrections.empty:
+            st.info(f"All Corrections introduced in {self.version_text} were applied.")
+        else:
+            title_text = f"Manual Corrections not Applied introduced in {self.version_text} by Field"
+            display_corrections_figures(self.corrections, title_text)
 
 
 def filter_by_version(df, version):

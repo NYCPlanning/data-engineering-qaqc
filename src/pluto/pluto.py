@@ -11,7 +11,7 @@ def pluto():
     from src.pluto.helpers import get_branches, get_data
     from st_aggrid import AgGrid
     from src.constants import COLOR_SCHEME
-    from src.pluto.components.corrections_report import corrections_report
+    from src.pluto.components.corrections_report import CorrectionsReport
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -632,4 +632,4 @@ def pluto():
     if report_type == "Compare with Previous Version":
         version_comparison_report(data)
     elif report_type == "Review Manual Corrections":
-        corrections_report(data)
+        CorrectionsReport(data)()
