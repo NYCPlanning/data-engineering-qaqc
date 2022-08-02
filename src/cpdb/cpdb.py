@@ -11,12 +11,14 @@ from src.cpdb.helpers import (
 import plotly.express as px
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
+from src.cpdb.component.adminbounds import adminbounds
 
 
 def cpdb():
     st.title("Capital Projects Database QAQC")
     branch = st.sidebar.selectbox("select a branch", ["main"])
-    agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
+    agency_label = {"sagency": "Sponsoring Agency",
+                    "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",
         ["sagency", "magency"],
@@ -34,10 +36,11 @@ def cpdb():
     )
 
     subcategory = st.sidebar.selectbox(
-        "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
+        "choose a subcategoy or entire portfolio", [
+            "all categories", "fixed assets"]
     )
 
-    data = get_data(branch, agency_type)
+    data = get_data(branch)
 
     st.markdown(
         body="""
@@ -71,8 +74,9 @@ def cpdb():
         """
     )
 
-    df = data[agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_" + agency_type].set_index(agency_type + "acro")
+    df = data["cpdb_summarystats_"+agency_type].set_index(agency_type + "acro")
+    df_pre = data["pre_" + "cpdb_summarystats_" +
+                  agency_type].set_index(agency_type + "acro")
     if view_type == "commitments":
         st.header(
             f"Dollar ($) Value of Commitments by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
@@ -90,12 +94,12 @@ def cpdb():
     df_bar = sort_base_on_option(
         df, subcategory, view_type, map_option=0, ascending=False
     )
-    print(df_bar.index)
     fig1 = px.bar(
         df_bar,
         x=df_bar.index,
         y=VIZKEY[subcategory][view_type]["values"],
-        labels=dict(sagencyacro="Sponsoring Agency", magencyacro="Managing Agency"),
+        labels=dict(sagencyacro="Sponsoring Agency",
+                    magencyacro="Managing Agency"),
         barmode="group",
         width=1000,
         color_discrete_sequence=COLOR_SCHEME,
@@ -140,7 +144,8 @@ def cpdb():
         [
             go.Bar(
                 name="Difference",
-                x=df_bar_diff[VIZKEY[subcategory][view_type]["values"][map_option]],
+                x=df_bar_diff[VIZKEY[subcategory]
+                              [view_type]["values"][map_option]],
                 y=df_bar_diff.index,
                 orientation="h",
             ),
@@ -188,7 +193,8 @@ def cpdb():
         """
     )
 
-    diff_perc = get_map_percent_diff(df, df_pre, VIZKEY[subcategory][view_type])
+    diff_perc = get_map_percent_diff(
+        df, df_pre, VIZKEY[subcategory][view_type])
 
     fig3 = go.Figure(
         [
@@ -225,3 +231,5 @@ def cpdb():
     fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
     fig3.update_yaxes(title=agency_type_title)
     st.plotly_chart(fig3)
+
+    adminbounds(data=data)
