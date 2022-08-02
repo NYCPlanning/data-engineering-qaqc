@@ -107,6 +107,8 @@ def cpdb():
 
     st.plotly_chart(fig1)
 
+    st.caption(f"""""")
+    #### ----- 2nd Graph
     st.header(
         f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}"
     )
@@ -167,6 +169,7 @@ def cpdb():
 
     st.plotly_chart(fig2)
 
+    #### ----- 3rd Graph
     st.header(
         f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
     )
