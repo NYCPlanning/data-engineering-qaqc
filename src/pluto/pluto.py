@@ -10,6 +10,7 @@ def pluto():
     import requests
     from src.pluto.helpers import get_branches, get_data
     from st_aggrid import AgGrid
+    from src.constants import COLOR_SCHEME
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -189,27 +190,27 @@ def pluto():
 
             groups = [
                 {
-                    "title": "Mismatch graph -- finance",
+                    "title": "Mismatch graph -- finance fields",
                     "columns": finance_columns,
                     "description": """
-                    Assessment and exempt values are updated **twice** a year by DOF.
-                    The tentative roll is released in *mid-January* and the final roll is released in *late May*.
-                    For PLUTO versions created in February, most lots will show a change in assesstot,
-                    with a smaller number of changes for the `assessland` and `exempttot`.
-                    There will also be changes in the June version. Other months should see almost no change for these fields.
+                        DOF updates the assessment and exempt values twice a year. 
+                        The tentative tax roll is released in mid-January and the final tax roll is released in late May. 
+                        We expect the values of the fields in the above graph to change in versions of PLUTO created after the release of the tentative or final roll. 
+                        For the PLUTO version created right after the tentative roll, most lots will show a change in assesstot, with a smaller number of changes for the assessland and exempttot.
+                        There will also be changes to these fields in the version created after the release of the final roll. 
+                        Versions created between roll releases should see almost no change for these fields.
                     """,
                 },
                 {
-                    "title": "Mismatch graph -- area",
+                    "title": "Mismatch graph -- area fields",
                     "columns": area_columns,
                     "description": """
-                    The primary source for these fields is **CAMA**.
-                    Updates reflect new construction, as well as updates by assessors for the tentative roll.
-                    Several thousand lots may have updates in February.
-                """,
+                        CAMA is the primary source for the area fields. Updates reflect new construction, as well as updates by assessors for the tentative roll. 
+                        Several thousand lots may have updates in the version created after the tentative tax roll.
+                    """,
                 },
                 {
-                    "title": "Mismatch graph -- zoning",
+                    "title": "Mismatch graph -- zoning fields",
                     "columns": zoning_columns,
                     "description": """
                     Unless DCP does a major rezoning, the number of lots with changed values should be **no more than a couple of hundred**.
@@ -218,7 +219,7 @@ def pluto():
                 """,
                 },
                 {
-                    "title": "Mismatch graph -- geo",
+                    "title": "Mismatch graph -- geo fields",
                     "columns": geo_columns,
                     "description": """
                     These fields are updated from **Geosupport**. Changes should be minimal unless a municipal service
@@ -227,13 +228,13 @@ def pluto():
                 """,
                 },
                 {
-                    "title": "Mismatch graph -- building",
+                    "title": "Mismatch graph -- building fields",
                     "columns": bldg_columns,
                     "description": """
-                    Changes in these fields are most common in February, after the tentative roll has been released.
-                    Several fields in this group are changed by DCP to improve data quality, including `ownername` and `yearbuilt`.
-                    When these changes are first applied, there will be a spike in the number of lots changed.
-                """,
+                        Changes in these fields are most common after the tentative roll has been released. 
+                        Several fields in this group are changed by DCP to improve data quality, including ownername and yearbuilt. 
+                        When these changes are first applied, there will be a spike in the number of lots changed.
+                    """,
                 },
             ]
 
@@ -278,10 +279,20 @@ def pluto():
                 fig = generate_graph(
                     v1v2, v2v3, v1v2_total, v2v3_total, group["columns"]
                 )
-                fig.update_layout(title=group["title"], template="plotly_white")
+                fig.update_layout(
+                    title=group["title"], template="plotly_white", colorway=COLOR_SCHEME
+                )
                 st.plotly_chart(fig)
                 st.info(group["description"])
+
+            st.subheader("Summary of Differences by Field")
             st.write(df)
+            st.info(
+                """
+                This table reports the number of records with differences in a field value between versions. 
+                This table is useful for digging into any anomalies identified using the graphs above.
+            """
+            )
 
         def create_null(df_null, v1, v2, v3, condo, mapped):
             x = [
@@ -413,16 +424,17 @@ def pluto():
                 v2v3_total = v2v3.pop("total")
                 fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
 
-            fig.update_layout(title="Null graph", template="plotly_white")
+            fig.update_layout(
+                title="Null graph", template="plotly_white", colorway=COLOR_SCHEME
+            )
             st.plotly_chart(fig)
-            st.write(df)
             st.info(
                 """
-            The mismatch graphs do not include lots that formerly had a value and are now null, or vice versa.
-            These differences are captured in the null graph, which shows the percent change in lots with a null value.
-            Hovering over a point shows you the number of null records in the more recent file. The number of such changes should be small.
+                The above graph highlights records that formerly had a value and are now NULL, or vice versa.
+                The number records going from NULL to not NULL or vice versa should be small for any field.
             """
             )
+            st.write(df)
 
         def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
             df = df_aggregate.loc[
@@ -484,19 +496,20 @@ def pluto():
                 title="Aggregate graph",
                 template="plotly_white",
                 yaxis={"title": "Percent Change"},
+                colorway=COLOR_SCHEME,
             )
             st.plotly_chart(fig)
             st.write(df)
             st.info(
                 """
-            The aggregate graph provides insights into the magnitude of changes, complementing the mismatch graph's functionality of showing the number of lots with a changed value.
-            For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released.
-            The aggregate graph may show that the aggregated sum of assessments increased by 5% compared with the previous version.\n
-            Totals for assessland, assesstot, and exempttot should only change in February and June.\n
-            Special Notes:\n
-            1. Y-axis represents percent change over the previous version. \n
-            2. Totals for assessland, assesstot, and exempttot should only change in February and June.\n
-            3. Pay attention to any large changes to residential units (unitsres).
+                In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change. 
+                For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released. 
+                The aggregate graph may show that the aggregated sum increased by 5%. 
+                Totals for assessland, assesstot, and exempttot should only change after the tentative and final rolls. 
+                Pay attention to any large changes to residential units (unitsres).
+
+                The graph shows the percent increase or decrease in the sum of the field between version. 
+                The table reports the raw numbers for more in depth analysis.
             """
             )
 
@@ -609,7 +622,11 @@ def pluto():
         # EXPECTED VALUE
         st.header("Expected Value Comparison")
         st.write(
-            "if nothing showed up, then it means there aren't any expected value change"
+            """
+            For some fields we report the expected values and descriptions in appendixes of the ReadMe document. 
+            Therefore, it's important for us to know when new values are added to field or a value is no longer present in a field. 
+            If the below is blank, that means that there are no changes in the values in selected fields between the selected and previous version.
+        """
         )
 
         create_expected(data["df_expected"], v1, v2)
@@ -637,6 +654,7 @@ def pluto():
                     text="size",
                     title=title,
                     labels={"size": "Count of Records", "field": "Altered Field"},
+                    color_discrete_sequence=COLOR_SCHEME,
                 )
 
             def display_corrections_df(corrections):

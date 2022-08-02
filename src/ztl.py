@@ -6,6 +6,7 @@ def ztl():
     import os
     import json
     import plotly.graph_objects as go
+    from src.constants import COLOR_SCHEME
 
     pd.options.display.float_format = "{:.2f}%".format
 
@@ -133,6 +134,7 @@ def ztl():
             template="plotly_white",
             xaxis=dict(title="Version"),
             yaxis=dict(title="Difference"),
+            colorway=COLOR_SCHEME,
         )
         st.plotly_chart(fig)
 
