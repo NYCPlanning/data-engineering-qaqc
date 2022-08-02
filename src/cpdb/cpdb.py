@@ -10,11 +10,8 @@ from src.cpdb.helpers import (
 )
 import plotly.express as px
 import plotly.graph_objects as go
-<<<<<<< HEAD
 from src.cpdb.component.adminbounds import adminbounds
-=======
 from src.constants import COLOR_SCHEME
->>>>>>> dev
 
 
 def cpdb():
@@ -39,12 +36,8 @@ def cpdb():
     )
 
     subcategory = st.sidebar.selectbox(
-<<<<<<< HEAD
-        "choose a subcategoy or entire portfolio", [
+        "choose a subcategory or entire portfolio", [
             "all categories", "fixed assets"]
-=======
-        "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
->>>>>>> dev
     )
 
     data = get_data(branch)
@@ -124,7 +117,7 @@ def cpdb():
         Some agencies (e.g. HPD [Housing Preservation & Development] often have less total projects but high capital expenditure because of the nature of their projects which are related to building housing across NYC."""
     )
 
-    #### ----- 2nd Graph
+    # ----- 2nd Graph
     st.header(
         f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}"
     )
@@ -186,7 +179,7 @@ def cpdb():
 
     st.plotly_chart(fig2)
 
-    #### ----- 3rd Graph
+    # ----- 3rd Graph
     st.header(
         f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
     )
