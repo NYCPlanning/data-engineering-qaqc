@@ -40,7 +40,7 @@ def cpdb():
             "all categories", "fixed assets"]
     )
 
-    data = get_data(branch)
+    data = get_data(branch, agency_type)
 
     st.markdown(
         body="""
@@ -74,9 +74,8 @@ def cpdb():
         """
     )
 
-    df = data["cpdb_summarystats_"+agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_" + "cpdb_summarystats_" +
-                  agency_type].set_index(agency_type + "acro")
+    df = data[agency_type].set_index(agency_type + "acro")
+    df_pre = data["pre_" + agency_type].set_index(agency_type + "acro")
     if view_type == "commitments":
         st.header(
             f"Dollar ($) Value of Commitments by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
@@ -94,6 +93,7 @@ def cpdb():
     df_bar = sort_base_on_option(
         df, subcategory, view_type, map_option=0, ascending=False
     )
+    print(df_bar.index)
     fig1 = px.bar(
         df_bar,
         x=df_bar.index,
@@ -232,4 +232,4 @@ def cpdb():
     fig3.update_yaxes(title=agency_type_title)
     st.plotly_chart(fig3)
 
-    adminbounds(data=data)
+    adminbounds(data)
