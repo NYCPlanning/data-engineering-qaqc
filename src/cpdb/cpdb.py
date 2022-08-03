@@ -122,13 +122,7 @@ def cpdb():
     st.header(
         f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}"
     )
-    st.markdown(
-        f"""  
-        Even though the underlying Capital Commitment Plan is meant to change over time, the outliers scenarios still should raise red flags. 
-        This chart highlights the top-line changes in {view_type_unit}, with the additional option to view the either all {view_type} or mapped {view_type} only
-        using the dropdown box below. Click the "Latest Version" and "Previous Version" labels in the legend to display the total {view_type_unit} for each.
-        """
-    )
+
     map_options = {0: f"all {view_type}", 1: f"mapped {view_type} only"}
     map_option = st.radio(
         label=f"Choose to compare either all {view_type} or mapped {view_type} only.",
@@ -180,7 +174,20 @@ def cpdb():
 
     st.plotly_chart(fig2)
 
+<<<<<<< HEAD
+    st.caption(
+        f"""  
+        This graph visualizes the difference in the {view_type_unit} by {agency_type_title} between two distinct versions of CPDB.
+        Even though the underlying Capital Commitment Plan is meant to change between versions, this graph and any outliers should help to guide the engineer if there are any anomolies between versions and indicate if there might be a specific agency to look into their capital projects further. 
+        This chart also gives the viewer the flexibility to change between all projects by {view_type_unit} (both mapped and unmapped) along with an option to just view the mapped (geolocated) projects.
+        Click the "Latest Version" and "Previous Version" labels in the legend to display the total {view_type_unit} for each.
+        """
+    )
+
+    #### ----- 3rd Graph
+=======
     # ----- 3rd Graph
+>>>>>>> dev
     st.header(
         f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
     )
