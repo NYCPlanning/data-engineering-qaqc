@@ -55,7 +55,7 @@ def pluto():
 
         v1 = st.sidebar.selectbox(
             "Pick a version of PLUTO:",
-            versions,  # index=len(versions) - 1
+            versions[:-2],  # Can't produce comparison report for last two versions
         )
 
         v2 = versions[versions.index(v1) + 1]
@@ -161,6 +161,12 @@ def pluto():
                 "firm07_flag",
                 "pfirm15_flag",
             ]
+            ab = ["a", "b", "c"]
+            av = ["a", "b", "c"]
+
+            ac = ["a", "b", "c"]
+
+            ad = ["a", "b", "c"]
 
             bldg_columns = [
                 "bldgclass",
@@ -499,7 +505,7 @@ def pluto():
                 colorway=COLOR_SCHEME,
             )
             st.plotly_chart(fig)
-            st.write(df)
+            st.write(df.sort_values(by="v", ascending=False))
             st.info(
                 """
                 In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change. 
