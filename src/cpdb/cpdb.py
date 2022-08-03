@@ -17,8 +17,7 @@ from src.cpdb.component.adminbounds import adminbounds
 def cpdb():
     st.title("Capital Projects Database QAQC")
     branch = st.sidebar.selectbox("select a branch", ["main"])
-    agency_label = {"sagency": "Sponsoring Agency",
-                    "magency": "Managing Agency"}
+    agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",
         ["sagency", "magency"],
@@ -36,8 +35,7 @@ def cpdb():
     )
 
     subcategory = st.sidebar.selectbox(
-        "choose a subcategory or entire portfolio", [
-            "all categories", "fixed assets"]
+        "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
     data = get_data(branch=branch)
@@ -74,9 +72,10 @@ def cpdb():
         """
     )
 
-    df = data["cpdb_summarystats_"+agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_" + "cpdb_summarystats_" +
-                  agency_type].set_index(agency_type + "acro")
+    df = data["cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
+    df_pre = data["pre_" + "cpdb_summarystats_" + agency_type].set_index(
+        agency_type + "acro"
+    )
     if view_type == "commitments":
         st.header(
             f"Dollar ($) Value of Commitments by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
@@ -99,8 +98,7 @@ def cpdb():
         df_bar,
         x=df_bar.index,
         y=VIZKEY[subcategory][view_type]["values"],
-        labels=dict(sagencyacro="Sponsoring Agency",
-                    magencyacro="Managing Agency"),
+        labels=dict(sagencyacro="Sponsoring Agency", magencyacro="Managing Agency"),
         barmode="group",
         width=1000,
         color_discrete_sequence=COLOR_SCHEME,
@@ -139,8 +137,7 @@ def cpdb():
         [
             go.Bar(
                 name="Difference",
-                x=df_bar_diff[VIZKEY[subcategory]
-                              [view_type]["values"][map_option]],
+                x=df_bar_diff[VIZKEY[subcategory][view_type]["values"][map_option]],
                 y=df_bar_diff.index,
                 orientation="h",
             ),
@@ -174,7 +171,6 @@ def cpdb():
 
     st.plotly_chart(fig2)
 
-<<<<<<< HEAD
     st.caption(
         f"""  
         This graph visualizes the difference in the {view_type_unit} by {agency_type_title} between two distinct versions of CPDB.
@@ -185,9 +181,6 @@ def cpdb():
     )
 
     #### ----- 3rd Graph
-=======
-    # ----- 3rd Graph
->>>>>>> dev
     st.header(
         f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
     )
@@ -201,8 +194,7 @@ def cpdb():
         """
     )
 
-    diff_perc = get_map_percent_diff(
-        df, df_pre, VIZKEY[subcategory][view_type])
+    diff_perc = get_map_percent_diff(df, df_pre, VIZKEY[subcategory][view_type])
 
     fig3 = go.Figure(
         [
