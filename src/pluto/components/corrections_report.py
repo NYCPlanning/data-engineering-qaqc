@@ -4,6 +4,7 @@ import numpy as np
 import plotly.express as px
 from st_aggrid import AgGrid
 from src.constants import COLOR_SCHEME
+from abc import ABC
 
 
 class CorrectionsReport:
@@ -56,10 +57,53 @@ class CorrectionsReport:
         )
 
 
-class AppliedCorrectionsSection:
+class CorrectionsSection(ABC):
     def __init__(self, corrections, version) -> None:
-        self.corrections = filter_by_version(corrections, version)
-        self.version_text = version_text(version)
+        super().__init__()
+        self.corrections = self.filter_by_version(corrections, version)
+        self.version_text = self.version_text(version)
+
+    def filter_by_version(self, df, version):
+        if version == "All":
+            return df
+        else:
+            return df.loc[df["version"] == version]
+
+    def version_text(self, version):
+        return "All Versions" if version == "All" else f"Version {version}"
+
+    def display_corrections_figures(self, df, title):
+        figure = self.generate_graph(self.field_correction_counts(df), title)
+        st.plotly_chart(figure)
+
+        self.display_corrections_df(df)
+
+    def generate_graph(self, corrections, title):
+        return px.bar(
+            corrections,
+            x="field",
+            y="size",
+            text="size",
+            title=title,
+            labels={"size": "Count of Records", "field": "Altered Field"},
+            color_discrete_sequence=COLOR_SCHEME,
+        )
+
+    def field_correction_counts(self, df):
+        return df.groupby(["field"]).size().to_frame("size").reset_index()
+
+    def display_corrections_df(self, corrections):
+        corrections = corrections.sort_values(
+            by=["version", "reason", "bbl"], ascending=[False, True, True]
+        )
+
+        AgGrid(corrections)
+
+
+class AppliedCorrectionsSection(CorrectionsSection):
+    def __init__(self, corrections, version) -> None:
+        self.corrections = self.filter_by_version(corrections, version)
+        self.version_text = self.version_text(version)
 
     def __call__(self):
         st.subheader("Manual Corrections Applied", anchor="corrections-applied")
@@ -70,7 +114,7 @@ class AppliedCorrectionsSection:
             title_text = (
                 f"Applied Manual Corrections introduced in {self.version_text} by Field"
             )
-            display_corrections_figures(self.corrections, title_text)
+            self.display_corrections_figures(self.corrections, title_text)
         st.markdown(
             """
             For each record in the PLUTO Corrections table, PLUTO attempts to change a record to the New Value column by matching on the BBL and the 
@@ -79,11 +123,7 @@ class AppliedCorrectionsSection:
         )
 
 
-class NotAppliedCorrectionsSection:
-    def __init__(self, corrections, version):
-        self.corrections = filter_by_version(corrections, version)
-        self.version_text = version_text(version)
-
+class NotAppliedCorrectionsSection(CorrectionsSection):
     def __call__(self):
         st.subheader("Manual Corrections Not Applied", anchor="corrections-not-applied")
         st.markdown(
@@ -98,46 +138,4 @@ class NotAppliedCorrectionsSection:
             st.info(f"All Corrections introduced in {self.version_text} were applied.")
         else:
             title_text = f"Manual Corrections not Applied introduced in {self.version_text} by Field"
-            display_corrections_figures(self.corrections, title_text)
-
-
-def filter_by_version(df, version):
-    if version == "All":
-        return df
-    else:
-        return df.loc[df["version"] == version]
-
-
-def version_text(version):
-    return "All Versions" if version == "All" else f"Version {version}"
-
-
-def display_corrections_figures(df, title):
-    figure = generate_graph(field_correction_counts(df), title)
-    st.plotly_chart(figure)
-
-    display_corrections_df(df)
-
-
-def generate_graph(corrections, title):
-    return px.bar(
-        corrections,
-        x="field",
-        y="size",
-        text="size",
-        title=title,
-        labels={"size": "Count of Records", "field": "Altered Field"},
-        color_discrete_sequence=COLOR_SCHEME,
-    )
-
-
-def display_corrections_df(corrections):
-    corrections = corrections.sort_values(
-        by=["version", "reason", "bbl"], ascending=[False, True, True]
-    )
-
-    AgGrid(corrections)
-
-
-def field_correction_counts(df):
-    return df.groupby(["field"]).size().to_frame("size").reset_index()
+            self.display_corrections_figures(self.corrections, title_text)
