@@ -101,10 +101,6 @@ class CorrectionsSection(ABC):
 
 
 class AppliedCorrectionsSection(CorrectionsSection):
-    def __init__(self, corrections, version) -> None:
-        self.corrections = self.filter_by_version(corrections, version)
-        self.version_text = self.version_text(version)
-
     def __call__(self):
         st.subheader("Manual Corrections Applied", anchor="corrections-applied")
 
