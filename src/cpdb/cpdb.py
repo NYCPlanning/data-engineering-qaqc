@@ -14,13 +14,13 @@ import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
 from src.cpdb.components.geometry_visualization_report import geometry_visualization_report
 from src.cpdb.components.adminbounds import adminbounds
+from src.cpdb.components.withinNYC_check import withinNYC_check
 
 
 def cpdb():
     st.title("Capital Projects Database QAQC")
     branch = st.sidebar.selectbox("select a branch", ["main"])
-    agency_label = {"sagency": "Sponsoring Agency",
-                    "magency": "Managing Agency"}
+    agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",
         ["sagency", "magency"],
@@ -38,8 +38,7 @@ def cpdb():
     )
 
     subcategory = st.sidebar.selectbox(
-        "choose a subcategory or entire portfolio", [
-            "all categories", "fixed assets"]
+        "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
     geometries = get_geometries(branch)
@@ -77,9 +76,10 @@ def cpdb():
         """
     )
 
-    df = data["cpdb_summarystats_"+agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_" + "cpdb_summarystats_" +
-                  agency_type].set_index(agency_type + "acro")
+    df = data["cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
+    df_pre = data["pre_" + "cpdb_summarystats_" + agency_type].set_index(
+        agency_type + "acro"
+    )
     if view_type == "commitments":
         st.header(
             f"Dollar ($) Value of Commitments by {agency_type_title} for {subcategory} (Mapped vs Unmapped)"
@@ -102,8 +102,7 @@ def cpdb():
         df_bar,
         x=df_bar.index,
         y=VIZKEY[subcategory][view_type]["values"],
-        labels=dict(sagencyacro="Sponsoring Agency",
-                    magencyacro="Managing Agency"),
+        labels=dict(sagencyacro="Sponsoring Agency", magencyacro="Managing Agency"),
         barmode="group",
         width=1000,
         color_discrete_sequence=COLOR_SCHEME,
@@ -125,13 +124,7 @@ def cpdb():
     st.header(
         f"Compare the Total {view_type_unit} in the Previous Version vs. the Latest Version of CPDB by {agency_type_title}"
     )
-    st.markdown(
-        f"""  
-        Even though the underlying Capital Commitment Plan is meant to change over time, the outliers scenarios still should raise red flags. 
-        This chart highlights the top-line changes in {view_type_unit}, with the additional option to view the either all {view_type} or mapped {view_type} only
-        using the dropdown box below. Click the "Latest Version" and "Previous Version" labels in the legend to display the total {view_type_unit} for each.
-        """
-    )
+
     map_options = {0: f"all {view_type}", 1: f"mapped {view_type} only"}
     map_option = st.radio(
         label=f"Choose to compare either all {view_type} or mapped {view_type} only.",
@@ -148,8 +141,7 @@ def cpdb():
         [
             go.Bar(
                 name="Difference",
-                x=df_bar_diff[VIZKEY[subcategory]
-                              [view_type]["values"][map_option]],
+                x=df_bar_diff[VIZKEY[subcategory][view_type]["values"][map_option]],
                 y=df_bar_diff.index,
                 orientation="h",
             ),
@@ -183,7 +175,16 @@ def cpdb():
 
     st.plotly_chart(fig2)
 
-    # ----- 3rd Graph
+    st.caption(
+        f"""  
+        This graph visualizes the difference in the {view_type_unit} by {agency_type_title} between two distinct versions of CPDB.
+        Even though the underlying Capital Commitment Plan is meant to change between versions, this graph and any outliers should help to guide the engineer if there are any anomolies between versions and indicate if there might be a specific agency to look into their capital projects further. 
+        This chart also gives the viewer the flexibility to change between all projects by {view_type_unit} (both mapped and unmapped) along with an option to just view the mapped (geolocated) projects.
+        Click the "Latest Version" and "Previous Version" labels in the legend to display the total {view_type_unit} for each.
+        """
+    )
+
+    #### ----- 3rd Graph
     st.header(
         f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
     )
@@ -197,8 +198,7 @@ def cpdb():
         """
     )
 
-    diff_perc = get_map_percent_diff(
-        df, df_pre, VIZKEY[subcategory][view_type])
+    diff_perc = get_map_percent_diff(df, df_pre, VIZKEY[subcategory][view_type])
 
     fig3 = go.Figure(
         [
@@ -239,3 +239,4 @@ def cpdb():
     adminbounds(data)
 
     geometry_visualization_report(geometries["points"])
+    withinNYC_check(data)

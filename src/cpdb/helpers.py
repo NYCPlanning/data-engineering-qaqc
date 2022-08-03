@@ -54,12 +54,39 @@ def fetch_boto3_data(branch: str, table: str, previous=False):
     df = unpack_object(obj)
     return df
 
+def unzip_shapefile(table, zipfile):
+    try:
+        with zipfile as zf:
+            zf.extractall(path=f".library/{table}/")
+            return gpd.read_file(f".library/{table}/{table}.shp")
+    except:
+        return None
+
+
+def zip_from_DO(zip_filename, bucket):
+    zip_obj = s3_resource().Object(bucket_name=bucket, key=zip_filename)
+    buffer = BytesIO(zip_obj.get()["Body"].read())
+
+    return ZipFile(buffer)
+
+def get_geometries(branch, table) -> dict:
+    points_zip = zip_from_DO(
+        zip_filename=f"db-cpdb/{branch}/latest/output/{table}.shp.zip",
+        bucket=BUCKET_NAME,
+    )
+    gdf = unzip_shapefile(
+        zipfile=points_zip, table=table
+    )
+    return gdf
+
 
 def get_data(branch) -> dict:
     rv = {}
     tables = {
         "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
-        "others": ["cpdb_adminbounds"]
+        "others": ["cpdb_adminbounds"],
+        "no_version_compare":["geospatial_check"],
+        "geometries": ["cpdb_dcpattributes_pts", "cpdb_dcpattributes_poly" ]
     }
     
     for t in tables["analysis"]:
@@ -68,20 +95,14 @@ def get_data(branch) -> dict:
     for t in tables["others"]:
         rv[t] = fetch_boto3_data(branch=branch, table=t)
         rv["pre_" + t] = fetch_boto3_data(branch=branch, table=t, previous=True)
-    
+    for t in tables["no_version_compare"]:
+        rv[t] = fetch_boto3_data(branch=branch, table=t)
+    for t in tables["geometries"]:
+        rv[t] = get_geometries(branch, table=t)
+
     return rv
 
 
-def get_geometries(branch) -> dict:
-    rv = {}
-    points_zip = zip_from_DO(
-        zip_filename=f"db-cpdb/{branch}/latest/output/cpdb_dcpattributes_pts.shp.zip",
-        bucket=BUCKET_NAME,
-    )
-    rv["points"] = unzip_shapefile(
-        zipfile=points_zip, shapefile_name="cpdb_dcpattributes_pts.shp"
-    )
-    return rv
 
 
 def get_commit_cols(df: pd.DataFrame):
