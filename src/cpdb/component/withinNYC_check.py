@@ -19,16 +19,18 @@ def withinNYC_check(data):
             return df
         else:
             return pd.DataFrame()
-        
+
     df = data['geospatial_check']
     df["result"] = df["result"].apply(json.loads)
     geo_check_records = df.to_dict("records")
     if not geo_check_records:
         st.write("No such projects.")
     else:
-        geo_check = [i["result"] for i in geo_check_records][0]
+        geo_check = geo_check_records[0]['result']
         df = fetch_dataframe(geo_check, "projects_not_within_NYC")
         if df.empty:
             st.write("No such projects.")
         else:
+            count=df.shape[0]
             AgGrid(df)
+            st.write(f'There are {count} mapped projects that are not within the NYC borough boundaries water included.')
