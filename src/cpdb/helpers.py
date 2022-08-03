@@ -29,20 +29,6 @@ VIZKEY = {
 """a feedback from the group is to have a dictionary from the abbreviation for agency for something more explicity
 where would this list comes from? """
 
-
-def get_data(branch, table) -> dict:
-    rv = {}
-    # for table in ['magency', 'sagency']:
-    rv[table] = csv_from_DO(
-        url=f"db-cpdb/{branch}/latest/output/analysis/cpdb_summarystats_{table}.csv",
-        bucket=BUCKET_NAME,
-    )
-
-    # this could be modified once open data for cpdb is set up
-    rv["pre_" + table] = csv_from_DO(
-        url=f"db-cpdb/{branch}/2022-04-15/output/analysis/cpdb_summarystats_{table}.csv",
-        bucket=BUCKET_NAME,
-    )
 def unpack_object(obj):
     s = str(obj["Body"].read(), "utf8")
     data = StringIO(s)
@@ -95,6 +81,7 @@ def get_geometries(branch) -> dict:
     rv["points"] = unzip_shapefile(
         zipfile=points_zip, shapefile_name="cpdb_dcpattributes_pts.shp"
     )
+    return rv
 
 
 def get_commit_cols(df: pd.DataFrame):
