@@ -41,7 +41,6 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    geometries = get_geometries(branch)
     data = get_data(branch=branch)
 
     st.markdown(
@@ -77,7 +76,7 @@ def cpdb():
     )
 
     df = data["cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_" + "cpdb_summarystats_" + agency_type].set_index(
+    df_pre = data["pre_cpdb_summarystats_" + agency_type].set_index(
         agency_type + "acro"
     )
     if view_type == "commitments":
@@ -97,7 +96,7 @@ def cpdb():
     df_bar = sort_base_on_option(
         df, subcategory, view_type, map_option=0, ascending=False
     )
-    print(df_bar.index)
+    #print(df_bar.index)
     fig1 = px.bar(
         df_bar,
         x=df_bar.index,
@@ -238,5 +237,6 @@ def cpdb():
 
     adminbounds(data)
 
-    geometry_visualization_report(geometries["points"])
     withinNYC_check(data)
+
+    geometry_visualization_report(data)

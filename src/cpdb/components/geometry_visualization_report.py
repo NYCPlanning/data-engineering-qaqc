@@ -13,7 +13,7 @@ import plotly.express as px
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
 
-def geometry_visualization_report(geometries: gpd.GeoDataFrame):
+def geometry_visualization_report(data: dict):
 
     st.header(
         f"Visualize Geometries"
@@ -21,14 +21,12 @@ def geometry_visualization_report(geometries: gpd.GeoDataFrame):
 
     st.markdown(
         f"""
-        Is there any differences in the adminstrative boundary values in previous vs. latest version? 
-        The intended result is that the list is empty and all the admin boundaries are still present in the new output.
-        Otherwise it might indicate that some of spatial join with admin boundaries have failed. 
+        To quickly assess whether the geometries from the shapefiles are corrupted or not. 
+        First the point geometries in the first figure. 
+        Then the polygon geometires in the second figure. 
         """
     )
 
-    print(geometries.type)  
+    st.pyplot(data["cpdb_dcpattributes_pts"].plot(markersize=5).figure)
 
-    #fig = geometries.plot()
-
-    st.pyplot(geometries.plot().figure)
+    st.pyplot(data["cpdb_dcpattributes_poly"].plot().figure)

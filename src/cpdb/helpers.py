@@ -1,4 +1,5 @@
 # from asyncio.windows_events import NULL
+from codecs import utf_8_encode
 import csv
 from io import StringIO
 import streamlit as st
@@ -29,39 +30,19 @@ VIZKEY = {
 """a feedback from the group is to have a dictionary from the abbreviation for agency for something more explicity
 where would this list comes from? """
 
-def unpack_object(obj):
-    s = str(obj["Body"].read(), "utf8")
-    data = StringIO(s)
-    df = pd.read_csv(data, encoding="utf8")
-    return df
-
-
-def fetch_boto3_data(branch: str, table: str, previous=False):
-    if previous:
-        ver_key = f"db-cpdb/{branch}/2022-04-15/output/{table}.csv"
-    else:
-        ver_key = f"db-cpdb/{branch}/latest/output/{table}.csv"
-    client = boto3.client(
+def s3_resource():
+    return boto3.resource(
         "s3",
         aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
         aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
         endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
     )
-    obj = client.get_object(
-        Bucket="edm-private",
-        Key=ver_key,
-    )
-    df = unpack_object(obj)
-    return df
 
-def unzip_shapefile(table, zipfile):
-    try:
-        with zipfile as zf:
-            zf.extractall(path=f".library/{table}/")
-            return gpd.read_file(f".library/{table}/{table}.shp")
-    except:
-        return None
-
+def get_csv(bucket, csv_filename):
+    obj = s3_resource().Object(bucket_name=bucket, key=csv_filename)
+    s = str(obj.get()["Body"].read(), "utf8")
+    data = StringIO(s)
+    return pd.read_csv(data, encoding="utf8")
 
 def zip_from_DO(zip_filename, bucket):
     zip_obj = s3_resource().Object(bucket_name=bucket, key=zip_filename)
@@ -69,13 +50,21 @@ def zip_from_DO(zip_filename, bucket):
 
     return ZipFile(buffer)
 
+def unzip_shapefile(zipfile, table):
+    try:
+        with zipfile as zf:
+            zf.extractall(path=f".library/{table}/")
+            return gpd.read_file(f".library/{table}/{table}.shp")
+    except:
+        return None
+
 def get_geometries(branch, table) -> dict:
     points_zip = zip_from_DO(
         zip_filename=f"db-cpdb/{branch}/latest/output/{table}.shp.zip",
         bucket=BUCKET_NAME,
     )
     gdf = unzip_shapefile(
-        zipfile=points_zip, table=table
+        zipfile=points_zip, table=table,
     )
     return gdf
 
@@ -90,16 +79,31 @@ def get_data(branch) -> dict:
     }
     
     for t in tables["analysis"]:
-        rv[t] = fetch_boto3_data(branch=branch, table="analysis/"+t)
-        rv["pre_" + t] = fetch_boto3_data(branch=branch, table="analysis/"+t, previous=True)
+        rv[t] = get_csv(
+            bucket=BUCKET_NAME, 
+            csv_filename=f"db-cpdb/{branch}/latest/output/analysis/{t}.csv",
+        )
+        rv["pre_" + t] = get_csv(
+            bucket=BUCKET_NAME, 
+            csv_filename=f"db-cpdb/{branch}/2022-04-15/output/analysis/{t}.csv",
+        )
     for t in tables["others"]:
-        rv[t] = fetch_boto3_data(branch=branch, table=t)
-        rv["pre_" + t] = fetch_boto3_data(branch=branch, table=t, previous=True)
+        rv[t] = get_csv(
+            bucket=BUCKET_NAME, 
+            csv_filename=f"db-cpdb/{branch}/latest/output/{t}.csv",
+        )
+        rv["pre_" + t] = get_csv(
+            bucket=BUCKET_NAME, 
+            csv_filename=f"db-cpdb/{branch}/2022-04-15/output/{t}.csv",
+        )
     for t in tables["no_version_compare"]:
-        rv[t] = fetch_boto3_data(branch=branch, table=t)
+        rv[t] = get_csv(
+            bucket=BUCKET_NAME, 
+            csv_filename=f"db-cpdb/{branch}/latest/output/{t}.csv",
+        )
     for t in tables["geometries"]:
         rv[t] = get_geometries(branch, table=t)
-
+    print(rv.keys())
     return rv
 
 
@@ -141,38 +145,3 @@ def sort_base_on_option(
     )
 
     return df_sort
-
-
-def unzip_shapefile(shapefile_name, zipfile):
-    try:
-        with zipfile as zf:
-            zfls = zf.namelist()
-            print(zfls)
-            zf.extractall(path=".library/cpdb_dcpattributes_pts/")
-            #pdb.set_trace()
-            return gpd.read_file(".library/cpdb_dcpattributes_pts/" + shapefile_name)
-    except:
-        return None
-
-
-def zip_from_DO(zip_filename, bucket):
-    zip_obj = s3_resource().Object(bucket_name=bucket, key=zip_filename)
-    buffer = BytesIO(zip_obj.get()["Body"].read())
-
-    return ZipFile(buffer)
-
-
-def csv_from_DO(url, bucket):
-    obj = s3_resource().Object(bucket_name=BUCKET_NAME, key=url)
-    s = str(obj.get()["Body"].read(), "utf8")
-    data = StringIO(s)
-    return pd.read_csv(data, encoding="utf8")
-
-
-def s3_resource():
-    return boto3.resource(
-        "s3",
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
-    )
