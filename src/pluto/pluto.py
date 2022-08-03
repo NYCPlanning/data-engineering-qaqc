@@ -505,7 +505,7 @@ def pluto():
                 colorway=COLOR_SCHEME,
             )
             st.plotly_chart(fig)
-            st.write(df)
+            st.write(df.sort_values(by="v", ascending=False))
             st.info(
                 """
                 In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change. 
