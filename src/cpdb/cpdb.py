@@ -186,15 +186,6 @@ def cpdb():
         f"Compare Mapping of {view_type.capitalize()} between Previous and Latest Versions by {agency_type_title}"
     )
 
-    st.markdown(
-        f"""
-        Another important aspect about the summary stats tables can display to us is the question:
-        How many of the {view_type} are successfully mapped? 
-        This chart shows the change in the percentage of the {view_type} that are mapped between the last two versions. 
-        Click the "Latest Version" and "Previous Version" labels in the legend to display the percentage mapped for each.
-        """
-    )
-
     diff_perc = get_map_percent_diff(df, df_pre, VIZKEY[subcategory][view_type])
 
     fig3 = go.Figure(
@@ -232,6 +223,15 @@ def cpdb():
     fig3.update_xaxes(title=f"Percentage", tickformat=".2%")
     fig3.update_yaxes(title=agency_type_title)
     st.plotly_chart(fig3)
+
+    st.caption(
+        f"""
+        This graph shows another important cut of the data in which we higlight the percentage of {view_type} succesfully mapped (geocoded) by {agency_type_title} between the last two verions of CPDB along with the pct. difference between those verions. 
+        Typically, we'd expect a similar pct. of records to be mapped by {agency_type_title} between versions and any significant change should be looked at more closely.
+        Click the "Latest Version" and "Previous Version" labels in the legend to display the percentage mapped for each.
+        
+        """
+    )
 
     adminbounds(data)
     withinNYC_check(data)
