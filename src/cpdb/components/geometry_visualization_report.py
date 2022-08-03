@@ -15,4 +15,8 @@ from src.constants import COLOR_SCHEME
 
 def geometry_visualization_report(geometries: gpd.GeoDataFrame):
 
-    print(geometries.type)
+    print(geometries.type)  
+
+    #fig = geometries.plot()
+
+    st.pyplot(geometries.plot().figure)

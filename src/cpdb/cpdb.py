@@ -12,7 +12,7 @@ from src.cpdb.helpers import (
 import plotly.express as px
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
-import src.cpdb.components.geometry_visualization_report as geometry_visualization
+from src.cpdb.components.geometry_visualization_report import geometry_visualization_report
 from src.cpdb.components.adminbounds import adminbounds
 
 
@@ -238,4 +238,4 @@ def cpdb():
 
     adminbounds(data)
 
-    geometry_visualization(geometries["points"])
+    geometry_visualization_report(geometries["points"])

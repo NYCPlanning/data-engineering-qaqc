@@ -14,7 +14,8 @@ setup(
         "python-dotenv",
         "boto3",
         "streamlit-aggrid",
-        "geopandas"
+        "geopandas",
+        "matplotlib"
     ],
     zip_safe=False,
 )
