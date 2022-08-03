@@ -53,7 +53,8 @@ def get_data(branch) -> dict:
     rv = {}
     tables = {
         "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
-        "others": ["cpdb_adminbounds"]
+        "others": ["cpdb_adminbounds"],
+        "no_version_compare":["geospatial_check"],
     }
     
     for t in tables["analysis"]:
@@ -62,7 +63,9 @@ def get_data(branch) -> dict:
     for t in tables["others"]:
         rv[t] = fetch_boto3_data(branch=branch, table=t)
         rv["pre_" + t] = fetch_boto3_data(branch=branch, table=t, previous=True)
-    
+    for t in tables["no_version_compare"]:
+        rv[t] = fetch_boto3_data(branch=branch, table=t)
+
     return rv
 
 

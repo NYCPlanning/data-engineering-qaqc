@@ -11,7 +11,8 @@ from src.cpdb.helpers import (
 import plotly.express as px
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
-from src.cpdb.component.adminbounds import adminbounds
+from src.cpdb.components.adminbounds import adminbounds
+from src.cpdb.components.withinNYC_check import withinNYC_check
 
 
 def cpdb():
@@ -233,3 +234,4 @@ def cpdb():
     st.plotly_chart(fig3)
 
     adminbounds(data)
+    withinNYC_check(data)
