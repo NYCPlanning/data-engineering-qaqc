@@ -125,9 +125,11 @@ def sort_base_on_option(
 def unzip_shapefile(shapefile_name, zipfile):
     try:
         with zipfile as zf:
-
-            pdb.set_trace()
-            # return gpd.read_file(shapefile)
+            zfls = zf.namelist()
+            print(zfls)
+            zf.extractall(path=".library/cpdb_dcpattributes_pts/")
+            #pdb.set_trace()
+            return gpd.read_file(".library/cpdb_dcpattributes_pts/" + shapefile_name)
     except:
         return None
 

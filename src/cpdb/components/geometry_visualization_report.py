@@ -12,3 +12,7 @@ from src.cpdb.helpers import (
 import plotly.express as px
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
+
+def geometry_visualization_report(geometries: gpd.GeoDataFrame):
+
+    print(geometries.type)

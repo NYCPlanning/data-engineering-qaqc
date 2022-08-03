@@ -2,7 +2,7 @@ import streamlit as st  # type: ignore
 import pandas as pd
 from src.cpdb.helpers import (
     get_data,
-    #get_geometries,
+    get_geometries,
     get_commit_cols,
     get_diff_dataframe,
     get_map_percent_diff,
@@ -42,7 +42,7 @@ def cpdb():
             "all categories", "fixed assets"]
     )
 
-    #geometries = get_geometries(branch)
+    geometries = get_geometries(branch)
     data = get_data(branch=branch)
 
     st.markdown(
@@ -237,3 +237,5 @@ def cpdb():
     st.plotly_chart(fig3)
 
     adminbounds(data)
+
+    geometry_visualization(geometries["points"])
