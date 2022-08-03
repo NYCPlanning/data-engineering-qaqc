@@ -225,7 +225,7 @@ def cpdb():
     fig3.update_layout(
         width=1000,
         height=1000,
-        title_text=f"Percentage Mapped of {view_type_title} by Version and {agency_type_title}",
+        title_text=f"Percentage of {view_type_title} Mapped by Version and {agency_type_title}",
         colorway=COLOR_SCHEME,
     )
 
