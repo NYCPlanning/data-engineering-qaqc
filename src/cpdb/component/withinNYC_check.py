@@ -26,7 +26,7 @@ def withinNYC_check(data):
     if not geo_check_records:
         st.write("No such projects.")
     else:
-        geo_check = geo_check_records[0]['result']
+        geo_check = geo_check_records[-1]['result']
         df = fetch_dataframe(geo_check, "projects_not_within_NYC")
         if df.empty:
             st.write("No such projects.")
