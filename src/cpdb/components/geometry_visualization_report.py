@@ -15,6 +15,17 @@ from src.constants import COLOR_SCHEME
 
 def geometry_visualization_report(geometries: gpd.GeoDataFrame):
 
+    st.header(
+        f"Visualize Geometries"
+    )
+
+    st.markdown(
+        f"""
+        Is there any differences in the adminstrative boundary values in previous vs. latest version? 
+        The intended result is that the list is empty and all the admin boundaries are still present in the new output.
+        Otherwise it might indicate that some of spatial join with admin boundaries have failed. 
+        """
+
     print(geometries.type)  
 
     #fig = geometries.plot()
