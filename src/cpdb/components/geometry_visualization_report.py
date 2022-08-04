@@ -7,7 +7,7 @@ def geometry_visualization_report(data: dict):
         f"Visualize Geometries"
     )
 
-    st.markdown(
+    st.caption(
         f"""
         The the idea behind these maps is to guide engineers in figuring out if the shapefiles are corrupted 
         but also (in conjunction with the table) which source spatial data files might be causing the issue 
