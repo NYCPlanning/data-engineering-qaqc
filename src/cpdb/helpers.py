@@ -1,4 +1,3 @@
-# from asyncio.windows_events import NULL
 from codecs import utf_8_encode
 import csv
 from io import StringIO
@@ -11,6 +10,8 @@ import geopandas as gpd
 from zipfile import ZipFile
 from io import BytesIO
 import pdb
+import shutil
+from datetime import datetime
 
 load_dotenv()
 
@@ -53,6 +54,8 @@ def zip_from_DO(zip_filename, bucket):
 def unzip_shapefile(zipfile, table):
     try:
         with zipfile as zf:
+            if os.path.exists(f".library/{table}"):
+                shutil.rmtree(path=f".library/{table}")    
             zf.extractall(path=f".library/{table}/")
             return gpd.read_file(f".library/{table}/{table}.shp")
     except:
@@ -85,7 +88,7 @@ def get_data(branch) -> dict:
         )
         rv["pre_" + t] = get_csv(
             bucket=BUCKET_NAME, 
-            csv_filename=f"db-cpdb/{branch}/2022-04-15/output/analysis/{t}.csv",
+            csv_filename=f"db-cpdb/main/2022-04-15/output/analysis/{t}.csv",
         )
     for t in tables["others"]:
         rv[t] = get_csv(
@@ -94,7 +97,7 @@ def get_data(branch) -> dict:
         )
         rv["pre_" + t] = get_csv(
             bucket=BUCKET_NAME, 
-            csv_filename=f"db-cpdb/{branch}/2022-04-15/output/{t}.csv",
+            csv_filename=f"db-cpdb/main/2022-04-15/output/{t}.csv",
         )
     for t in tables["no_version_compare"]:
         rv[t] = get_csv(
@@ -105,9 +108,6 @@ def get_data(branch) -> dict:
         rv[t] = get_geometries(branch, table=t)
     print(rv.keys())
     return rv
-
-
-
 
 def get_commit_cols(df: pd.DataFrame):
     full_cols = df.columns

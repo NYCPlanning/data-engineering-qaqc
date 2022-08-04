@@ -19,7 +19,7 @@ from src.cpdb.components.withinNYC_check import withinNYC_check
 
 def cpdb():
     st.title("Capital Projects Database QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["main"])
+    branch = st.sidebar.selectbox("select a branch", ["main", "108-Convert-Lines-to-Polygons-Bug"])
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",
