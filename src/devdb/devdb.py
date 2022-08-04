@@ -5,8 +5,11 @@ def devdb():
     import os
     import pdb
     from src.devdb.helpers import get_data
+    from src.devdb.components.qaqc_app_report import QAQCAppReport
 
     st.title("Developments DB QAQC")
     branch = st.sidebar.selectbox("select a branch", ["dev", "main"])
 
     data = get_data(branch)
+
+    QAQCAppReport(data)()
