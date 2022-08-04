@@ -5,8 +5,8 @@ def devdb():
     import os
     import pdb
     from src.devdb.helpers import get_data
- 
-    st.title("Developments DB QAQC")
 
-    data = get_data()
-    
+    st.title("Developments DB QAQC")
+    branch = st.sidebar.selectbox("select a branch", ["main"])
+
+    data = get_data(branch)

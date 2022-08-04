@@ -8,7 +8,7 @@ load_dotenv()
 BUCKET_NAME = "edm-publishing"
 
 
-def get_data():
+def get_data(branch):
     rv = {}
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/latest/output"
 
