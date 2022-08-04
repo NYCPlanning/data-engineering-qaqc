@@ -1,7 +1,5 @@
 from codecs import utf_8_encode
-import csv
 from io import StringIO
-import streamlit as st
 import os
 import pandas as pd
 import boto3
@@ -9,7 +7,6 @@ from dotenv import load_dotenv
 import geopandas as gpd
 from zipfile import ZipFile
 from io import BytesIO
-import pdb
 import shutil
 from datetime import datetime
 
@@ -54,10 +51,11 @@ def zip_from_DO(zip_filename, bucket):
 def unzip_shapefile(zipfile, table):
     try:
         with zipfile as zf:
-            if os.path.exists(f".library/{table}"):
-                shutil.rmtree(path=f".library/{table}")    
-            zf.extractall(path=f".library/{table}/")
-            return gpd.read_file(f".library/{table}/{table}.shp")
+            time = str(datetime.now().timestamp)
+            zf.extractall(path=f".library/{time}/{table}/")
+            gdf = gpd.read_file(f".library/{time}/{table}/{table}.shp")
+            shutil.rmtree(path=f".library/{time}")
+            return gdf
     except:
         return None
 
