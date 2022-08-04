@@ -15,7 +15,8 @@ setup(
         "boto3",
         "streamlit-aggrid",
         "geopandas",
-        "matplotlib"
+        "matplotlib",
+        "python-abc",
     ],
     zip_safe=False,
 )
