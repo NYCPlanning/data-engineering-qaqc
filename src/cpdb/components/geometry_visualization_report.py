@@ -9,7 +9,7 @@ def geometry_visualization_report(data: dict):
 
     st.caption(
         f"""
-        The the idea behind these maps is to guide engineers in figuring out if the shapefiles are corrupted 
+        The idea behind these maps is to guide engineers in figuring out if the shapefiles are corrupted 
         but also (in conjunction with the table) which source spatial data files might be causing the issue 
         (which historically has been an issue in the data library upload specifically with the source to destination projection). 
         If records are falling outside of NYC from a specific agency, that might indicate an issue upstream with how the data is being 
