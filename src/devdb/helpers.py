@@ -1,9 +1,5 @@
 import pandas as pd
 from typing import Dict
-from dotenv import load_dotenv
-
-
-load_dotenv()
 
 BUCKET_NAME = "edm-publishing"
 
