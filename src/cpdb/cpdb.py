@@ -2,6 +2,7 @@ import streamlit as st  # type: ignore
 import pandas as pd
 from src.cpdb.helpers import (
     get_data,
+    get_geometries,
     get_commit_cols,
     get_diff_dataframe,
     get_map_percent_diff,
@@ -11,6 +12,7 @@ from src.cpdb.helpers import (
 import plotly.express as px
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
+from src.cpdb.components.geometry_visualization_report import geometry_visualization_report
 from src.cpdb.components.adminbounds import adminbounds
 from src.cpdb.components.withinNYC_check import withinNYC_check
 
@@ -74,7 +76,7 @@ def cpdb():
     )
 
     df = data["cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
-    df_pre = data["pre_" + "cpdb_summarystats_" + agency_type].set_index(
+    df_pre = data["pre_cpdb_summarystats_" + agency_type].set_index(
         agency_type + "acro"
     )
     if view_type == "commitments":
@@ -94,7 +96,7 @@ def cpdb():
     df_bar = sort_base_on_option(
         df, subcategory, view_type, map_option=0, ascending=False
     )
-    print(df_bar.index)
+    #print(df_bar.index)
     fig1 = px.bar(
         df_bar,
         x=df_bar.index,
@@ -234,4 +236,7 @@ def cpdb():
     )
 
     adminbounds(data)
+
     withinNYC_check(data)
+
+    geometry_visualization_report(data)
