@@ -1,5 +1,7 @@
 import pandas as pd
 from typing import Dict
+from urllib.error import HTTPError
+import streamlit as st
 
 BUCKET_NAME = "edm-publishing"
 
@@ -16,4 +18,7 @@ def get_data(branch):
 
 
 def csv_from_DO(url, kwargs={}):
-    return pd.read_csv(url, **kwargs)
+    try:
+        return pd.read_csv(url, **kwargs)
+    except HTTPError:
+        st.warning(f"{url} not found")
