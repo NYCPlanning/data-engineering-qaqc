@@ -9,6 +9,7 @@ def devdb():
     from src.devdb.components.qaqc_version_history_report import (
         QAQCVersionHistoryReport,
     )
+
     QAQC_CHECK_GROUPS = {
         "Class B": "These checks are related to class A and class B unit distinctions.",
         "Units": "These checks are related to missing or suspicious unit counts.",
@@ -156,9 +157,10 @@ def devdb():
         "classa_net_mismatch": {
             "description": "Class A Net units is not equal to Class A proposed - Class A init",
             "field_type": "boolean",
+            "group": "n/a",
         },
     }
-   
+
     st.title("Developments Database QAQC")
     st.markdown(
         body="""
@@ -185,10 +187,10 @@ def devdb():
 
     data = get_data(branch)
 
-    QAQCAppReport(data)()
-
     QAQCVersionHistoryReport(
         data=data,
         qaqc_check_dict=QAQC_CHECK_DICTIONARY,
         qaqc_check_groups=QAQC_CHECK_GROUPS,
     )()
+
+    QAQCAppReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()

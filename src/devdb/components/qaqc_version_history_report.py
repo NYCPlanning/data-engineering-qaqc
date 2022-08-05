@@ -11,12 +11,17 @@ class QAQCVersionHistoryReport:
     def __init__(self, data, qaqc_check_dict, qaqc_check_groups) -> None:
         self.qaqc_version_history = data["qaqc_historic"]
         self.qaqc_checks = qaqc_check_dict
-        self.qaqc_checks_groups = qaqc_check_groups
+        self.qaqc_check_groups = qaqc_check_groups
 
     def __call__(self):
+        st.subheader("Version History for QAQC Checks")
         for group_name, group_description in self.qaqc_check_groups.items():
-            st.subheader(group_name)
-            st.markdown(group_description)
+            st.markdown(
+                f"""
+                ### {group_name} Group
+                {group_description}
+                """
+            )
             self.display_check_distribution(group_name)
 
     def display_check_distribution(self, group):
