@@ -6,7 +6,7 @@ class QAQCAppReport:
         self.qaqc_app = data["qaqc_app"]
         self.qaqc_checks = {
             "b_likely_occ_desc": {
-                "description": "Likely a OCC Desc",
+                "description": "Likely Class B Units: OCC Initial or Proposed contains hotel, assisted, etc. or job description contains Hotel, Motel, etc.",
                 "field_type": "boolean",
             },
             "b_large_alt_reduction": {
@@ -34,7 +34,7 @@ class QAQCAppReport:
                 "field_type": "boolean",
             },
             "units_res_accessory": {
-                "description": "Is an ADU",
+                "description": "Work only done on nonresidential structure (Garage, Shed, etc.)",
                 "field_type": "boolean",
             },
             "outlier_demo_20plus": {
