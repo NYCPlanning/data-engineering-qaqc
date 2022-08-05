@@ -1,7 +1,7 @@
 import streamlit as st
 
 
-class QAQCAppReport:
+class FlaggedJobsReport:
     def __init__(self, data, qaqc_check_dict) -> None:
         self.qaqc_app = data["qaqc_app"]
         self.qaqc_checks = qaqc_check_dict
