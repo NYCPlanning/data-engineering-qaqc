@@ -15,11 +15,20 @@ class QAQCVersionHistoryReport:
 
     def __call__(self):
         st.subheader("Version History for QAQC Checks")
+        st.markdown(
+            """
+            The following series of graphs highlight the changes between versions in the number of jobs flagged by a variety of QAQC Criteria. 
+            The flags are broken down into sections that share a broad theme.
+            To zoom in on a particular check, double click the check in the legend on the right of the graph.
+            """
+        )
         for section_name, section_description in self.qaqc_check_sections.items():
             st.markdown(
                 f"""
-                ### {section_name} section
+                ### {section_name} Checks
                 {section_description}
+
+                This section includes the following checks:
                 """
             )
             self.display_check_distribution(section_name)
@@ -31,9 +40,16 @@ class QAQCVersionHistoryReport:
         fig = go.Figure()
 
         for check in checks:
+            st.markdown(
+                f"""
+                 - {check}: {self.qaqc_checks[check]['description']}
+                """
+            )
             fig.add_trace(self.generate_trace(check=check, df=df))
 
-        fig.update_layout(title=section, template="plotly_white", colorway=COLOR_SCHEME)
+        fig.update_layout(template="plotly_white", colorway=COLOR_SCHEME)
+        fig.update_xaxes(title_text="Version")
+        fig.update_yaxes(title_text="Number of Jobs")
         st.plotly_chart(fig)
 
     def filter_by_checks(self, checks):

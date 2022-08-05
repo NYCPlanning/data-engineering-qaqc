@@ -15,12 +15,12 @@ class QAQCAppReport:
         qaqc_check = st.selectbox(
             "Choose a QAQC Check to View Flagged Records",
             options=self.qaqc_checks.keys(),
-            format_func=lambda x: f"{self.qaqc_checks[x]['description']}: {x}",
         )
 
         self.display_check(qaqc_check)
 
     def display_check(self, qaqc_check):
+        st.markdown(self.qaqc_checks[qaqc_check]["description"])
         df = self.filter_by_check(qaqc_check)
 
         if df.empty:
