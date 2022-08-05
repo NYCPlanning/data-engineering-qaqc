@@ -120,13 +120,22 @@ class QAQCAppReport:
         }
 
     def __call__(self):
+        st.subheader("Flagged Jobs by QAQC Check")
+        st.markdown(
+            "Each of these tables lists job numbers with specific highlighted potential issues."
+        )
+
         qaqc_check = st.selectbox(
             "Choose a QAQC Check to View Flagged Records",
             options=self.qaqc_checks.keys(),
-            format_func=lambda x: self.qaqc_checks[x]["description"],
+            format_func=lambda x: f"{self.qaqc_checks[x]['description']}: {x}",
         )
 
+        self.display_check(qaqc_check)
+
+    def display_check(self, qaqc_check):
         df = self.filter_by_check(qaqc_check)
+
         if df.empty:
             st.write("There are no jobs with this status.")
         else:
