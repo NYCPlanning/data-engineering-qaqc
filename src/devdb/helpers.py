@@ -6,11 +6,13 @@ BUCKET_NAME = "edm-publishing"
 
 def get_data(branch):
     rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/latest/output"
+    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/518-Historic-QAQC/latest/output"
 
-    rv["qaqc_app"] = csv_from_DO(
-        f"{url}/qaqc_app.csv", kwargs={"dtype": {"job_number": "str"}}
-    )
+    # rv["qaqc_app"] = csv_from_DO(
+    #     f"{url}/qaqc_app.csv", kwargs={"dtype": {"job_number": "str"}}
+    # )
+
+    rv["qaqc_historic"] = csv_from_DO(f"{url}/qaqc_historic.csv")
 
     return rv
 
