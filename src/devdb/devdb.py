@@ -156,7 +156,6 @@ def devdb():
         "classa_net_mismatch": {
             "description": "Class A Net units is not equal to Class A proposed - Class A init",
             "field_type": "boolean",
-            "group": "Units",
         },
     }
    
@@ -187,7 +186,7 @@ def devdb():
     data = get_data(branch)
 
     QAQCAppReport(data)()
-    
+
     QAQCVersionHistoryReport(
         data=data,
         qaqc_check_dict=QAQC_CHECK_DICTIONARY,
