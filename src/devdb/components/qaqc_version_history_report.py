@@ -8,51 +8,48 @@ import pdb
 
 
 class QAQCVersionHistoryReport:
-    def __init__(self, data, qaqc_check_dict, qaqc_check_groups) -> None:
+    def __init__(self, data, qaqc_check_dict, qaqc_check_sections) -> None:
         self.qaqc_version_history = data["qaqc_historic"]
         self.qaqc_checks = qaqc_check_dict
-        self.qaqc_check_groups = qaqc_check_groups
+        self.qaqc_check_sections = qaqc_check_sections
 
     def __call__(self):
         st.subheader("Version History for QAQC Checks")
-        for group_name, group_description in self.qaqc_check_groups.items():
+        for section_name, section_description in self.qaqc_check_sections.items():
             st.markdown(
                 f"""
-                ### {group_name} Group
-                {group_description}
+                ### {section_name} section
+                {section_description}
                 """
             )
-            self.display_check_distribution(group_name)
+            self.display_check_distribution(section_name)
 
-    def display_check_distribution(self, group):
-        checks = self.checks_by_group(group)
+    def display_check_distribution(self, section):
+        checks = self.checks_by_section(section)
         df = self.filter_by_checks(checks)
-        versions = ["21Q4", "21Q2", "20Q4"]
 
         fig = go.Figure()
 
-        for version in versions:
-            fig.add_trace(
-                self.generate_graph_data(checks=checks, version=version, df=df)
-            )
+        for check in checks:
+            fig.add_trace(self.generate_trace(check=check, df=df))
 
-        fig.update_layout(title=group, template="plotly_white", colorway=COLOR_SCHEME)
+        fig.update_layout(title=section, template="plotly_white", colorway=COLOR_SCHEME)
         st.plotly_chart(fig)
 
     def filter_by_checks(self, checks):
         return self.qaqc_version_history[checks + ["version"]]
 
-    def checks_by_group(self, group):
+    def checks_by_section(self, section):
         return [
             check
             for check, value in self.qaqc_checks.items()
-            if value["group"] == group
+            if value["section"] == section
         ]
 
-    def generate_graph_data(self, checks, version, df):
+    def generate_trace(self, check, df):
         return go.Scatter(
-            x=checks,
-            y=df.loc[df["version"] == version].squeeze(),
+            x=df.version,
+            y=df[check],
             mode="lines",
-            name=version,
+            name=check,
         )
