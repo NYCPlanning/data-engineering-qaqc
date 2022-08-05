@@ -4,8 +4,11 @@ def devdb():
     import numpy as np
     import os
     import pdb
-    from src.devdb.helpers import get_data
+    from src.devdb.helpers import get_data, QAQC_CHECK_DICTIONARY, QAQC_CHECK_SECTIONS
     from src.devdb.components.qaqc_app_report import QAQCAppReport
+    from src.devdb.components.qaqc_version_history_report import (
+        QAQCVersionHistoryReport,
+    )
 
     st.title("Developments Database QAQC")
     st.markdown(
@@ -33,4 +36,10 @@ def devdb():
 
     data = get_data(branch)
 
-    QAQCAppReport(data)()
+    QAQCVersionHistoryReport(
+        data=data,
+        qaqc_check_dict=QAQC_CHECK_DICTIONARY,
+        qaqc_check_sections=QAQC_CHECK_SECTIONS,
+    )()
+
+    QAQCAppReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
