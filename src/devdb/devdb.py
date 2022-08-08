@@ -5,7 +5,7 @@ def devdb():
     import os
     import pdb
     from src.devdb.helpers import get_data, QAQC_CHECK_DICTIONARY, QAQC_CHECK_SECTIONS
-    from src.devdb.components.qaqc_app_report import QAQCAppReport
+    from src.devdb.components.flagged_jobs_report import FlaggedJobsReport
     from src.devdb.components.qaqc_version_history_report import (
         QAQCVersionHistoryReport,
     )
@@ -32,7 +32,7 @@ def devdb():
         """
     )
 
-    branch = st.sidebar.selectbox("select a branch", ["main"])
+    branch = st.sidebar.selectbox("select a branch", ["dev", "main"])
 
     data = get_data(branch)
 
@@ -42,4 +42,4 @@ def devdb():
         qaqc_check_sections=QAQC_CHECK_SECTIONS,
     )()
 
-    QAQCAppReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
+    FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()

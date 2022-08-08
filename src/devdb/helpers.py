@@ -1,5 +1,7 @@
 import pandas as pd
 from typing import Dict
+from urllib.error import HTTPError
+import streamlit as st
 
 BUCKET_NAME = "edm-publishing"
 
@@ -157,10 +159,10 @@ QAQC_CHECK_DICTIONARY = {
 
 def get_data(branch):
     rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/518-Historic-QAQC/latest/output"
+    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/{branch}/latest/output"
 
     rv["qaqc_app"] = csv_from_DO(
-        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/dev/latest/output/qaqc_app.csv",
+        f"{url}/qaqc_app.csv",
         kwargs={"dtype": {"job_number": "str"}},
     )
 
@@ -170,4 +172,7 @@ def get_data(branch):
 
 
 def csv_from_DO(url, kwargs={}):
-    return pd.read_csv(url, **kwargs)
+    try:
+        return pd.read_csv(url, **kwargs)
+    except HTTPError:
+        st.warning(f"{url} not found")
