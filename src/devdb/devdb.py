@@ -39,12 +39,12 @@ def devdb():
 
     data = get_data(branch)
 
-    # QAQCVersionHistoryReport(
-    #     data=data,
-    #     qaqc_check_dict=QAQC_CHECK_DICTIONARY,
-    #     qaqc_check_sections=QAQC_CHECK_SECTIONS,
-    # )()
+    QAQCVersionHistoryReport(
+        data=data,
+        qaqc_check_dict=QAQC_CHECK_DICTIONARY,
+        qaqc_check_sections=QAQC_CHECK_SECTIONS,
+    )()
 
-    # FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
+    FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
 
     FieldDistributionReport(data=data)()
