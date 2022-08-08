@@ -48,16 +48,18 @@ class FieldDistributionReport:
         st.markdown(
             "These graphs show the distributions of fields for all records created or updated since the last version (based on the lastupdatedt field)."
         )
+
         for field_name, field_descriptions in self.report_sections.items():
             st.markdown(f"### {field_descriptions['title']}")
             st.markdown(field_descriptions["description"])
+
             df = self.records_to_df(field_name)
 
             self.display_field_distribution_graph(
-                df, field_name.lower(), field_descriptions
+                df, field_name.lower(), field_descriptions["title"]
             )
 
-    def display_field_distribution_graph(self, df, field_name, field_descriptions):
+    def display_field_distribution_graph(self, df, field_name, title):
         fig = px.bar(
             df,
             x=field_name,
@@ -65,9 +67,9 @@ class FieldDistributionReport:
             color_discrete_sequence=COLOR_SCHEME,
             labels={
                 "count": "Count of Records",
-                field_name: field_descriptions["title"],
+                field_name: title,
             },
-            title=f"{field_descriptions['title']} Distribution",
+            title=f"{title} Distribution",
         )
 
         st.plotly_chart(fig)
