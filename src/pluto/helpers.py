@@ -1,51 +1,51 @@
-import boto3
 import re
 import pandas as pd
 from datetime import datetime
 import json
 from typing import Dict
-import os
 from dotenv import load_dotenv
-from zipfile import ZipFile
-from io import BytesIO
+from src.digital_ocean_client import DigitalOceanClient
 
 load_dotenv()
 
 BUCKET_NAME = "edm-publishing"
+REPO_NAME = "db-pluto"
 
 
 def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output/qaqc"
-    rv["df_mismatch"] = csv_from_DO(f"{url}/qaqc_mismatch.csv")
-    rv["df_null"] = csv_from_DO(f"{url}/qaqc_null.csv")
-    rv["df_aggregate"] = csv_from_DO(f"{url}/qaqc_aggregate.csv")
-    rv["df_expected"] = csv_from_DO(
-        f"{url}/qaqc_expected.csv", kwargs={"converters": {"expected": json.loads}}
+    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output"
+
+    client = digital_ocean_client()
+    kwargs = {"true_values": ["t"], "false_values": ["t"]}
+    rv["df_mismatch"] = client.csv_from_DO(f"{url}/qaqc/qaqc_mismatch.csv", kwargs)
+    rv["df_null"] = client.csv_from_DO(f"{url}/qaqc/qaqc_null.csv", kwargs)
+    rv["df_aggregate"] = client.csv_from_DO(f"{url}/qaqc/qaqc_aggregate.csv", kwargs)
+    rv["df_expected"] = client.csv_from_DO(
+        f"{url}/qaqc/qaqc_expected.csv",
+        kwargs={"converters": {"expected": json.loads}} | kwargs,
     )
-    rv["df_outlier"] = csv_from_DO(
-        f"{url}/qaqc_outlier.csv", kwargs={"converters": {"outlier": json.loads}}
+    rv["df_outlier"] = client.csv_from_DO(
+        f"{url}/qaqc/qaqc_outlier.csv",
+        kwargs={"converters": {"outlier": json.loads}} | kwargs,
     )
 
-    pluto_corrections_zip = zip_from_DO(
-        zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
-        bucket=BUCKET_NAME,
+    pluto_corrections_zip = client.zip_from_DO(
+        zip_filename=f"db-pluto/{branch}/latest/output/qaqc/pluto_corrections.zip",
     )
 
-    rv["pluto_corrections"] = unzip_csv(
+    rv["pluto_corrections"] = client.unzip_csv(
         csv_filename="pluto_corrections.csv", zipfile=pluto_corrections_zip
     )
 
-    rv["pluto_corrections_applied"] = unzip_csv(
+    rv["pluto_corrections_applied"] = client.unzip_csv(
         csv_filename="pluto_corrections_applied.csv", zipfile=pluto_corrections_zip
     )
-    rv["pluto_corrections_not_applied"] = unzip_csv(
+    rv["pluto_corrections_not_applied"] = client.unzip_csv(
         csv_filename="pluto_corrections_not_applied.csv", zipfile=pluto_corrections_zip
     )
 
-    source_data_versions = pd.read_csv(
-        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output/source_data_versions.csv"
-    )
+    source_data_versions = client.csv_from_DO(f"{url}source_data_versions.csv")
 
     rv["source_data_version"] = source_data_versions
     sdv = source_data_versions.to_dict("records")
@@ -73,9 +73,8 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
 
 def get_branches():
     all_branches = set()
-    pub_bucket = s3_resource().Bucket(BUCKET_NAME)
 
-    for obj in pub_bucket.objects.filter(Prefix="db-pluto/"):
+    for obj in digital_ocean_client().get_folders():
         all_branches.add(obj._key.split("/")[1])
     rv = blacklist_branches(all_branches)
     return rv
@@ -102,29 +101,5 @@ def blacklist_branches(branches):
     return rv
 
 
-def csv_from_DO(url, kwargs={}):
-    return pd.read_csv(url, true_values=["t"], false_values=["f"], **kwargs)
-
-
-def unzip_csv(csv_filename, zipfile):
-    try:
-        with zipfile.open(csv_filename) as csv:
-            return pd.read_csv(csv, true_values=["t"], false_values=["f"])
-    except:
-        return None
-
-
-def zip_from_DO(zip_filename, bucket):
-    zip_obj = s3_resource().Object(bucket_name=bucket, key=zip_filename)
-    buffer = BytesIO(zip_obj.get()["Body"].read())
-
-    return ZipFile(buffer)
-
-
-def s3_resource():
-    return boto3.resource(
-        "s3",
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
-    )
+def digital_ocean_client():
+    return DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
