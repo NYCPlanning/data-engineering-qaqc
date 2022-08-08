@@ -9,9 +9,12 @@ def pluto():
     import requests
     from src.pluto.helpers import get_branches, get_data
     from st_aggrid import AgGrid
+    from numerize.numerize import numerize
+
     from src.constants import COLOR_SCHEME
     from src.pluto.components.corrections_report import CorrectionsReport
-    from numerize.numerize import numerize
+    from src.pluto.components.mismatch_report import MismatchReport
+
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -86,221 +89,6 @@ def pluto():
         """
         )
         # test
-        def create_mismatch(df_mismatch, v1, v2, v3, condo, mapped):
-            finance_columns = [
-                "assessland",
-                "assesstot",
-                "exempttot",
-                "taxmap",
-                "appbbl",
-                "appdate",
-                "plutomapid",
-            ]
-
-            area_columns = [
-                "lotarea",
-                "bldgarea",
-                "builtfar",
-                "comarea",
-                "resarea",
-                "officearea",
-                "retailarea",
-                "garagearea",
-                "strgearea",
-                "factryarea",
-                "otherarea",
-                "areasource",
-            ]
-
-            zoning_columns = [
-                "residfar",
-                "commfar",
-                "facilfar",
-                "zonedist1",
-                "zonedist2",
-                "zonedist3",
-                "zonedist4",
-                "overlay1",
-                "overlay2",
-                "spdist1",
-                "spdist2",
-                "spdist3",
-                "ltdheight",
-                "splitzone",
-                "zonemap",
-                "zmcode",
-                "edesignum",
-            ]
-
-            geo_columns = [
-                "cd",
-                # "bct2020",
-                # "bctcb2020",
-                "ct2010",
-                "cb2010",
-                "schooldist",
-                "council",
-                "zipcode",
-                "firecomp",
-                "policeprct",
-                "healtharea",
-                "sanitboro",
-                "sanitsub",
-                "address",
-                "borocode",
-                "bbl",
-                "tract2010",
-                "xcoord",
-                "ycoord",
-                "longitude",
-                "latitude",
-                "sanborn",
-                "edesignum",
-                "sanitdistrict",
-                "healthcenterdistrict",
-                "histdist",
-                "firm07_flag",
-                "pfirm15_flag",
-            ]
-            ab = ["a", "b", "c"]
-            av = ["a", "b", "c"]
-
-            ac = ["a", "b", "c"]
-
-            ad = ["a", "b", "c"]
-
-            bldg_columns = [
-                "bldgclass",
-                "landuse",
-                "easements",
-                "ownertype",
-                "ownername",
-                "numbldgs",
-                "numfloors",
-                "unitsres",
-                "unitstotal",
-                "lotfront",
-                "lotdepth",
-                "bldgfront",
-                "bldgdepth",
-                "ext",
-                "proxcode",
-                "irrlotcode",
-                "lottype",
-                "bsmtcode",
-                "yearbuilt",
-                "yearalter1",
-                "yearalter2",
-                "landmark",
-                "condono",
-            ]
-
-            groups = [
-                {
-                    "title": "Mismatch graph -- finance fields",
-                    "columns": finance_columns,
-                    "description": """
-                        DOF updates the assessment and exempt values twice a year. 
-                        The tentative tax roll is released in mid-January and the final tax roll is released in late May. 
-                        We expect the values of the fields in the above graph to change in versions of PLUTO created after the release of the tentative or final roll. 
-                        For the PLUTO version created right after the tentative roll, most lots will show a change in assesstot, with a smaller number of changes for the assessland and exempttot.
-                        There will also be changes to these fields in the version created after the release of the final roll. 
-                        Versions created between roll releases should see almost no change for these fields.
-                    """,
-                },
-                {
-                    "title": "Mismatch graph -- area fields",
-                    "columns": area_columns,
-                    "description": """
-                        CAMA is the primary source for the area fields. Updates reflect new construction, as well as updates by assessors for the tentative roll. 
-                        Several thousand lots may have updates in the version created after the tentative tax roll.
-                    """,
-                },
-                {
-                    "title": "Mismatch graph -- zoning fields",
-                    "columns": zoning_columns,
-                    "description": """
-                    Unless DCP does a major rezoning, the number of lots with changed values should be **no more than a couple of hundred**.
-                    Lots may get a changed value due to a split/merge or if TRD is cleaning up boundaries between zoning districts.
-                    `Residfar`, `commfar`, and `facilfar` should change only when there is a change to `zonedist1` or `overlay1`.
-                """,
-                },
-                {
-                    "title": "Mismatch graph -- geo fields",
-                    "columns": geo_columns,
-                    "description": """
-                    These fields are updated from **Geosupport**. Changes should be minimal unless a municipal service
-                    area changes or more high-rise buildings opt into the composite recycling program.
-                    Check with GRU if more than a small number of lots have changes to municipal service areas.
-                """,
-                },
-                {
-                    "title": "Mismatch graph -- building fields",
-                    "columns": bldg_columns,
-                    "description": """
-                        Changes in these fields are most common after the tentative roll has been released. 
-                        Several fields in this group are changed by DCP to improve data quality, including ownername and yearbuilt. 
-                        When these changes are first applied, there will be a spike in the number of lots changed.
-                    """,
-                },
-            ]
-
-            df = df_mismatch.loc[
-                (df_mismatch.condo == condo)
-                & (df_mismatch.mapped == mapped)
-                & (df_mismatch.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
-                :,
-            ]
-
-            v1v2 = df.loc[df.pair == f"{v1} - {v2}", :].to_dict("records")[0]
-            v2v3 = df.loc[df.pair == f"{v2} - {v3}", :].to_dict("records")[0]
-            v1v2_total = v1v2.pop("total")
-            v2v3_total = v2v3.pop("total")
-
-            def generate_graph_data(r, total, name, group):
-                r = {key: value for (key, value) in r.items() if key in group}
-                y = [r[i] for i in group]
-                x = group
-                hovertemplate = "<b>%{x} %{text}</b>"
-                text = [f"{round(r[i]/total*100, 2)}%" for i in group]
-                return go.Scatter(
-                    x=x,
-                    y=y,
-                    mode="lines",
-                    name=name,
-                    hovertemplate=hovertemplate,
-                    text=text,
-                )
-
-            def generate_graph(v1v2, v2v3, v1v2_total, v2v3_total, group):
-                fig = go.Figure()
-                fig.add_trace(
-                    generate_graph_data(v1v2, v1v2_total, v1v2["pair"], group)
-                )
-                fig.add_trace(
-                    generate_graph_data(v2v3, v2v3_total, v2v3["pair"], group)
-                )
-                return fig
-
-            for group in groups:
-                fig = generate_graph(
-                    v1v2, v2v3, v1v2_total, v2v3_total, group["columns"]
-                )
-                fig.update_layout(
-                    title=group["title"], template="plotly_white", colorway=COLOR_SCHEME
-                )
-                st.plotly_chart(fig)
-                st.info(group["description"])
-
-            st.subheader("Summary of Differences by Field")
-            st.write(df)
-            st.info(
-                """
-                This table reports the number of records with differences in a field value between versions. 
-                This table is useful for digging into any anomalies identified using the graphs above.
-            """
-            )
-
         def create_null(df_null, v1, v2, v3, condo, mapped):
             x = [
                 "borough",
@@ -619,7 +407,9 @@ def pluto():
 
             display_dataframe(v1_outlier, "lotarea_numfloor")
 
-        create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
+        MismatchReport(
+            data=data["df_mismatch"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
+        )()
 
         create_null(data["df_null"], v1, v2, v3, condo, mapped)
 
