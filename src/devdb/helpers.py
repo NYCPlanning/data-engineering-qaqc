@@ -2,6 +2,7 @@ import pandas as pd
 from typing import Dict
 from urllib.error import HTTPError
 import streamlit as st
+import json
 
 BUCKET_NAME = "edm-publishing"
 
@@ -167,6 +168,11 @@ def get_data(branch):
     )
 
     rv["qaqc_historic"] = csv_from_DO(f"{url}/qaqc_historic.csv")
+
+    rv["qaqc_field_distribution"] = csv_from_DO(
+        f"{url}/qaqc_field_distribution.csv",
+        kwargs={"converters": {"result": json.loads}},
+    )
 
     return rv
 
