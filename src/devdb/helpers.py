@@ -174,6 +174,8 @@ def get_data(branch):
         kwargs={"converters": {"result": json.loads}},
     )
 
+    rv["qaqc_quarter_check"] = csv_from_DO(f"{url}/qaqc_quarter_check.csv")
+
     return rv
 
 
