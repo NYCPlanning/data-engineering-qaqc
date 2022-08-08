@@ -483,7 +483,7 @@ def pluto():
                 text = []
                 for n in range(len(y)):
                     text.append(
-                        "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
+                        "Percent Change: {:.2f}%<br>Prev: {:.2f} Current: {:.2f}".format(
                             x[n], real_v1[n], real_v2[n]
                         )
                     )
