@@ -72,12 +72,6 @@ class FieldDistributionReport:
 
         st.plotly_chart(fig)
 
-    def job_type_df(self):
-        return self.records_to_df("Job_Type")
-
-    def job_status_df(self):
-        return self.records_to_df("Job_Status")
-
     def records_to_df(self, field_name):
         return pd.DataFrame.from_records(
             self.qaqc_field_distribution.loc[
