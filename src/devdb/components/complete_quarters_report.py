@@ -19,6 +19,10 @@ class CompleteQuartersReport:
             """
         )
 
+        if self.complete_quarters is None:
+            st.info("Complete Quarter Report file missing for this branch.")
+            return
+
         self.display_complete_quarter_graph()
 
     def display_complete_quarter_graph(self):
