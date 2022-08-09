@@ -45,6 +45,6 @@ def devdb():
         qaqc_check_sections=QAQC_CHECK_SECTIONS,
     )()
 
-    FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
-
     FieldDistributionReport(data=data)()
+
+    FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
