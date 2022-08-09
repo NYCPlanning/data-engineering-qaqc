@@ -49,7 +49,7 @@ class FieldDistributionReport:
         )
 
         for field_name, field_descriptions in self.report_sections.items():
-            st.markdown(f"### {field_descriptions['title']}")
+            st.markdown(f"#### {field_descriptions['title']}")
             st.markdown(field_descriptions["description"])
 
             df = self.records_to_df(field_name)
