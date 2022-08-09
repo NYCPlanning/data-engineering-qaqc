@@ -180,5 +180,5 @@ def get_data(branch):
 def csv_from_DO(url, kwargs={}):
     try:
         return pd.read_csv(url, **kwargs)
-    except HTTPError:
+    except:
         st.warning(f"{url} not found")

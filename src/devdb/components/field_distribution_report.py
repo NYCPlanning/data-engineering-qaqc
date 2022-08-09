@@ -48,6 +48,10 @@ class FieldDistributionReport:
             "These graphs show the distributions of fields for all records created or updated since the last version (based on the lastupdatedt field)."
         )
 
+        if self.qaqc_field_distribution is None:
+            st.info("Field Distribution report missing for this branch.")
+            return
+
         for field_name, field_descriptions in self.report_sections.items():
             st.markdown(f"#### {field_descriptions['title']}")
             st.markdown(field_descriptions["description"])

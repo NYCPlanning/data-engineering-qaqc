@@ -30,7 +30,7 @@ class QAQCVersionHistoryReport:
         for section_name, section_description in self.qaqc_check_sections.items():
             st.markdown(
                 f"""
-                ### {section_name} Checks
+                #### {section_name} Checks
                 {section_description}
 
                 This section includes the following checks:
