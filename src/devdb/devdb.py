@@ -1,3 +1,6 @@
+from src.devdb.components.field_distribution_report import FieldDistributionReport
+
+
 def devdb():
     import streamlit as st
     import pandas as pd
@@ -41,5 +44,7 @@ def devdb():
         qaqc_check_dict=QAQC_CHECK_DICTIONARY,
         qaqc_check_sections=QAQC_CHECK_SECTIONS,
     )()
+
+    FieldDistributionReport(data=data)()
 
     FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
