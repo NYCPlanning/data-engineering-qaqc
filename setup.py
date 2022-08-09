@@ -17,6 +17,7 @@ setup(
         "geopandas",
         "matplotlib",
         "python-abc",
+        "numerize",
     ],
     zip_safe=False,
 )
