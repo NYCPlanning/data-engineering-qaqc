@@ -1,0 +1,24 @@
+[tool.poetry]
+name = "data-engineering-qaqc"
+version = "0.1.0"
+description = ""
+authors = ["Sasha Weinstein <70385853+SashaWeinstein@users.noreply.github.com>"]
+
+[tool.poetry.dependencies]
+python = "^3.9"
+pandas = "^1.4.3"
+numpy = "^1.23.1"
+streamlit = "plotly"
+matplotlib = "^3.5.2"
+python-abc = "^0.2.0"
+
+[tool.poetry.dev-dependencies]
+plotly = "^5.9.0"
+python-dotenv = "^0.20.0"
+boto3 = "^1.24.47"
+streamlit-aggrid = "^0.3.2"
+geopandas = "^0.11.1"
+
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
