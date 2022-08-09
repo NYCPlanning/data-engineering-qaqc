@@ -1,3 +1,6 @@
+from src.pluto.components.aggregate_report import AggregateReport
+
+
 def pluto():
     import streamlit as st
     import pandas as pd
@@ -623,7 +626,7 @@ def pluto():
 
         create_null(data["df_null"], v1, v2, v3, condo, mapped)
 
-        create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
+        AggregateReport(data["df_aggregate"], v1, v2, v3, condo, mapped)()
 
         st.header("Source Data Versions")
         code = st.checkbox("code")
