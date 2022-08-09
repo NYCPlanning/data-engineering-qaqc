@@ -67,6 +67,7 @@ QAQC_CHECK_DICTIONARY = {
     "outlier_top_alt_increase": {
         "description": "The 20 largest alterations by increase in Class A units",
         "field_type": "boolean",
+        "section": "n/a",
     },
     "dup_bbl_address_units": {
         "description": "Duplicate BBL Address Units",

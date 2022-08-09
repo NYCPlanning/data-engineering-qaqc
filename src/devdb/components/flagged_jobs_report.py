@@ -12,6 +12,10 @@ class FlaggedJobsReport:
             "Each of these tables lists job numbers with specific highlighted potential issues."
         )
 
+        if self.qaqc_app is None:
+            st.info("QAQC Flags file missing for this branch.")
+            return
+
         qaqc_check = st.selectbox(
             "Choose a QAQC Check to View Flagged Records",
             options=self.qaqc_checks.keys(),
