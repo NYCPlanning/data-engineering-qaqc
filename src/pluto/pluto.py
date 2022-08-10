@@ -478,14 +478,14 @@ def pluto():
                     "pfirm15_flag",
                 ]
                 x = [(v1[i] / v2[i] - 1) * 100 for i in y]
-                diff=[v1[i] - v2[i]  for i in y]
+                diff = [v1[i] - v2[i] for i in y]
                 real_v1 = [v1[i] for i in y]
                 real_v2 = [v2[i] for i in y]
                 hovertemplate = "<b>%{x}</b> %{text}"
                 text = []
                 for n in range(len(y)):
                     text.append(
-                        "Diff: {} Current: {} Prev: {}".format(
+                        "Diff: {} | Current: {} | Prev: {}".format(
                             numerize(diff[n]),
                             numerize(real_v1[n]),
                             numerize(real_v2[n]),
@@ -504,6 +504,7 @@ def pluto():
             fig = go.Figure()
             fig.add_trace(generate_graph(v1, v2))
             fig.add_trace(generate_graph(v2, v3))
+            fig.add_hline(y=0, line_color="grey", opacity=0.5)
             fig.update_layout(
                 title="Aggregate graph",
                 template="plotly_white",
