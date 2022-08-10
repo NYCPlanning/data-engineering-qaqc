@@ -11,6 +11,7 @@ def pluto():
     from st_aggrid import AgGrid
     from src.constants import COLOR_SCHEME
     from src.pluto.components.corrections_report import CorrectionsReport
+    from numerize.numerize import numerize
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -476,16 +477,20 @@ def pluto():
                     "pfirm15_flag",
                 ]
                 x = [(v1[i] / v2[i] - 1) * 100 for i in y]
+                diff=[v1[i] - v2[i]  for i in y]
                 real_v1 = [v1[i] for i in y]
                 real_v2 = [v2[i] for i in y]
                 hovertemplate = "<b>%{x}</b> %{text}"
                 text = []
                 for n in range(len(y)):
                     text.append(
-                        "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
-                            x[n], real_v1[n], real_v2[n]
+                        "Diff: {} Current: {} Prev: {}".format(
+                            numerize(diff[n]),
+                            numerize(real_v1[n]),
+                            numerize(real_v2[n]),
                         )
                     )
+
                 return go.Scatter(
                     x=y,
                     y=x,
