@@ -2,7 +2,6 @@ def pluto():
     import streamlit as st
     import pandas as pd
     import numpy as np
-    from sqlalchemy import create_engine
     import plotly.graph_objects as go
     import plotly.express as px
     import os
@@ -478,14 +477,15 @@ def pluto():
                     "pfirm15_flag",
                 ]
                 x = [(v1[i] / v2[i] - 1) * 100 for i in y]
+                diff=[v1[i] - v2[i]  for i in y]
                 real_v1 = [v1[i] for i in y]
                 real_v2 = [v2[i] for i in y]
                 hovertemplate = "<b>%{x}</b> %{text}"
                 text = []
                 for n in range(len(y)):
                     text.append(
-                        "Percent Change: {:.2f}%<br>Prev: {} Current: {}".format(
-                            x[n],
+                        "Diff: {} Current: {} Prev: {}".format(
+                            numerize(diff[n]),
                             numerize(real_v1[n]),
                             numerize(real_v2[n]),
                         )
