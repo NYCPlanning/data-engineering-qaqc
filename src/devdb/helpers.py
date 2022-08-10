@@ -1,4 +1,3 @@
-from re import M
 import pandas as pd
 from typing import Dict
 from urllib.error import HTTPError
