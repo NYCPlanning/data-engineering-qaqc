@@ -477,15 +477,15 @@ def pluto():
                     "firm07_flag",
                     "pfirm15_flag",
                 ]
-                x = [((v2[i] - v1[i])/v1[i])*100  for i in y]
-                diff=[v2[i] - v1[i]  for i in y]
+                x = [((v1[i] - v2[i])/v2[i])*100  for i in y]
+                diff=[v1[i] - v2[i]  for i in y]
                 real_v1 = [v1[i] for i in y]
                 real_v2 = [v2[i] for i in y]
                 hovertemplate = "<b>%{x}</b> %{text}"
                 text = []
                 for n in range(len(y)):
                     text.append(
-                        "Diff: {} Prev: {} Current: {}".format(
+                        "Diff: {} Current: {} Prev: {}".format(
                             numerize(diff[n]),
                             numerize(real_v1[n]),
                             numerize(real_v2[n]),
