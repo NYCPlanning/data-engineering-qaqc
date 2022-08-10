@@ -806,6 +806,14 @@ json-logging = ["json-logging"]
 test = ["pytest", "coverage", "requests", "testpath", "nbval", "selenium", "pytest-cov", "requests-unixsocket"]
 
 [[package]]
+name = "numerize"
+version = "0.12"
+description = "Convert large numbers into readable numbers for humans."
+category = "main"
+optional = false
+python-versions = "*"
+
+[[package]]
 name = "numpy"
 version = "1.23.1"
 description = "NumPy is the fundamental package for array computing with Python."
@@ -1526,7 +1534,7 @@ testing = ["pytest (>=6)", "pytest-checkdocs (>=2.4)", "pytest-flake8", "pytest-
 [metadata]
 lock-version = "1.1"
 python-versions = "^3.9"
-content-hash = "7cd5f7c6d7a51087bf07396bb625547cf531ac2edc95bc28d1de1820a5166a1c"
+content-hash = "7a9f3e0b190b8f2bddc38667b9888eac1e0d4b7e7bb25a9484e04fd9f846fd7d"
 
 [metadata.files]
 altair = []
@@ -1665,6 +1673,7 @@ nbconvert = []
 nbformat = []
 nest-asyncio = []
 notebook = []
+numerize = []
 numpy = []
 packaging = [
     {file = "packaging-21.3-py3-none-any.whl", hash = "sha256:ef103e05f519cdc783ae24ea4e2e0f508a9c99b2d4969652eed6a2e1ea5bd522"},
