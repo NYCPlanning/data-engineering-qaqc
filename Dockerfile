@@ -4,9 +4,11 @@ WORKDIR /app
 
 COPY . .
 
-RUN python3 -m venv venv
+# RUN python3 -m venv venv
 
-RUN pip3 install --no-cache-dir -e . 
+RUN pip3 install poetry
+RUN poetry install
+
 
 CMD [ "./entrypoint.sh" ]
 
