@@ -12,10 +12,7 @@ def devdb():
     from src.devdb.components.qaqc_version_history_report import (
         QAQCVersionHistoryReport,
     )
-<<<<<<< HEAD
-=======
     from src.devdb.components.complete_quarters_report import CompleteQuartersReport
->>>>>>> dev
 
     st.title("Developments Database QAQC")
     st.markdown(
@@ -49,11 +46,8 @@ def devdb():
         qaqc_check_sections=QAQC_CHECK_SECTIONS,
     )()
 
-<<<<<<< HEAD
-=======
     FieldDistributionReport(data=data)()
 
     CompleteQuartersReport(data=data)()
 
->>>>>>> dev
     FlaggedJobsReport(data=data, qaqc_check_dict=QAQC_CHECK_DICTIONARY)()
