@@ -477,7 +477,7 @@ def pluto():
                     "firm07_flag",
                     "pfirm15_flag",
                 ]
-                x = [((v1[i] - v2[i])/v2[i])*100  for i in y]
+                x = [(v1[i] / v2[i] - 1) * 100 for i in y]
                 diff=[v1[i] - v2[i]  for i in y]
                 real_v1 = [v1[i] for i in y]
                 real_v2 = [v2[i] for i in y]
