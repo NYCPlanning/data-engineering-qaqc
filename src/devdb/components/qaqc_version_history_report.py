@@ -22,6 +22,11 @@ class QAQCVersionHistoryReport:
             To zoom in on a particular check, double click the check in the legend on the right of the graph.
             """
         )
+
+        if self.qaqc_version_history is None:
+            st.info("QAQC Version History file missing for this branch.")
+            return
+            
         for section_name, section_description in self.qaqc_check_sections.items():
             st.markdown(
                 f"""
