@@ -168,7 +168,7 @@ QAQC_CHECK_DICTIONARY = {
     }
 }
 
-@st.cache
+@st.cache(ttl=600)
 def get_data(branch):
     rv = {}
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/{branch}/latest/output"
