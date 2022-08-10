@@ -12,6 +12,7 @@ def pluto():
     from st_aggrid import AgGrid
     from src.constants import COLOR_SCHEME
     from src.pluto.components.corrections_report import CorrectionsReport
+    from numerize.numerize import numerize
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -483,10 +484,13 @@ def pluto():
                 text = []
                 for n in range(len(y)):
                     text.append(
-                        "Percent Change: {:.2f}%<br>Prev: {:.2E} Current: {:.2E}".format(
-                            x[n], real_v1[n], real_v2[n]
+                        "Percent Change: {:.2f}%<br>Prev: {} Current: {}".format(
+                            x[n],
+                            numerize(real_v1[n]),
+                            numerize(real_v2[n]),
                         )
                     )
+
                 return go.Scatter(
                     x=y,
                     y=x,
