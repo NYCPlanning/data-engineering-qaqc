@@ -7,6 +7,6 @@ def colp():
     from src.colp.helpers import get_data
 
     st.title("City Owned and Leased Properties QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["dev","main"])
+    branch = st.sidebar.selectbox("select a branch", ["main","dev"])
 
     data = get_data(branch)
