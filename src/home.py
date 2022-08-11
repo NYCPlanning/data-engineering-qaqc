@@ -2,11 +2,8 @@ import requests
 import datetime
 import streamlit as st
 
-
-def get_blogs():
-    r = requests.get("https://labs-home-api.herokuapp.com/posts?tag=data")
-    result = r.json()["items"]
-    css = """
+BLOG_URL = "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/nyc-planning-digital/tagged/data-engineering"
+CSS = """
         .blog-card {
         box-shadow: 0 4px 8px 0 rgba(0,0,0,0.2);
         transition: 0.3s;
@@ -29,17 +26,25 @@ def get_blogs():
         padding: 2px 16px;
         }
     """
-    for i in result:
+
+
+@st.cache(ttl=30000)
+def retrieve_blog_posts():
+    return requests.get(BLOG_URL).json()["items"]
+
+
+def display_blog():
+    for post in retrieve_blog_posts():
         st.markdown(
             f"""
         <style>
-        {css}
+        {CSS}
         </style>
         <div class="blog-card">
-        <img src="{i['image']}" alt="Avatar" style="width:100%;">
+        <img src="{post['thumbnail']}" alt="Avatar" style="width:100%;">
             <div class="container">
-                <a href="{i['link']}"><h4><b>{i['title']}</b></h4></a>
-                <p>{i['description']}</p>
+                <a href="{post['link']}"><h4><b>{post['title']}</b></h4></a>
+                <p>By {post['author']}</p>
             </div>
         </div>
         """,
@@ -68,4 +73,4 @@ def home():
     )
 
     st.header("Read more on Medium")
-    # get_blogs()
+    display_blog()

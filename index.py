@@ -2,9 +2,10 @@ import streamlit as st
 from src.pluto.pluto import pluto
 from src.ztl import ztl
 from src.facdb.facdb import facdb
-from src.devdb import devdb
+from src.devdb.devdb import devdb
 from src.geocode import geocode
 from src.cpdb.cpdb import cpdb
+from src.colp.colp import colp
 from src.home import home
 import requests
 import datetime
@@ -17,6 +18,7 @@ datasets = {
     "Developments DB": devdb,
     "Geosupport Demo": geocode,
     "Capital Projects DB": cpdb,
+    "City Owned and Leased Properties":colp,
 }
 
 
