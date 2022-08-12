@@ -69,8 +69,10 @@ class RecordsByUsetype(CountRecordsReport):
 class RecordsByAgencyUsetype(CountRecordsReport):
     def __init__(self, records_by_agency_usetype) -> None:
         self.data = records_by_agency_usetype
-        self.data["AGENCY-USETYPE"] = self.data["AGENCY"] + "-" + self.data["USETYPE"]
+        self.data["agency-use type"] = (
+            self.data["AGENCY"] + " - " + self.data["USETYPE"]
+        )
         self.by_agency = True
-        self.X_axis_col = "AGENCY-USETYPE"
+        self.X_axis_col = "agency-use type"
         self.by_usetype = True
         self.category_plural = "Agency-use type combinations"
