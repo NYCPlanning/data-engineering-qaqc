@@ -5,9 +5,16 @@ def colp():
     import os
     import pdb
     from src.colp.helpers import get_data
+    from src.colp.components.agency_usetype_report import (
+        RecordsByAgency,
+        RecordsByUsetype,
+        RecordsByAgencyUsetype,
+    )
 
     st.title("City Owned and Leased Properties QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["main"])
+    branch = st.sidebar.selectbox(
+        "select a branch", ["main", "212-Records-by-Agency-Usetype"]
+    )
     st.markdown(
         body="""
         ### About COLP Database
@@ -22,3 +29,9 @@ def colp():
     )
 
     data = get_data(branch)
+
+    RecordsByAgency(records_by_agency=data["records_by_agency"])()
+    RecordsByUsetype(records_by_usetype=data["records_by_usetype"])()
+    RecordsByAgencyUsetype(
+        records_by_agency_usetype=data["records_by_agency_usetype"]
+    )()
