@@ -34,12 +34,15 @@ class DigitalOceanClient:
             aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
-
+    
     def csv_from_DO(self, url, kwargs={}):
-        if self.bucket_name == "edm-publishing":
-            return pd.read_csv(url, **kwargs)
-        else:
-            return self.private_csv_from_DO(url, kwargs)
+        try:
+            if self.bucket_name == "edm-publishing":
+                return pd.read_csv(url, **kwargs)
+            else:
+                return self.private_csv_from_DO(url, kwargs)
+        except:
+            return None
 
     def private_csv_from_DO(self, url, kwargs):
         obj = self.s3_resource().Object(bucket_name=self.bucket_name, key=url)
