@@ -72,7 +72,7 @@ def cpdb():
         - A **project** is a discrete capital investment, and is defined as a record that has a unique FMS ID.  
         - A **commitment** is an individual contribution to fund a portion of a project.  When looking at the "commitment" view you're looking at the sum of a commitments.
         
-        #### Additional Links
+        #### Additional Resources
         - [CPDB Github Repo Wiki Page](https://github.com/NYCPlanning/db-cpdb/wiki) 
         - [Medium Blog on CPDB](https://medium.com/nyc-planning-digital/welcome-to-the-world-dcps-capital-projects-database-693a8b9782ac)
 
