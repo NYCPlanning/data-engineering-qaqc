@@ -9,6 +9,10 @@ class CountRecordsReport(ABC):
         if self.data is None:
             st.info(f"No Count of records by {self.x_axis_col}")
             return
+        self.set_title()
+        self.plot()
+
+    def set_title(self):
         by_agency = ""
         middle_str = ""
         by_usetype = ""
@@ -19,7 +23,6 @@ class CountRecordsReport(ABC):
             f"City owned and leased properties by {by_agency}{middle_str}{by_usetype}",
             anchor="corrections-applied",
         )
-        self.plot()
 
     def plot(self):
         x_lim = st.number_input(
