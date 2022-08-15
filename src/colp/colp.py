@@ -5,6 +5,7 @@ def colp():
     import os
     import pdb
     from src.colp.helpers import get_data
+    from src.colp.components.outlier_report import OutlierReport
 
     st.title("City Owned and Leased Properties QAQC")
     branch = st.sidebar.selectbox("select a branch", ["main"])
@@ -22,3 +23,4 @@ def colp():
     )
 
     data = get_data(branch)
+    OutlierReport(data=data)()
