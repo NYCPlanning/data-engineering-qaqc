@@ -66,8 +66,8 @@ def cpdb():
 
         ### Key CPDB QAQC terms: 
 
-        - Mapped: refers to a project record that has a geometry / spatial data associated with it.
-        - Agency type: The **Managing** agency is the NYC Agency that is overseeing the construction of a project.  he **Sponsoring** agency is the NYC Agency that is funding the project.  The managing agency and sponsoring agency can be, but are not always the same.
+        - **Mapped**: refers to a project record that has a geometry / spatial data associated with it.
+        - Agency type: The **Managing** agency is the NYC Agency that is overseeing the construction of a project.  The **Sponsoring** agency is the NYC Agency that is funding the project.  The managing agency and sponsoring agency can be, but are not always the same.
         - Category type: Fixed Assets, are projects that are place specific and have an impact on the surrounding area, visible or not, such as park improvements or sewer reconstruction.  Projects are categorized by DCP based on key works in the project description.  Other categories include Lump Sum, and ITT, Vehicles, and Equipment​.
         - A **project** is a discrete capital investment, and is defined as a record that has a unique FMS ID.  
         - A **commitment** is an individual contribution to fund a portion of a project.  When looking at the "commitment" view you're looking at the sum of a commitments.
