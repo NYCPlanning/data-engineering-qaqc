@@ -9,20 +9,8 @@ class CountRecordsReport(ABC):
         if self.data is None:
             st.info(f"No Count of records by {self.y_axis_col}")
             return
-        self.set_title()
+        st.subheader(self.title, anchor=self.title_anchor)
         self.plot()
-
-    def set_title(self):
-        by_agency = ""
-        middle_str = ""
-        by_usetype = ""
-        by_agency = "agency" if self.by_agency else ""
-        by_usetype = " use type" if self.by_usetype else ""
-        middle_str = " and" if self.by_agency and self.by_usetype else ""
-        st.subheader(
-            f"City owned and leased properties by {by_agency}{middle_str}{by_usetype}",
-            anchor="corrections-applied",
-        )
 
     def plot(self):
         slider_input = st.select_slider(
@@ -57,7 +45,9 @@ class RecordsByAgency(CountRecordsReport):
         self.y_axis_col = "AGENCY"
         self.y_axis_label = "Agency"
         self.by_usetype = False
-        self.category_plural = "Agencies"
+        self.category_plural = "agencies"
+        self.title = "City owned and leased properties by agency"
+        self.title_anchor = "count_by_agency"
 
 
 class RecordsByUsetype(CountRecordsReport):
@@ -67,7 +57,9 @@ class RecordsByUsetype(CountRecordsReport):
         self.y_axis_col = "USETYPE"
         self.y_axis_label = "Use type"
         self.by_usetype = True
-        self.category_plural = "Use types"
+        self.category_plural = "use types"
+        self.title = "City owned and leased properties by usetype"
+        self.title_anchor = "count_by_usetype"
 
 
 class RecordsByAgencyUsetype(CountRecordsReport):
@@ -80,4 +72,6 @@ class RecordsByAgencyUsetype(CountRecordsReport):
         self.y_axis_col = "agency-use type"
         self.y_axis_label = "Agency/use type combination"
         self.by_usetype = True
-        self.category_plural = "Agency-use type combinations"
+        self.category_plural = "agency/use type combinations"
+        self.title = "City owned and leased properties by agency and usetype"
+        self.title_anchor = "count_by_agency_usetype"
