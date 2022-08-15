@@ -25,16 +25,15 @@ class CountRecordsReport(ABC):
         )
 
     def plot(self):
-        x_lim = st.number_input(
-            label=f"{self.category_plural} to visualize",
-            min_value=2,
-            max_value=self.data.shape[0],
-            value=12,
+        slider_input = st.select_slider(
+            label=f"Most common {self.category_plural} to visualize",
+            options=range(1, self.data.shape[0] + 1),
+            value=(1, 12),
         )
         self.data.sort_values(by="count", ascending=False, inplace=True)
         fig1 = px.bar(
             self.data.iloc[
-                :x_lim,
+                slider_input[0] : slider_input[1],
             ].sort_values(by="count", ascending=True),
             y=self.y_axis_col,
             x="count",
