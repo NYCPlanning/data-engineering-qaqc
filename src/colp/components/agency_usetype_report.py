@@ -7,7 +7,7 @@ import plotly.express as px
 class CountRecordsReport(ABC):
     def __call__(self):
         if self.data is None:
-            st.info(f"No Count of records by {self.X_axis_col}")
+            st.info(f"No Count of records by {self.x_axis_col}")
             return
         by_agency = ""
         middle_str = ""
@@ -36,13 +36,13 @@ class CountRecordsReport(ABC):
             self.data.iloc[
                 :x_lim,
             ],
-            x=self.X_axis_col,
+            x=self.x_axis_col,
             y="count",
             width=1000,
             color_discrete_sequence=COLOR_SCHEME,
         )
 
-        fig1.update_xaxes(title=self.X_axis_col[0] + self.X_axis_col[1:].lower())
+        fig1.update_xaxes(title=self.x_axis_col[0] + self.x_axis_col[1:].lower())
         fig1.update_layout(legend_title_text="Count")
 
         st.plotly_chart(fig1)
@@ -52,7 +52,7 @@ class RecordsByAgency(CountRecordsReport):
     def __init__(self, records_by_agency) -> None:
         self.data = records_by_agency
         self.by_agency = True
-        self.X_axis_col = "AGENCY"
+        self.x_axis_col = "AGENCY"
         self.by_usetype = False
         self.category_plural = "Agencies"
 
@@ -61,7 +61,7 @@ class RecordsByUsetype(CountRecordsReport):
     def __init__(self, records_by_usetype) -> None:
         self.data = records_by_usetype
         self.by_agency = False
-        self.X_axis_col = "USETYPE"
+        self.x_axis_col = "USETYPE"
         self.by_usetype = True
         self.category_plural = "Use types"
 
@@ -73,6 +73,6 @@ class RecordsByAgencyUsetype(CountRecordsReport):
             self.data["AGENCY"] + " - " + self.data["USETYPE"]
         )
         self.by_agency = True
-        self.X_axis_col = "agency-use type"
+        self.x_axis_col = "agency-use type"
         self.by_usetype = True
         self.category_plural = "Agency-use type combinations"
