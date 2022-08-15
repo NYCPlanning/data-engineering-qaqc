@@ -118,7 +118,7 @@ def cpdb():
     st.plotly_chart(fig1)
 
     st.caption(
-        f"""This graph reports the {view_type_unit} (both mapped and unmapped) by {agency_type_title} for {subcategory} . 
+        f"""This graph reports the {view_type_unit} (both mapped and unmapped) by {agency_type_title} for {subcategory}. 
         Typically, large city agencies including DPR (Dept. Parks and Rec.), DEP (Dept. of Environmental Protection), DOT (Dept. of Transportation), and DCAS (Dept of Citywide Admin. Services) have the largest count of projects and, generally, the highest capital expenditure.
         Some agencies (e.g. HPD [Housing Preservation & Development]) often have fewer total projects but high capital expenditure because of the nature of their projects which are related to building housing across NYC.
         The purpose of this graph is to get an overview of the distribution of projets or commitments by agency, and a sense of what portion of these are mapped."""
@@ -181,9 +181,9 @@ def cpdb():
 
     st.caption(
         f"""  
-        This graph visualizes the difference in the {view_type_unit} by {agency_type_title} between the current (aka latest) and the previous version of CPDB.
-        While the underlying Capital Commitment Plan data changes between versions, any drastic changes between CPDB versions that are illustrated by this graph can indicate if there is a specific agency or source dataset to look into further that may have introduced these anomalies.  
-        Anomalies include, but are not limited to, no projects being mapped for a given agency when there were mapped projects in the previous version, the number of projects doubling for an agency between versions, or the total sum of commitments halving for an agency between versions.  
+        This graph visualizes the difference in the {view_type_unit} by {agency_type_title} between the current (aka latest) and the previous version of CPDB. 
+        While the underlying Capital Commitment Plan data changes between versions, any drastic changes between CPDB versions that are illustrated by this graph can indicate if there is a specific agency or source dataset to look into further that may have introduced these anomalies.
+        Anomalies include, but are not limited to, no projects being mapped for a given agency when there were mapped projects in the previous version, the number of projects doubling for an agency between versions, or the total sum of commitments halving for an agency between versions.
         This chart also gives the viewer the flexibility to change between all projects by Number of Projects (both mapped and unmapped) along with an option to just view the mapped (geolocated) projects. Click the "Latest Version" and "Previous Version" labels in the legend to display the total Number of Projects for each.
         """
     )
