@@ -10,6 +10,7 @@ def colp():
         RecordsByUsetype,
         RecordsByAgencyUsetype,
     )
+    from src.colp.components.outlier_report import OutlierReport
 
     st.title("City Owned and Leased Properties QAQC")
     branch = st.sidebar.selectbox(
@@ -35,3 +36,4 @@ def colp():
     RecordsByAgencyUsetype(
         records_by_agency_usetype=data["records_by_agency_usetype"]
     )()
+    OutlierReport(data=data)()

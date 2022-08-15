@@ -155,8 +155,17 @@ QAQC_CHECK_DICTIONARY = {
         "field_type": "boolean",
         "section": "n/a",
     },
+    "manual_hny_match_check": {
+        "description": "check if the manual HNY corrections are ingested and any HNY projects failed to be added will show up here",
+        "field_type": "boolean",
+        "section": "n/a",
+    },
+    "manual_corrections_not_applied": {
+        "description": "This will return the full list of jobs that have any manual corrections did not get applied.",
+        "field_type": "boolean",
+        "section": "n/a"
+    }
 }
-
 
 def get_data(branch):
     rv = {}
