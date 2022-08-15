@@ -12,12 +12,9 @@ class CountRecordsReport(ABC):
         by_agency = ""
         middle_str = ""
         by_usetype = ""
-        if self.by_agency:
-            by_agency = " agency"
-        if self.by_usetype:
-            by_usetype = " use type"
-        if self.by_agency and self.by_usetype:
-            middle_str = " and"
+        by_agency = "agency" if self.by_agency else ""
+        by_usetype = " use type" if self.by_usetype else ""
+        middle_str = " and" if self.by_agency and self.by_usetype else ""
         st.subheader(
             f"City owned and leased properties by {by_agency}{middle_str}{by_usetype}",
             anchor="corrections-applied",
