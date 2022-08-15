@@ -7,7 +7,7 @@ import plotly.express as px
 class CountRecordsReport(ABC):
     def __call__(self):
         if self.data is None:
-            st.info(f"No Count of records by {self.x_axis_col}")
+            st.info(f"No Count of records by {self.y_axis_col}")
             return
         self.set_title()
         self.plot()
@@ -35,14 +35,17 @@ class CountRecordsReport(ABC):
         fig1 = px.bar(
             self.data.iloc[
                 :x_lim,
-            ],
-            x=self.x_axis_col,
-            y="count",
-            width=1000,
+            ].sort_values(by="count", ascending=True),
+            y=self.y_axis_col,
+            x="count",
+            orientation="h",
+            barmode="group",
+            width=850,
+            height=500,
             color_discrete_sequence=COLOR_SCHEME,
         )
 
-        fig1.update_xaxes(title=self.x_axis_col[0] + self.x_axis_col[1:].lower())
+        fig1.update_yaxes(title=self.y_axis_label)
         fig1.update_layout(legend_title_text="Count")
 
         st.plotly_chart(fig1)
@@ -52,7 +55,8 @@ class RecordsByAgency(CountRecordsReport):
     def __init__(self, records_by_agency) -> None:
         self.data = records_by_agency
         self.by_agency = True
-        self.x_axis_col = "AGENCY"
+        self.y_axis_col = "AGENCY"
+        self.y_axis_label = "Agency"
         self.by_usetype = False
         self.category_plural = "Agencies"
 
@@ -61,7 +65,8 @@ class RecordsByUsetype(CountRecordsReport):
     def __init__(self, records_by_usetype) -> None:
         self.data = records_by_usetype
         self.by_agency = False
-        self.x_axis_col = "USETYPE"
+        self.y_axis_col = "USETYPE"
+        self.y_axis_label = "Use type"
         self.by_usetype = True
         self.category_plural = "Use types"
 
@@ -70,9 +75,10 @@ class RecordsByAgencyUsetype(CountRecordsReport):
     def __init__(self, records_by_agency_usetype) -> None:
         self.data = records_by_agency_usetype
         self.data["agency-use type"] = (
-            self.data["AGENCY"] + " - " + self.data["USETYPE"]
+            self.data["AGENCY"] + " - " + self.data["USETYPE"].str.replace("-", "/")
         )
         self.by_agency = True
-        self.x_axis_col = "agency-use type"
+        self.y_axis_col = "agency-use type"
+        self.y_axis_label = "Agency/use type combination"
         self.by_usetype = True
         self.category_plural = "Agency-use type combinations"
