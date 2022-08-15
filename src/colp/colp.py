@@ -1,3 +1,8 @@
+from src.colp.components.usetype_version_comparison_report import (
+    UsetypeVersionComparisonReport,
+)
+
+
 def colp():
     import streamlit as st
     import pandas as pd
@@ -38,3 +43,7 @@ def colp():
     )()
     OutlierReport(data=data)()
     GeospatialCheck(data=data)()
+
+    version = st.sidebar.selectbox("Select a Version for Comparison", ["2022/06/16"])
+
+    UsetypeVersionComparisonReport(data=data, version=version)()

@@ -14,6 +14,9 @@ def get_data(branch):
     rv["records_by_agency_usetype"] = csv_from_DO(
         f"{url}/records_by_agency_usetype.csv"
     )
+
+    rv["usetype_changes"] = csv_from_DO(f"{url}/usetype_changes.csv")
+
     rv["ipis_cd_errors"] = csv_from_DO(f"{url}/ipis_cd_errors.csv")
     rv["geospatial_check"] = csv_from_DO(f"{url}/geospatial_check.csv")
     return rv
@@ -24,3 +27,4 @@ def csv_from_DO(url, kwargs={}):
         return pd.read_csv(url, **kwargs)
     except:
         st.warning(f"{url} not found")
+
