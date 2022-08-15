@@ -21,7 +21,7 @@ class CountRecordsReport(ABC):
         self.data.sort_values(by="count", ascending=False, inplace=True)
         fig1 = px.bar(
             self.data.iloc[
-                slider_input[0] : slider_input[1],
+                slider_input[0] - 1 : slider_input[1],
             ].sort_values(by="count", ascending=True),
             y=self.y_axis_col,
             x="count",
@@ -41,10 +41,8 @@ class CountRecordsReport(ABC):
 class RecordsByAgency(CountRecordsReport):
     def __init__(self, records_by_agency) -> None:
         self.data = records_by_agency
-        self.by_agency = True
         self.y_axis_col = "AGENCY"
         self.y_axis_label = "Agency"
-        self.by_usetype = False
         self.category_plural = "agencies"
         self.title = "City owned and leased properties by agency"
         self.title_anchor = "count_by_agency"
@@ -53,10 +51,8 @@ class RecordsByAgency(CountRecordsReport):
 class RecordsByUsetype(CountRecordsReport):
     def __init__(self, records_by_usetype) -> None:
         self.data = records_by_usetype
-        self.by_agency = False
         self.y_axis_col = "USETYPE"
         self.y_axis_label = "Use type"
-        self.by_usetype = True
         self.category_plural = "use types"
         self.title = "City owned and leased properties by usetype"
         self.title_anchor = "count_by_usetype"
@@ -68,10 +64,8 @@ class RecordsByAgencyUsetype(CountRecordsReport):
         self.data["agency-use type"] = (
             self.data["AGENCY"] + " - " + self.data["USETYPE"].str.replace("-", "/")
         )
-        self.by_agency = True
         self.y_axis_col = "agency-use type"
         self.y_axis_label = "Agency/use type combination"
-        self.by_usetype = True
         self.category_plural = "agency/use type combinations"
         self.title = "City owned and leased properties by agency and usetype"
         self.title_anchor = "count_by_agency_usetype"
