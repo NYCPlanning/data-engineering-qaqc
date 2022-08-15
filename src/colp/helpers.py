@@ -9,6 +9,7 @@ def get_data(branch):
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-colp/{branch}/latest/output"
 
     rv["ipis_cd_errors"] = csv_from_DO(f"{url}/ipis_cd_errors.csv")
+    rv["geospatial_check"] = csv_from_DO(f"{url}/geospatial_check.csv")
     return rv
 
 
