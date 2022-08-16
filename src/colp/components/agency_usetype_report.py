@@ -12,20 +12,8 @@ class CountRecordsReport(ABC):
         if not self.content_to_display:
             st.info(f"No Count of records by {self.y_axis_col}")
             return
-        self.set_title()
+        st.subheader(self.title, anchor=self.title_anchor)
         self.plot()
-
-    def set_title(self):
-        by_agency = ""
-        middle_str = ""
-        by_usetype = ""
-        by_agency = "agency" if self.by_agency else ""
-        by_usetype = " use type" if self.by_usetype else ""
-        middle_str = " and" if self.by_agency and self.by_usetype else ""
-        st.subheader(
-            f"City owned and leased properties by {by_agency}{middle_str}{by_usetype}",
-            anchor="corrections-applied",
-        )
 
     def plot(self):
         slider_input = st.select_slider(
@@ -36,7 +24,7 @@ class CountRecordsReport(ABC):
         self.data.sort_values(by="count", ascending=False, inplace=True)
         fig1 = px.bar(
             self.data.iloc[
-                slider_input[0] : slider_input[1],
+                slider_input[0] - 1 : slider_input[1],
             ].sort_values(by="count", ascending=True),
             y=self.y_axis_col,
             x="count",
@@ -60,6 +48,8 @@ class RecordsByAgency(CountRecordsReport):
         self.y_axis_label = "Agency"
         self.by_usetype = False
         self.category_plural = "Agencies"
+        self.title = "City owned and leased properties by agency"
+        self.title_anchor = "count_by_agency"
         super().__init__(records_by_agency)
         if self.content_to_display:
             self.data = records_by_agency
@@ -72,6 +62,8 @@ class RecordsByUsetype(CountRecordsReport):
         self.y_axis_label = "Use type"
         self.by_usetype = True
         self.category_plural = "Use types"
+        self.title = "City owned and leased properties by usetype"
+        self.title_anchor = "count_by_usetype"
         super().__init__(records_by_usetype)
         if self.content_to_display:
             self.data = records_by_usetype
@@ -83,6 +75,8 @@ class RecordsByAgencyUsetype(CountRecordsReport):
         self.y_axis_col = "agency-use type"
         self.y_axis_label = "Agency/use type combination"
         self.by_usetype = True
+        self.title = "City owned and leased properties by agency and usetype"
+        self.title_anchor = "count_by_agency_usetype"
         self.category_plural = "Agency-use type combinations"
         super().__init__(records_by_agency_usetype)
         if self.content_to_display:

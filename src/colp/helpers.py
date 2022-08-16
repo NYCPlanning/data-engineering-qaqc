@@ -15,6 +15,7 @@ def get_data(branch):
         f"{url}/records_by_agency_usetype.csv"
     )
 
+    rv["ipis_cd_errors"] = csv_from_DO(f"{url}/ipis_cd_errors.csv")
     return rv
 
 
