@@ -7,6 +7,9 @@ import os
 from dotenv import load_dotenv
 import pdb
 import streamlit as st
+from datetime import datetime
+import shutil
+import geopandas as gpd
 
 load_dotenv()
 
@@ -36,6 +39,17 @@ class DigitalOceanClient:
         except:
             return None
 
+    def unzip_shapefile(self, table, zipfile):
+        try:
+            with zipfile as zf:
+                time = str(datetime.now().timestamp)
+                zf.extractall(path=f".library/{time}/{table}/")
+                gdf = gpd.read_file(f".library/{time}/{table}/{table}.shp")
+                shutil.rmtree(path=f".library/{time}")
+                return gdf
+        except:
+            return None
+
     def s3_resource(self):
         return boto3.resource(
             "s3",
@@ -44,8 +58,9 @@ class DigitalOceanClient:
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
 
-    # @st.experimental_memo
+    @st.experimental_memo
     def csv_from_DO(_self, url, cache_key, _kwargs={}):
+        print("cache miss")
         try:
             if _self.bucket_name == "edm-publishing":
                 return pd.read_csv(url, **_kwargs)

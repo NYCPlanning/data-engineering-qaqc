@@ -1,9 +1,6 @@
-from codecs import utf_8_encode
 import pandas as pd
 from dotenv import load_dotenv
 import geopandas as gpd
-import shutil
-from datetime import datetime
 from src.digital_ocean_client import DigitalOceanClient
 
 load_dotenv()
@@ -27,23 +24,16 @@ VIZKEY = {
 where would this list comes from? """
 
 
-def unzip_shapefile(zipfile, table):
-    try:
-        with zipfile as zf:
-            time = str(datetime.now().timestamp)
-            zf.extractall(path=f".library/{time}/{table}/")
-            gdf = gpd.read_file(f".library/{time}/{table}/{table}.shp")
-            shutil.rmtree(path=f".library/{time}")
-            return gdf
-    except:
-        return None
-
-
 def get_geometries(branch, table) -> dict:
-    points_zip = digital_ocean_client().zip_from_DO(
+    client = digital_ocean_client()
+    cache_key = client.cache_key(
+        f"db-cpdb/{branch}/latest/output/analysis/cpdb_summarystats_sagency.csv"
+    )
+
+    points_zip = client.zip_from_DO(
         zip_filename=f"db-cpdb/{branch}/latest/output/{table}.shp.zip"
     )
-    gdf = unzip_shapefile(
+    gdf = client.unzip_shapefile(
         zipfile=points_zip,
         table=table,
     )
