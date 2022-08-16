@@ -6,7 +6,7 @@ BUCKET_NAME = "edm-publishing"
 
 def get_data(branch):
     rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-colp/{branch}/latest/output"
+    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-colp/{branch}/latest/output/qaqc"
 
     rv["modified_names"] = csv_from_DO(f"{url}/ipis_modified_names.csv")
     rv["records_by_agency"] = csv_from_DO(f"{url}/records_by_agency.csv")
