@@ -60,24 +60,27 @@ def get_data(branch) -> dict:
     }
 
     client = digital_ocean_client()
+    cache_key = client.cache_key(
+        f"db-cpdb/{branch}/latest/output/analysis/cpdb_summarystats_sagency.csv"
+    )
 
     for t in tables["analysis"]:
         rv[t] = client.csv_from_DO(
-            url=f"db-cpdb/{branch}/latest/output/analysis/{t}.csv",
+            url=f"db-cpdb/{branch}/latest/output/analysis/{t}.csv", cache_key=cache_key
         )
         rv["pre_" + t] = client.csv_from_DO(
-            url=f"db-cpdb/main/2022-04-15/output/analysis/{t}.csv",
+            url=f"db-cpdb/main/2022-04-15/output/analysis/{t}.csv", cache_key=cache_key
         )
     for t in tables["others"]:
         rv[t] = client.csv_from_DO(
-            url=f"db-cpdb/{branch}/latest/output/{t}.csv",
+            url=f"db-cpdb/{branch}/latest/output/{t}.csv", cache_key=cache_key
         )
         rv["pre_" + t] = client.csv_from_DO(
-            url=f"db-cpdb/main/2022-04-15/output/{t}.csv",
+            url=f"db-cpdb/main/2022-04-15/output/{t}.csv", cache_key=cache_key
         )
     for t in tables["no_version_compare"]:
         rv[t] = client.csv_from_DO(
-            url=f"db-cpdb/{branch}/latest/output/{t}.csv",
+            url=f"db-cpdb/{branch}/latest/output/{t}.csv", cache_key=cache_key
         )
     for t in tables["geometries"]:
         rv[t] = get_geometries(branch, table=t)

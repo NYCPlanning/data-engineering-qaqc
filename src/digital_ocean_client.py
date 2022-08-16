@@ -5,6 +5,8 @@ from zipfile import ZipFile
 from io import StringIO
 import os
 from dotenv import load_dotenv
+import pdb
+import streamlit as st
 
 load_dotenv()
 
@@ -13,6 +15,13 @@ class DigitalOceanClient:
     def __init__(self, bucket_name, repo_name):
         self.bucket_name = bucket_name
         self.repo_name = repo_name
+
+    def cache_key(self, url):
+        return str(
+            self.s3_resource()
+            .ObjectSummary(bucket_name=self.bucket_name, key=url)
+            .last_modified
+        )
 
     def bucket(self):
         return self.s3_resource().Bucket(self.bucket_name)
@@ -34,13 +43,14 @@ class DigitalOceanClient:
             aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
-    
-    def csv_from_DO(self, url, kwargs={}):
+
+    # @st.experimental_memo
+    def csv_from_DO(_self, url, cache_key, _kwargs={}):
         try:
-            if self.bucket_name == "edm-publishing":
-                return pd.read_csv(url, **kwargs)
+            if _self.bucket_name == "edm-publishing":
+                return pd.read_csv(url, **_kwargs)
             else:
-                return self.private_csv_from_DO(url, kwargs)
+                return _self.private_csv_from_DO(url, _kwargs)
         except:
             return None
 
