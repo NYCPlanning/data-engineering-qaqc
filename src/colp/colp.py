@@ -6,9 +6,10 @@ def colp():
     import pdb
     from src.colp.helpers import get_data
     from src.colp.components.outlier_report import OutlierReport
+    from src.colp.components.manual_correction_report import ManualCorrection
 
     st.title("City Owned and Leased Properties QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["main"])
+    branch = st.sidebar.selectbox("select a branch", ["dev", "main"])
     st.markdown(
         body="""
         ### About COLP Database
@@ -24,3 +25,4 @@ def colp():
 
     data = get_data(branch)
     OutlierReport(data=data)()
+    ManualCorrection(data=data)()
