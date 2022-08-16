@@ -12,7 +12,6 @@ def pluto():
     from src.constants import COLOR_SCHEME
     from src.pluto.components.corrections_report import CorrectionsReport
     from numerize.numerize import numerize
-    import pdb
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -252,6 +251,7 @@ def pluto():
                 & (df_mismatch.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
                 :,
             ]
+
             v1v2 = df.loc[df.pair == f"{v1} - {v2}", :].to_dict("records")[0]
             v2v3 = df.loc[df.pair == f"{v2} - {v3}", :].to_dict("records")[0]
             v1v2_total = v1v2.pop("total")
