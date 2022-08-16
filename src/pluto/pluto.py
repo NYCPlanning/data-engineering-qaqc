@@ -591,7 +591,7 @@ def pluto():
             version_pair = f"{v1}-{v2}"
             markdown_dict = {
                 "building_area_increase": f"### Table of BBLs with Unreasonable Increase in Building Area {version_pair}",
-                "unitsres_resarea": f"### Table of BBLs with 50+ unitsres and resarea/unitsres < 300",
+                "unitsres_resarea": f"### Report of BBLs with buildings containing unreasonably small apartments",
                 "lotarea_numfloor": f"### Table of BBLs where bldgarea/lotarea > numfloors*2",
             }
 
