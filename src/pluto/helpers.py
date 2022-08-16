@@ -18,7 +18,7 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
 
     client = digital_ocean_client()
     cache_key = client.cache_key(
-        f"db-pluto/{branch}/latest/output/qaqc/qaqc_mismatch.csv"
+        f"db-pluto/{branch}/latest/output/source_data_versions.csv"
     )
 
     kwargs = {"true_values": ["t"], "false_values": ["f"]}
