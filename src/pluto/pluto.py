@@ -606,6 +606,7 @@ def pluto():
                 if df.empty:
                     st.markdown(markdown_dict[field])
                     st.write("There is no outlier.")
+                    st.info(info_dict[field])
                 else:
                     st.markdown(markdown_dict[field])
                     AgGrid(df)
