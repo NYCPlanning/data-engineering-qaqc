@@ -6,7 +6,7 @@ import plotly.express as px
 
 class CountRecordsReport(ABC):
     def __init__(self, data) -> None:
-        self.content_to_display = True if data is not None and not data.empty else False
+        self.content_to_display = False if data is None or data.empty else True
 
     def __call__(self):
         if not self.content_to_display:
@@ -55,38 +55,38 @@ class CountRecordsReport(ABC):
 
 class RecordsByAgency(CountRecordsReport):
     def __init__(self, records_by_agency) -> None:
+        self.by_agency = True
+        self.y_axis_col = "AGENCY"
+        self.y_axis_label = "Agency"
+        self.by_usetype = False
+        self.category_plural = "Agencies"
         super().__init__(records_by_agency)
         if self.content_to_display:
             self.data = records_by_agency
-            self.by_agency = True
-            self.y_axis_col = "AGENCY"
-            self.y_axis_label = "Agency"
-            self.by_usetype = False
-            self.category_plural = "Agencies"
 
 
 class RecordsByUsetype(CountRecordsReport):
     def __init__(self, records_by_usetype) -> None:
+        self.by_agency = False
+        self.y_axis_col = "USETYPE"
+        self.y_axis_label = "Use type"
+        self.by_usetype = True
+        self.category_plural = "Use types"
         super().__init__(records_by_usetype)
         if self.content_to_display:
             self.data = records_by_usetype
-            self.by_agency = False
-            self.y_axis_col = "USETYPE"
-            self.y_axis_label = "Use type"
-            self.by_usetype = True
-            self.category_plural = "Use types"
 
 
 class RecordsByAgencyUsetype(CountRecordsReport):
     def __init__(self, records_by_agency_usetype) -> None:
+        self.by_agency = True
+        self.y_axis_col = "agency-use type"
+        self.y_axis_label = "Agency/use type combination"
+        self.by_usetype = True
+        self.category_plural = "Agency-use type combinations"
         super().__init__(records_by_agency_usetype)
         if self.content_to_display:
             self.data = records_by_agency_usetype
             self.data["agency-use type"] = (
                 self.data["AGENCY"] + " - " + self.data["USETYPE"].str.replace("-", "/")
             )
-            self.by_agency = True
-            self.y_axis_col = "agency-use type"
-            self.y_axis_label = "Agency/use type combination"
-            self.by_usetype = True
-            self.category_plural = "Agency-use type combinations"
