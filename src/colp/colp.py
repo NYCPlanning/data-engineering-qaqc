@@ -10,7 +10,7 @@ def colp():
     from src.colp.components.geospatial_check import GeospatialCheck
 
     st.title("City Owned and Leased Properties QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["dev","main"])
+    branch = st.sidebar.selectbox("select a branch", ["dev", "main"])
     st.markdown(
         body="""
         ### About COLP Database
@@ -27,4 +27,3 @@ def colp():
     data = get_data(branch)
     OutlierReport(data=data)()
     GeospatialCheck(data=data)()
-
