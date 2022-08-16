@@ -6,7 +6,10 @@ BUCKET_NAME = "edm-publishing"
 
 def get_data(branch):
     rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-colp/{branch}/latest/output"
+    if branch == "dev":
+        url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-colp/{branch}/latest/output/qaqc"
+    else:
+        url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-colp/{branch}/latest/output"
 
     rv["ipis_cd_errors"] = csv_from_DO(f"{url}/ipis_cd_errors.csv")
     rv["geospatial_check"] = csv_from_DO(f"{url}/geospatial_check.csv")

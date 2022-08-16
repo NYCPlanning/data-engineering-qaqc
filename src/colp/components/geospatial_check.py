@@ -18,11 +18,19 @@ class GeospatialCheck:
         self.display_not_in_nyc(all_records[0])
         self.display_nonmatch(all_records[1])
 
+    def cast_version(self, v):
+        if len(v) == 6:
+            return str(v[:4]) + "-" + str(v[4:])
+
     def display_not_in_nyc(self, records):
         st.markdown("#### Properties That Are Not in NYC Borough Boundaries")
         records = records["result"][0]["values"]
         if records:
             df = pd.DataFrame(records)
+            uid = df["uid"]
+            df = df.drop(columns="uid")
+            df = pd.concat([df, uid], axis=1)
+            df["v"] = df["v"].apply(lambda x: self.cast_version(x))
             st.write(df)
         else:
             st.info("All properties are within NYC Borough Boundaries.")
@@ -36,6 +44,10 @@ class GeospatialCheck:
         records = records["result"][0]["values"]
         if records:
             df = pd.DataFrame(records)
+            uid = df["uid"]
+            df = df.drop(columns="uid")
+            df["v"] = df["v"].apply(lambda x: self.cast_version(x))
+            df = pd.concat([df, uid], axis=1)
             st.write(df)
         else:
             st.info("No inconsistent geographies in the current version.")
