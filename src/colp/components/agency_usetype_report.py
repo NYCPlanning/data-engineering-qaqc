@@ -5,8 +5,11 @@ import plotly.express as px
 
 
 class CountRecordsReport(ABC):
+    def __init__(self, data) -> None:
+        self.content_to_display = False if data is None or data.empty else True
+
     def __call__(self):
-        if self.data is None:
+        if not self.content_to_display:
             st.info(f"No Count of records by {self.y_axis_col}")
             return
         st.subheader(self.title, anchor=self.title_anchor)
@@ -40,32 +43,44 @@ class CountRecordsReport(ABC):
 
 class RecordsByAgency(CountRecordsReport):
     def __init__(self, records_by_agency) -> None:
-        self.data = records_by_agency
+        self.by_agency = True
         self.y_axis_col = "AGENCY"
         self.y_axis_label = "Agency"
-        self.category_plural = "agencies"
+        self.by_usetype = False
+        self.category_plural = "Agencies"
         self.title = "City owned and leased properties by agency"
         self.title_anchor = "count_by_agency"
+        super().__init__(records_by_agency)
+        if self.content_to_display:
+            self.data = records_by_agency
 
 
 class RecordsByUsetype(CountRecordsReport):
     def __init__(self, records_by_usetype) -> None:
-        self.data = records_by_usetype
+        self.by_agency = False
         self.y_axis_col = "USETYPE"
         self.y_axis_label = "Use type"
-        self.category_plural = "use types"
+        self.by_usetype = True
+        self.category_plural = "Use types"
         self.title = "City owned and leased properties by usetype"
         self.title_anchor = "count_by_usetype"
+        super().__init__(records_by_usetype)
+        if self.content_to_display:
+            self.data = records_by_usetype
 
 
 class RecordsByAgencyUsetype(CountRecordsReport):
     def __init__(self, records_by_agency_usetype) -> None:
-        self.data = records_by_agency_usetype
-        self.data["agency-use type"] = (
-            self.data["AGENCY"] + " - " + self.data["USETYPE"].str.replace("-", "/")
-        )
+        self.by_agency = True
         self.y_axis_col = "agency-use type"
         self.y_axis_label = "Agency/use type combination"
-        self.category_plural = "agency/use type combinations"
+        self.by_usetype = True
         self.title = "City owned and leased properties by agency and usetype"
         self.title_anchor = "count_by_agency_usetype"
+        self.category_plural = "Agency-use type combinations"
+        super().__init__(records_by_agency_usetype)
+        if self.content_to_display:
+            self.data = records_by_agency_usetype
+            self.data["agency-use type"] = (
+                self.data["AGENCY"] + " - " + self.data["USETYPE"].str.replace("-", "/")
+            )
