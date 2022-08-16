@@ -597,7 +597,7 @@ def pluto():
 
             info_dict = {
                 "building_area_increase": "The table displays all BBLs where building area is more than doubled since previous version.",
-                "unitsres_resarea": "The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.",
+                "unitsres_resarea": "The table displays all BBLs where unitsres is more than 50 and resarea is greater than 0 but the ratio of resarea:unitsres is less than 300.",
                 "lotarea_numfloor": "The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.",
             }
 
