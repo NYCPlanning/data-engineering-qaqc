@@ -45,7 +45,6 @@ def colp():
     GeospatialCheck(data=data)()
 
     usetype_changes = data["usetype_changes"]
-    # usetype_changes = None
     if usetype_changes is None:
         version_for_comparison = None
     else:
