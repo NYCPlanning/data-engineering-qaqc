@@ -302,10 +302,10 @@ def pluto():
             )
 
         def create_null(df_null, v1, v2, v3, condo, mapped):
+            excluded = df_null.loc[:, (df_null == 0).all()].columns.to_list()
+            excluded.remove('zonedist4')
+            excluded.remove('spdist3')
             x = [
-                "borough",
-                "block",
-                "lot",
                 "cd",
                 # "bct2020",
                 # "bctcb2020",
@@ -369,11 +369,6 @@ def pluto():
                 "histdist",
                 "landmark",
                 "builtfar",
-                "residfar",
-                "commfar",
-                "facilfar",
-                "borocode",
-                "bbl",
                 "condono",
                 "tract2010",
                 "xcoord",
@@ -387,8 +382,6 @@ def pluto():
                 "edesignum",
                 "appbbl",
                 "appdate",
-                "plutomapid",
-                "version",
                 "sanitdistrict",
                 "healthcenterdistrict",
                 "firm07_flag",
@@ -413,6 +406,7 @@ def pluto():
                 & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
                 :,
             ].drop_duplicates()
+            df = df.loc[:, ~df.columns.isin(excluded)]
 
             v1v2 = df.loc[df_null.pair == f"{v1} - {v2}", :]
             v2v3 = df.loc[df_null.pair == f"{v2} - {v3}", :]
@@ -434,6 +428,7 @@ def pluto():
             fig.update_layout(
                 title="Null graph", template="plotly_white", colorway=COLOR_SCHEME
             )
+            
             st.plotly_chart(fig)
             st.info(
                 """
