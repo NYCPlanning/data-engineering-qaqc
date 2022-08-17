@@ -44,6 +44,4 @@ def colp():
     OutlierReport(data=data)()
     GeospatialCheck(data=data)()
 
-    version = st.sidebar.selectbox("Select a Version for Comparison", ["2022/06/16"])
-
-    UsetypeVersionComparisonReport(data=data, version=version)()
+    UsetypeVersionComparisonReport(data=data)()

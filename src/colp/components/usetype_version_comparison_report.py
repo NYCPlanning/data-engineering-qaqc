@@ -9,13 +9,19 @@ import pdb
 
 
 class UsetypeVersionComparisonReport:
-    def __init__(self, data, version):
+    def __init__(self, data):
         self.usetype_changes = data["usetype_changes"]
-        self.version = version
 
     def __call__(self):
         st.subheader("Usetype Version Comparison")
 
+        if self.usetype_changes is None:
+            st.info("There is no usetype version comparison report for this branch.")
+            return
+
+        self.version = st.sidebar.selectbox(
+            "Select a Version for Comparison", self.usetype_changes.v_current.unique()
+        )
         self.current_usetype_changes = self.filter_by_version(
             self.usetype_changes, self.version
         )
