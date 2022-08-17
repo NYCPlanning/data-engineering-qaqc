@@ -19,13 +19,8 @@ class MismatchReport:
         v1v2 = self.filter_by_version(df, f"{self.v1} - {self.v2}")
         v2v3 = self.filter_by_version(df, f"{self.v2} - {self.v3}")
 
-        for group in self.groups():
-            fig = self.generate_graph(v1v2, v2v3, group["columns"])
-            fig.update_layout(
-                title=group["title"], template="plotly_white", colorway=COLOR_SCHEME
-            )
-            st.plotly_chart(fig)
-            st.info(group["description"])
+        for group in self.get_groups():
+            self.display_graph(v1v2, v2v3, group)
 
         st.subheader("Summary of Differences by Field")
         st.write(df)
@@ -34,6 +29,33 @@ class MismatchReport:
             This table reports the number of records with differences in a field value between versions. 
             This table is useful for digging into any anomalies identified using the graphs above.
         """
+        )
+
+    def display_graph(self, v1v2, v2v3, group):
+        fig = go.Figure()
+
+        fig.add_trace(self.generate_version_trace(v1v2, group["columns"]))
+        fig.add_trace(self.generate_version_trace(v2v3, group["columns"]))
+
+        fig.update_layout(
+            title=group["title"], template="plotly_white", colorway=COLOR_SCHEME
+        )
+
+        st.plotly_chart(fig)
+        st.info(group["description"])
+
+    def generate_version_trace(self, df, columns):
+        group_df = self.filter_by_columns(df, columns)
+
+        hovertemplate = "<b>%{x} %{text}</b>"
+
+        return go.Scatter(
+            x=group_df.index,
+            y=group_df.totals,
+            mode="lines",
+            name=df["pair"].iloc[0],
+            hovertemplate=hovertemplate,
+            text=group_df.text,
         )
 
     def filter_by_options(self):
@@ -51,14 +73,6 @@ class MismatchReport:
     def filter_by_version(self, df, version_pair):
         return df.loc[df.pair == version_pair, :]
 
-    def generate_graph(self, v1v2, v2v3, columns):
-        fig = go.Figure()
-
-        fig.add_trace(self.generate_graph_data(v1v2, columns))
-        fig.add_trace(self.generate_graph_data(v2v3, columns))
-
-        return fig
-
     def total(self, df):
         return df["total"].iloc[0]
 
@@ -68,22 +82,59 @@ class MismatchReport:
 
         return new_df
 
-    def generate_graph_data(self, df, columns):
-        group_df = self.filter_by_columns(df, columns)
+    def get_groups(self):
+        return [
+            {
+                "title": "Mismatch graph -- finance fields",
+                "columns": self.get_finance_columns(),
+                "description": """
+                    DOF updates the assessment and exempt values twice a year. 
+                    The tentative tax roll is released in mid-January and the final tax roll is released in late May. 
+                    We expect the values of the fields in the above graph to change in versions of PLUTO created after the release of the tentative or final roll. 
+                    For the PLUTO version created right after the tentative roll, most lots will show a change in assesstot, with a smaller number of changes for the assessland and exempttot.
+                    There will also be changes to these fields in the version created after the release of the final roll. 
+                    Versions created between roll releases should see almost no change for these fields.
+                """,
+            },
+            {
+                "title": "Mismatch graph -- area fields",
+                "columns": self.get_area_columns(),
+                "description": """
+                    CAMA is the primary source for the area fields. Updates reflect new construction, as well as updates by assessors for the tentative roll. 
+                    Several thousand lots may have updates in the version created after the tentative tax roll.
+                """,
+            },
+            {
+                "title": "Mismatch graph -- zoning fields",
+                "columns": self.get_zoning_columns(),
+                "description": """
+                Unless DCP does a major rezoning, the number of lots with changed values should be **no more than a couple of hundred**.
+                Lots may get a changed value due to a split/merge or if TRD is cleaning up boundaries between zoning districts.
+                `Residfar`, `commfar`, and `facilfar` should change only when there is a change to `zonedist1` or `overlay1`.
+            """,
+            },
+            {
+                "title": "Mismatch graph -- geo fields",
+                "columns": self.get_geo_columns(),
+                "description": """
+                These fields are updated from **Geosupport**. Changes should be minimal unless a municipal service
+                area changes or more high-rise buildings opt into the composite recycling program.
+                Check with GRU if more than a small number of lots have changes to municipal service areas.
+            """,
+            },
+            {
+                "title": "Mismatch graph -- building fields",
+                "columns": self.get_bldg_columns(),
+                "description": """
+                    Changes in these fields are most common after the tentative roll has been released. 
+                    Several fields in this group are changed by DCP to improve data quality, including ownername and yearbuilt. 
+                    When these changes are first applied, there will be a spike in the number of lots changed.
+                """,
+            },
+        ]
 
-        hovertemplate = "<b>%{x} %{text}</b>"
-
-        return go.Scatter(
-            x=group_df.index,
-            y=group_df.totals,
-            mode="lines",
-            name=df["pair"].iloc[0],
-            hovertemplate=hovertemplate,
-            text=group_df.text,
-        )
-
-    def groups(self):
-        finance_columns = [
+    def get_finance_columns(self):
+        return [
             "assessland",
             "assesstot",
             "exempttot",
@@ -93,7 +144,8 @@ class MismatchReport:
             "plutomapid",
         ]
 
-        area_columns = [
+    def get_area_columns(self):
+        return [
             "lotarea",
             "bldgarea",
             "builtfar",
@@ -108,7 +160,8 @@ class MismatchReport:
             "areasource",
         ]
 
-        zoning_columns = [
+    def get_zoning_columns(self):
+        return [
             "residfar",
             "commfar",
             "facilfar",
@@ -128,7 +181,8 @@ class MismatchReport:
             "edesignum",
         ]
 
-        geo_columns = [
+    def get_geo_columns(self):
+        return [
             "cd",
             # "bct2020",
             # "bctcb2020",
@@ -159,7 +213,8 @@ class MismatchReport:
             "pfirm15_flag",
         ]
 
-        bldg_columns = [
+    def get_bldg_columns(self):
+        return [
             "bldgclass",
             "landuse",
             "easements",
@@ -183,54 +238,4 @@ class MismatchReport:
             "yearalter2",
             "landmark",
             "condono",
-        ]
-
-        return [
-            {
-                "title": "Mismatch graph -- finance fields",
-                "columns": finance_columns,
-                "description": """
-                    DOF updates the assessment and exempt values twice a year. 
-                    The tentative tax roll is released in mid-January and the final tax roll is released in late May. 
-                    We expect the values of the fields in the above graph to change in versions of PLUTO created after the release of the tentative or final roll. 
-                    For the PLUTO version created right after the tentative roll, most lots will show a change in assesstot, with a smaller number of changes for the assessland and exempttot.
-                    There will also be changes to these fields in the version created after the release of the final roll. 
-                    Versions created between roll releases should see almost no change for these fields.
-                """,
-            },
-            {
-                "title": "Mismatch graph -- area fields",
-                "columns": area_columns,
-                "description": """
-                    CAMA is the primary source for the area fields. Updates reflect new construction, as well as updates by assessors for the tentative roll. 
-                    Several thousand lots may have updates in the version created after the tentative tax roll.
-                """,
-            },
-            {
-                "title": "Mismatch graph -- zoning fields",
-                "columns": zoning_columns,
-                "description": """
-                Unless DCP does a major rezoning, the number of lots with changed values should be **no more than a couple of hundred**.
-                Lots may get a changed value due to a split/merge or if TRD is cleaning up boundaries between zoning districts.
-                `Residfar`, `commfar`, and `facilfar` should change only when there is a change to `zonedist1` or `overlay1`.
-            """,
-            },
-            {
-                "title": "Mismatch graph -- geo fields",
-                "columns": geo_columns,
-                "description": """
-                These fields are updated from **Geosupport**. Changes should be minimal unless a municipal service
-                area changes or more high-rise buildings opt into the composite recycling program.
-                Check with GRU if more than a small number of lots have changes to municipal service areas.
-            """,
-            },
-            {
-                "title": "Mismatch graph -- building fields",
-                "columns": bldg_columns,
-                "description": """
-                    Changes in these fields are most common after the tentative roll has been released. 
-                    Several fields in this group are changed by DCP to improve data quality, including ownername and yearbuilt. 
-                    When these changes are first applied, there will be a spike in the number of lots changed.
-                """,
-            },
         ]
