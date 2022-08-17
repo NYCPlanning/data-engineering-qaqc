@@ -23,7 +23,10 @@ class GeospatialCheck:
             return str(v[:4]) + "-" + str(v[4:])
 
     def display_not_in_nyc(self, records):
-        st.markdown("#### Properties That Are Not in NYC Borough Boundaries")
+        st.subheader("Properties That Are Not in NYC Borough Boundaries")
+        st.markdown(
+            "We want to check if there is any property that is located outside NYC Borough Boundaries (water included)."
+        )
         records = records["result"][0]["values"]
         if records:
             df = pd.DataFrame(records)
@@ -36,7 +39,7 @@ class GeospatialCheck:
             st.info("All properties are within NYC Borough Boundaries.")
 
     def display_nonmatch(self, records):
-        st.markdown("#### Properties That Have Inconsistent Geographies")
+        st.subheader("Properties That Have Inconsistent Geographies")
         st.markdown(
             "We want to check whether the geocoded results lined up with other geography attributes in the data products.\
         The Borocode is checked against both Community District and BBL."
