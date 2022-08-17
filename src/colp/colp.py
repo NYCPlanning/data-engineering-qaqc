@@ -13,9 +13,7 @@ def colp():
     from src.colp.components.outlier_report import OutlierReport
 
     st.title("City Owned and Leased Properties QAQC")
-    branch = st.sidebar.selectbox(
-        "select a branch", ["main", "212-Records-by-Agency-Usetype"]
-    )
+    branch = st.sidebar.selectbox("select a branch", ["dev"])
     st.markdown(
         body="""
         ### About COLP Database
