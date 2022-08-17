@@ -591,13 +591,13 @@ def pluto():
             version_pair = f"{v1}-{v2}"
             markdown_dict = {
                 "building_area_increase": f"### Table of BBLs with Unreasonable Increase in Building Area {version_pair}",
-                "unitsres_resarea": f"### Table of BBLs with 50+ unitsres and resarea/unitsres < 300",
+                "unitsres_resarea": f"### Report of BBLs with buildings containing unreasonably small apartments",
                 "lotarea_numfloor": f"### Table of BBLs where bldgarea/lotarea > numfloors*2",
             }
 
             info_dict = {
                 "building_area_increase": "The table displays all BBLs where building area is more than doubled since previous version.",
-                "unitsres_resarea": "The table displays all BBLs where unitsres is more than 50 but the ratio of resarea:unitsres is less than 300.",
+                "unitsres_resarea": "The table displays all BBLs where unitsres is more than 50 and resarea is greater than 0 but the ratio of resarea:unitsres is less than 300.",
                 "lotarea_numfloor": "The table displays all BBLs where the ratio of bldgarea:lotarea is more than twice numfloors.",
             }
 
@@ -606,6 +606,7 @@ def pluto():
                 if df.empty:
                     st.markdown(markdown_dict[field])
                     st.write("There is no outlier.")
+                    st.info(info_dict[field])
                 else:
                     st.markdown(markdown_dict[field])
                     AgGrid(df)
