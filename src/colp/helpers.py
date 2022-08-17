@@ -14,8 +14,8 @@ def get_data(branch):
     rv["records_by_agency_usetype"] = csv_from_DO(
         f"{url}/records_by_agency_usetype.csv"
     )
-
     rv["ipis_cd_errors"] = csv_from_DO(f"{url}/ipis_cd_errors.csv")
+    rv["geospatial_check"] = csv_from_DO(f"{url}/geospatial_check.csv")
     return rv
 
 
