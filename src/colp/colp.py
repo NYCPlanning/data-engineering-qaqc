@@ -45,9 +45,13 @@ def colp():
     GeospatialCheck(data=data)()
 
     usetype_changes = data["usetype_changes"]
-    version_for_comparison = st.sidebar.selectbox(
-        "Select a Version for Comparison", usetype_changes.v_current.unique()
-    )
+    # usetype_changes = None
+    if usetype_changes is None:
+        version_for_comparison = None
+    else:
+        version_for_comparison = st.sidebar.selectbox(
+            "Select a Version for Comparison", usetype_changes.v_current.unique()
+        )
     UsetypeVersionComparisonReport(
         usetype_changes=usetype_changes, version=version_for_comparison
     )()
