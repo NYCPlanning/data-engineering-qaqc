@@ -302,10 +302,11 @@ def pluto():
             )
 
         def create_null(df_null, v1, v2, v3, condo, mapped):
-            excluded = df_null.loc[:, (df_null == 0).all()].columns.to_list()
-            excluded.remove('zonedist4')
-            excluded.remove('spdist3')
+            st.subheader("Null Graph")
             x = [
+                "borough",
+                "block",
+                "lot",
                 "cd",
                 # "bct2020",
                 # "bctcb2020",
@@ -369,6 +370,11 @@ def pluto():
                 "histdist",
                 "landmark",
                 "builtfar",
+                "residfar",
+                "commfar",
+                "facilfar",
+                "borocode",
+                "bbl",
                 "condono",
                 "tract2010",
                 "xcoord",
@@ -382,23 +388,64 @@ def pluto():
                 "edesignum",
                 "appbbl",
                 "appdate",
+                "plutomapid",
+                "version",
                 "sanitdistrict",
                 "healthcenterdistrict",
                 "firm07_flag",
                 "pfirm15_flag",
             ]
 
-            def generate_graph(r, total, title):
-                y = [r[i] for i in x]
-                text = [f"{round(r[i]/total*100, 2)}%" for i in x]
-                return go.Scatter(
-                    x=x,
-                    y=y,
-                    mode="lines",
-                    name=title,
-                    hovertemplate="<b>%{x} %{text}</b>",
-                    text=text,
+            field_range = st.slider(
+                "Select a range of values",
+                min_value=0,
+                max_value=len(x),
+                value=[0, 12],
+            )
+
+            def sort_and_filter_df(df, range):
+                df = df[["pair"] + df.columns.tolist()[range[0] + 1 : range[1] + 1]]
+                df_transformed = (
+                    df.set_index("pair")
+                    .stack()
+                    .reset_index()
+                    .rename(
+                        columns={"pair": "version", "level_1": "field", 0: "change"}
+                    )
+                    .sort_values(by="change", ascending=False)
                 )
+                return df_transformed
+
+            def display_graph(df_transformed, range, grouped=True):
+                if grouped:
+                    fig1 = px.bar(
+                        data_frame=df_transformed,
+                        y="change",
+                        x="field",
+                        barmode="group",
+                        color="version",
+                        color_discrete_sequence=COLOR_SCHEME,
+                        height=400,
+                        width=850,
+                        text_auto=True,
+                        title="Null Graph",
+                    )
+                    fig1.update_layout(legend_title_text="Version")
+                else:
+                    fig1 = px.bar(
+                        data_frame=df_transformed,
+                        y="change",
+                        x="field",
+                        color_discrete_sequence=COLOR_SCHEME,
+                        height=400,
+                        width=850,
+                        text_auto=True,
+                        title="Null Graph",
+                    )
+                fig1.update_xaxes(title="Field")
+                fig1.update_yaxes(title="Change in Null")
+
+                st.plotly_chart(fig1)
 
             df = df_null.loc[
                 (df_null.condo == condo)
@@ -406,30 +453,24 @@ def pluto():
                 & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
                 :,
             ].drop_duplicates()
-            df = df.loc[:, ~df.columns.isin(excluded)]
 
-            v1v2 = df.loc[df_null.pair == f"{v1} - {v2}", :]
-            v2v3 = df.loc[df_null.pair == f"{v2} - {v3}", :]
+            df_transformed = df.drop(columns=["condo", "mapped", "total"])
+            df_transformed = sort_and_filter_df(df_transformed, field_range)
 
-            fig = go.Figure()
-            if v1v2.empty and v2v3.empty:
+            v1v2 = f"{v1} - {v2}" in df_transformed.version.unique()
+            v2v3 = f"{v2} - {v3}" in df_transformed.version.unique()
+
+            if not (v1v2 or v2v3):
                 st.write("Null Graph")
                 st.info("There is no change in NULL values across three versions.")
                 return
-            if not v1v2.empty:
-                v1v2 = v1v2.to_dict("records")[0]
-                v1v2_total = v1v2.pop("total")
-                fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
-            if not v2v3.empty:
-                v2v3 = v2v3.to_dict("records")[0]
-                v2v3_total = v2v3.pop("total")
-                fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
+            if v1v2 and not v2v3:
+                display_graph(df_transformed, field_range, False)
+            elif v2v3 and not v1v2:
+                display_graph(df_transformed, field_range, False)
+            else:
+                display_graph(df_transformed, field_range, True)
 
-            fig.update_layout(
-                title="Null graph", template="plotly_white", colorway=COLOR_SCHEME
-            )
-            
-            st.plotly_chart(fig)
             st.info(
                 """
                 The above graph highlights records that formerly had a value and are now NULL, or vice versa.
