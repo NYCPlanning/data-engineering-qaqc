@@ -3,7 +3,7 @@ import pandas as pd
 import pdb
 
 
-class ExpectedReport:
+class ExpectedValueDifferencesReport:
     def __init__(self, data, v1, v2):
         self.df = data
         self.v1 = v1

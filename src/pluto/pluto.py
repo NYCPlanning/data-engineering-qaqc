@@ -17,7 +17,9 @@ def pluto():
     from src.pluto.components.source_data_versions_report import (
         SourceDataVersionsReport,
     )
-    from src.pluto.components.expected_report import ExpectedReport
+    from src.pluto.components.expected_value_differences_report import (
+        ExpectedValueDifferencesReport,
+    )
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -381,7 +383,7 @@ def pluto():
 
         SourceDataVersionsReport(version_text=data["version_text"])()
 
-        ExpectedReport(data=data["df_expected"], v1=v1, v2=v2)()
+        ExpectedValueDifferencesReport(data=data["df_expected"], v1=v1, v2=v2)()
 
         # OUTLIER VALUE
         st.header("OUTLIER ANALYSIS")
