@@ -35,20 +35,7 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
         kwargs={"converters": {"outlier": json.loads}} | kwargs,
     )
 
-    pluto_corrections_zip = client.zip_from_DO(
-        zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
-    )
-
-    rv["pluto_corrections"] = client.unzip_csv(
-        csv_filename="pluto_corrections.csv", zipfile=pluto_corrections_zip
-    )
-
-    rv["pluto_corrections_applied"] = client.unzip_csv(
-        csv_filename="pluto_corrections_applied.csv", zipfile=pluto_corrections_zip
-    )
-    rv["pluto_corrections_not_applied"] = client.unzip_csv(
-        csv_filename="pluto_corrections_not_applied.csv", zipfile=pluto_corrections_zip
-    )
+    rv = rv | get_corrections(client, branch)
 
     source_data_versions = client.csv_from_DO(url=f"{url}/source_data_versions.csv")
 
@@ -72,6 +59,26 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
         Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
         Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
     """
+
+    return rv
+
+
+def get_corrections(client, branch):
+    rv = {}
+    pluto_corrections_zip = client.zip_from_DO(
+        zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
+    )
+
+    rv["pluto_corrections"] = client.unzip_csv(
+        csv_filename="pluto_corrections.csv", zipfile=pluto_corrections_zip
+    )
+
+    rv["pluto_corrections_applied"] = client.unzip_csv(
+        csv_filename="pluto_corrections_applied.csv", zipfile=pluto_corrections_zip
+    )
+    rv["pluto_corrections_not_applied"] = client.unzip_csv(
+        csv_filename="pluto_corrections_not_applied.csv", zipfile=pluto_corrections_zip
+    )
 
     return rv
 
