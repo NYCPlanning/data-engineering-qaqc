@@ -25,8 +25,16 @@ class DigitalOceanClient:
     def bucket_is_public(self):
         return self.bucket_name == "edm-publishing"
 
-    def get_folders(self):
+    def get_repo(self):
         return self.bucket().objects.filter(Prefix=f"{self.repo_name}/")
+
+    def get_all_folders_in_repo(self):
+        all_folders = set()
+
+        for obj in self.get_repo():
+            all_folders.add(obj._key.split("/")[1])
+
+        return all_folders
 
     def unzip_csv(self, csv_filename, zipfile):
         try:
@@ -35,16 +43,18 @@ class DigitalOceanClient:
         except:
             return None
 
-    def unzip_shapefile(self, table, zipfile):
+    def shapefile_from_DO(self, shapefile_zip):
         try:
-            with zipfile as zf:
-                time = str(datetime.now().timestamp)
-                zf.extractall(path=f".library/{time}/{table}/")
-                gdf = gpd.read_file(f".library/{time}/{table}/{table}.shp")
-                shutil.rmtree(path=f".library/{time}")
-                return gdf
+            zip_obj = self.s3_resource.Object(
+                bucket_name=self.bucket_name, key=shapefile_zip
+            )
+            buffer = BytesIO(zip_obj.get()["Body"].read())
+
+            return gpd.read_file(buffer)
         except:
-            return None
+            st.info(
+                f"There was an issue downloading {shapefile_zip} from Digital Ocean"
+            )
 
     def get_s3_resource(self):
         return boto3.resource(
@@ -61,7 +71,7 @@ class DigitalOceanClient:
             else:
                 return self.private_csv_from_DO(url, kwargs)
         except:
-            return None
+            st.info(f"There was an issue downloading {url} from Digital Ocean.")
 
     def public_csv_from_DO(self, url, kwargs):
         return pd.read_csv(url, **kwargs)

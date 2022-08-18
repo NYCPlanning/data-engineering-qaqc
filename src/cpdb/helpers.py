@@ -27,13 +27,10 @@ where would this list comes from? """
 def get_geometries(branch, table) -> dict:
     client = digital_ocean_client()
 
-    points_zip = client.zip_from_DO(
-        zip_filename=f"db-cpdb/{branch}/latest/output/{table}.shp.zip"
+    gdf = client.shapefile_from_DO(
+        shapefile_zip=f"db-cpdb/{branch}/latest/output/{table}.shp.zip"
     )
-    gdf = client.unzip_shapefile(
-        zipfile=points_zip,
-        table=table,
-    )
+
     return gdf
 
 

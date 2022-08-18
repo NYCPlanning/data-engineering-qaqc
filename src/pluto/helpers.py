@@ -17,8 +17,8 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output"
 
     client = digital_ocean_client()
-
     kwargs = {"true_values": ["t"], "false_values": ["f"]}
+
     rv["df_mismatch"] = client.csv_from_DO(
         url=f"{url}/qaqc/qaqc_mismatch.csv", kwargs=kwargs
     )
@@ -77,10 +77,8 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
 
 
 def get_branches():
-    all_branches = set()
+    all_branches = digital_ocean_client().get_all_folders_in_repo()
 
-    for obj in digital_ocean_client().get_folders():
-        all_branches.add(obj._key.split("/")[1])
     rv = blacklist_branches(all_branches)
     return rv
 
