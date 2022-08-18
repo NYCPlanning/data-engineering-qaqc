@@ -480,11 +480,11 @@ def pluto():
 
         create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
+        create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
+
         NullReport(
             data=data["df_null"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
         )()
-
-        create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
 
         st.header("Source Data Versions")
         code = st.checkbox("code")

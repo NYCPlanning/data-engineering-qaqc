@@ -17,7 +17,49 @@ class NullReport:
 
     def __call__(self):
         st.subheader("Null Graph")
-        x = [
+        field_range = st.slider(
+            "Select a range of values",
+            min_value=0,
+            max_value=len(self.fields),
+            value=[0, 12],
+        )
+
+        df = self.df_null
+        df = df.loc[
+            (df.condo == self.condo)
+            & (df.mapped == self.mapped)
+            & (df.pair.isin([f"{self.v1} - {self.v2}", f"{self.v2} - {self.v3}"])),
+            :,
+        ].drop_duplicates()
+
+        df_transformed = df.drop(columns=["condo", "mapped", "total"])
+        df_transformed = self.sort_and_filter_df(df_transformed, field_range)
+
+        v1v2 = f"{self.v1} - {self.v2}" in df_transformed.version.unique()
+        v2v3 = f"{self.v2} - {self.v3}" in df_transformed.version.unique()
+
+        if not (v1v2 or v2v3):
+            st.write("Null Graph")
+            st.info("There is no change in NULL values across three versions.")
+            return
+        if v1v2 and not v2v3:
+            self.display_graph(df_transformed, False)
+        elif v2v3 and not v1v2:
+            self.display_graph(df_transformed, False)
+        else:
+            self.display_graph(df_transformed, True)
+
+        st.info(
+            """
+                The above graph highlights records that formerly had a value and are now NULL, or vice versa.
+                The number records going from NULL to not NULL or vice versa should be small for any field.
+            """
+        )
+        st.write(df)
+
+    @property
+    def fields(self):
+        return [
             "borough",
             "block",
             "lot",
@@ -110,83 +152,34 @@ class NullReport:
             "pfirm15_flag",
         ]
 
-        field_range = st.slider(
-            "Select a range of values",
-            min_value=0,
-            max_value=len(x),
-            value=[0, 12],
-        )
-
-        df = self.df_null
-        df = df.loc[
-            (df.condo == self.condo)
-            & (df.mapped == self.mapped)
-            & (df.pair.isin([f"{self.v1} - {self.v2}", f"{self.v2} - {self.v3}"])),
-            :,
-        ].drop_duplicates()
-
-        df_transformed = df.drop(columns=["condo", "mapped", "total"])
-        df_transformed = self.sort_and_filter_df(df_transformed, field_range)
-
-        v1v2 = f"{self.v1} - {self.v2}" in df_transformed.version.unique()
-        v2v3 = f"{self.v2} - {self.v3}" in df_transformed.version.unique()
-
-        if not (v1v2 or v2v3):
-            st.write("Null Graph")
-            st.info("There is no change in NULL values across three versions.")
-            return
-        if v1v2 and not v2v3:
-            self.display_graph(df_transformed, field_range, False)
-        elif v2v3 and not v1v2:
-            self.display_graph(df_transformed, field_range, False)
-        else:
-            self.display_graph(df_transformed, field_range, True)
-
-        st.info(
-            """
-                The above graph highlights records that formerly had a value and are now NULL, or vice versa.
-                The number records going from NULL to not NULL or vice versa should be small for any field.
-            """
-        )
-        st.write(df)
-
     def sort_and_filter_df(self, df, range):
         df = df[["pair"] + df.columns.tolist()[range[0] + 1 : range[1] + 1]]
-        df_transformed = (
-            df.set_index("pair")
-            .stack()
-            .reset_index()
-            .rename(columns={"pair": "version", "level_1": "field", 0: "change"})
-            .sort_values(by="change", ascending=False)
+        df_transformed = df.set_index("pair").stack().reset_index()
+        df_transformed.rename(
+            columns={"pair": "version", "level_1": "field", 0: "change"}, inplace=True
         )
+        df_transformed.sort_values(by="change", ascending=False, inplace=True)
+
         return df_transformed
 
-    def display_graph(self, df_transformed, range, grouped=True):
+    def display_graph(self, df_transformed, grouped=True):
+        kwargs_dict = {
+            "data_frame": df_transformed,
+            "y": "change",
+            "x": "field",
+            "color_discrete_sequence": COLOR_SCHEME,
+            "height": 400,
+            "width": 850,
+            "text_auto": True,
+            "title": "Null Graph",
+        }
         if grouped:
-            fig1 = px.bar(
-                data_frame=df_transformed,
-                y="change",
-                x="field",
-                barmode="group",
-                color="version",
-                color_discrete_sequence=COLOR_SCHEME,
-                height=400,
-                width=850,
-                text_auto=True,
-                title="Null Graph",
-            )
+            kwargs_dict["barmode"] = "group"
+            kwargs_dict["color"] = "version"
+            fig1 = px.bar(**kwargs_dict)
             fig1.update_layout(legend_title_text="Version")
         else:
-            fig1 = px.bar(
-                data_frame=df_transformed,
-                y="change",
-                x="field",
-                color_discrete_sequence=COLOR_SCHEME,
-                height=400,
-                width=850,
-                text_auto=True,
-                title="Null Graph",
-            )
+            fig1 = px.bar(**kwargs_dict)
         fig1.update_xaxes(title="Field")
         fig1.update_yaxes(title="Change in Null")
 
