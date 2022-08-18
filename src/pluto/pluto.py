@@ -14,7 +14,9 @@ def pluto():
     from src.constants import COLOR_SCHEME
     from src.pluto.components.corrections_report import CorrectionsReport
     from src.pluto.components.mismatch_report import MismatchReport
-
+    from src.pluto.components.source_data_versions_report import (
+        SourceDataVersionsReport,
+    )
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -415,13 +417,7 @@ def pluto():
 
         create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
 
-        st.header("Source Data Versions")
-        code = st.checkbox("code")
-        if code:
-            st.code(data["version_text"])
-        else:
-            st.markdown(data["version_text"])
-
+        SourceDataVersionsReport(version_text=data["version_text"])()
         # EXPECTED VALUE
         st.header("Expected Value Comparison")
         st.write(
