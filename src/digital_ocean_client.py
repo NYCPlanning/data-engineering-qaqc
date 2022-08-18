@@ -17,21 +17,32 @@ class DigitalOceanClient:
     def __init__(self, bucket_name, repo_name):
         self.bucket_name = bucket_name
         self.repo_name = repo_name
-        self.s3_resource = self.get_s3_resource()
 
+    @property
     def bucket(self):
         return self.s3_resource.Bucket(self.bucket_name)
 
+    @property
     def bucket_is_public(self):
         return self.bucket_name == "edm-publishing"
 
-    def get_repo(self):
-        return self.bucket().objects.filter(Prefix=f"{self.repo_name}/")
+    @property
+    def repo(self):
+        return self.bucket.objects.filter(Prefix=f"{self.repo_name}/")
+
+    @property
+    def s3_resource(self):
+        return boto3.resource(
+            "s3",
+            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
+        )
 
     def get_all_folders_in_repo(self):
         all_folders = set()
 
-        for obj in self.get_repo():
+        for obj in self.repo:
             all_folders.add(obj._key.split("/")[1])
 
         return all_folders
@@ -56,17 +67,9 @@ class DigitalOceanClient:
                 f"There was an issue downloading {shapefile_zip} from Digital Ocean"
             )
 
-    def get_s3_resource(self):
-        return boto3.resource(
-            "s3",
-            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-            endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
-        )
-
     def csv_from_DO(self, url, kwargs={}):
         try:
-            if self.bucket_is_public():
+            if self.bucket_is_public:
                 return self.public_csv_from_DO(url, kwargs)
             else:
                 return self.private_csv_from_DO(url, kwargs)
