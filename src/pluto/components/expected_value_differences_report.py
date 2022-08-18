@@ -10,7 +10,6 @@ class ExpectedValueDifferencesReport:
         self.v2 = v2
 
     def __call__(self):
-        # EXPECTED VALUE
         st.header("Expected Value Comparison")
         st.write(
             """
