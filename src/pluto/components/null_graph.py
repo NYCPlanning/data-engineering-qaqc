@@ -19,9 +19,9 @@ class NullReport:
         st.subheader("Null Graph")
         field_range = st.slider(
             "Select which fields to display (ranked from most to least nulls)",
-            min_value=0,
+            min_value=1,
             max_value=len(self.fields),
-            value=[0, 12],
+            value=[1, 12],
         )
 
         df = self.df_null
@@ -160,7 +160,7 @@ class NullReport:
         ]
 
     def sort_and_filter_df(self, df, range, fields):
-        selected = fields[range[0] : range[1]]
+        selected = fields[range[0]-1 : range[1]]
         df = df[["pair"] + selected]
         df_transformed = df.set_index("pair").stack().reset_index()
         df_transformed.rename(
