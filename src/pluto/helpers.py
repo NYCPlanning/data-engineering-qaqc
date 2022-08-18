@@ -37,28 +37,11 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
 
     rv = rv | get_corrections(client, branch)
 
-    source_data_versions = client.csv_from_DO(url=f"{url}/source_data_versions.csv")
+    rv["source_data_versions"] = client.csv_from_DO(
+        url=f"{url}/source_data_versions.csv"
+    )
 
-    rv["source_data_version"] = source_data_versions
-    sdv = source_data_versions.to_dict("records")
-    version = {}
-    for i in sdv:
-        version[i["schema_name"]] = i["v"]
-    rv[
-        "version_text"
-    ] = f"""
-        Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***  
-        Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
-        Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcp_colp'])}***  
-        Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***  
-        Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries_wi'])}***  
-        Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries_wi'])}***  
-        Department of Finance – Digital Tax Map (DTM): ***{convert(version['dof_dtm'])}***  
-        Department of Finance – Mass Appraisal System (CAMA): ***{convert(version['pluto_input_cama_dof'])}***  
-        Department of Finance – Property Tax System (PTS): ***{convert(version['pluto_pts'])}***  
-        Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
-        Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
-    """
+    rv["version_text"] = get_version_text(rv["source_data_versions"])
 
     return rv
 
@@ -81,6 +64,26 @@ def get_corrections(client, branch):
     )
 
     return rv
+
+
+def get_version_text(source_data_versions):
+    sdv = source_data_versions.to_dict("records")
+    version = {}
+    for i in sdv:
+        version[i["schema_name"]] = i["v"]
+    return f"""
+        Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***  
+        Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
+        Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcp_colp'])}***  
+        Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***  
+        Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries_wi'])}***  
+        Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries_wi'])}***  
+        Department of Finance – Digital Tax Map (DTM): ***{convert(version['dof_dtm'])}***  
+        Department of Finance – Mass Appraisal System (CAMA): ***{convert(version['pluto_input_cama_dof'])}***  
+        Department of Finance – Property Tax System (PTS): ***{convert(version['pluto_pts'])}***  
+        Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
+        Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
+    """
 
 
 def get_branches():
