@@ -42,9 +42,9 @@ class ManualCorrection:
             )
             st.subheader("Numbers of Manual Corrections Not Applied By Field")
             st.write(count2)
-            not_applied = not_applied.sort_values(by=["field"])
-            not_applied = not_applied[not_applied.columns.tolist()[1:] + ["uid"]]
+            df = df.sort_values(by=["field"])
+            df = df[df.columns.tolist()[1:] + ["uid"]]
             st.subheader("Table of Manual Corrections Not Applied")
-            AgGrid(not_applied)
+            AgGrid(df)
         else:
             st.write("Manual correction table for not applied records is empty.")
