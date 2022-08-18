@@ -11,6 +11,7 @@ def pluto():
     from st_aggrid import AgGrid
     from src.constants import COLOR_SCHEME
     from src.pluto.components.corrections_report import CorrectionsReport
+    from src.pluto.components.null_graph import NullReport
     from numerize.numerize import numerize
 
     st.title("PLUTO QAQC")
@@ -301,184 +302,6 @@ def pluto():
             """
             )
 
-        def create_null(df_null, v1, v2, v3, condo, mapped):
-            st.subheader("Null Graph")
-            x = [
-                "borough",
-                "block",
-                "lot",
-                "cd",
-                # "bct2020",
-                # "bctcb2020",
-                "ct2010",
-                "cb2010",
-                "schooldist",
-                "council",
-                "zipcode",
-                "firecomp",
-                "policeprct",
-                "healtharea",
-                "sanitboro",
-                "sanitsub",
-                "address",
-                "zonedist1",
-                "zonedist2",
-                "zonedist3",
-                "zonedist4",
-                "overlay1",
-                "overlay2",
-                "spdist1",
-                "spdist2",
-                "spdist3",
-                "ltdheight",
-                "splitzone",
-                "bldgclass",
-                "landuse",
-                "easements",
-                "ownertype",
-                "ownername",
-                "lotarea",
-                "bldgarea",
-                "comarea",
-                "resarea",
-                "officearea",
-                "retailarea",
-                "garagearea",
-                "strgearea",
-                "factryarea",
-                "otherarea",
-                "areasource",
-                "numbldgs",
-                "numfloors",
-                "unitsres",
-                "unitstotal",
-                "lotfront",
-                "lotdepth",
-                "bldgfront",
-                "bldgdepth",
-                "ext",
-                "proxcode",
-                "irrlotcode",
-                "lottype",
-                "bsmtcode",
-                "assessland",
-                "assesstot",
-                "exempttot",
-                "yearbuilt",
-                "yearalter1",
-                "yearalter2",
-                "histdist",
-                "landmark",
-                "builtfar",
-                "residfar",
-                "commfar",
-                "facilfar",
-                "borocode",
-                "bbl",
-                "condono",
-                "tract2010",
-                "xcoord",
-                "ycoord",
-                "longitude",
-                "latitude",
-                "zonemap",
-                "zmcode",
-                "sanborn",
-                "taxmap",
-                "edesignum",
-                "appbbl",
-                "appdate",
-                "plutomapid",
-                "version",
-                "sanitdistrict",
-                "healthcenterdistrict",
-                "firm07_flag",
-                "pfirm15_flag",
-            ]
-
-            field_range = st.slider(
-                "Select a range of values",
-                min_value=0,
-                max_value=len(x),
-                value=[0, 12],
-            )
-
-            def sort_and_filter_df(df, range):
-                df = df[["pair"] + df.columns.tolist()[range[0] + 1 : range[1] + 1]]
-                df_transformed = (
-                    df.set_index("pair")
-                    .stack()
-                    .reset_index()
-                    .rename(
-                        columns={"pair": "version", "level_1": "field", 0: "change"}
-                    )
-                    .sort_values(by="change", ascending=False)
-                )
-                return df_transformed
-
-            def display_graph(df_transformed, range, grouped=True):
-                if grouped:
-                    fig1 = px.bar(
-                        data_frame=df_transformed,
-                        y="change",
-                        x="field",
-                        barmode="group",
-                        color="version",
-                        color_discrete_sequence=COLOR_SCHEME,
-                        height=400,
-                        width=850,
-                        text_auto=True,
-                        title="Null Graph",
-                    )
-                    fig1.update_layout(legend_title_text="Version")
-                else:
-                    fig1 = px.bar(
-                        data_frame=df_transformed,
-                        y="change",
-                        x="field",
-                        color_discrete_sequence=COLOR_SCHEME,
-                        height=400,
-                        width=850,
-                        text_auto=True,
-                        title="Null Graph",
-                    )
-                fig1.update_xaxes(title="Field")
-                fig1.update_yaxes(title="Change in Null")
-
-                st.plotly_chart(fig1)
-
-            df = df_null.loc[
-                (df_null.condo == condo)
-                & (df_null.mapped == mapped)
-                & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
-                :,
-            ].drop_duplicates()
-
-            df_transformed = df.drop(columns=["condo", "mapped", "total"])
-            df_transformed = sort_and_filter_df(df_transformed, field_range)
-
-            v1v2 = f"{v1} - {v2}" in df_transformed.version.unique()
-            v2v3 = f"{v2} - {v3}" in df_transformed.version.unique()
-
-            if not (v1v2 or v2v3):
-                st.write("Null Graph")
-                st.info("There is no change in NULL values across three versions.")
-                return
-            if v1v2 and not v2v3:
-                display_graph(df_transformed, field_range, False)
-            elif v2v3 and not v1v2:
-                display_graph(df_transformed, field_range, False)
-            else:
-                display_graph(df_transformed, field_range, True)
-
-            st.info(
-                """
-                The above graph highlights records that formerly had a value and are now NULL, or vice versa.
-                The number records going from NULL to not NULL or vice versa should be small for any field.
-            """
-            )
-            st.write(df)
-
         def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
             df = df_aggregate.loc[
                 (df_aggregate.condo == condo)
@@ -657,7 +480,9 @@ def pluto():
 
         create_mismatch(data["df_mismatch"], v1, v2, v3, condo, mapped)
 
-        create_null(data["df_null"], v1, v2, v3, condo, mapped)
+        NullReport(
+            data=data["df_null"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
+        )()
 
         create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
 
