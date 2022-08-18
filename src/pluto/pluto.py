@@ -316,45 +316,6 @@ def pluto():
             """
             )
 
-        def create_expected(df, v1, v2):
-
-            exp = df[df["v"].isin([v1, v2])]
-
-            exp_records = exp.to_dict("records")
-            v1_exp = [i["expected"] for i in exp_records if i["v"] == v1][0]
-            v2_exp = [i["expected"] for i in exp_records if i["v"] == v2][0]
-            for field in [
-                "zonedist1",
-                "zonedist2",
-                "zonedist3",
-                "zonedist4",
-                "overlay1",
-                "overlay2",
-                "spdist1",
-                "spdist2",
-                "spdist3",
-                "ext",
-                "proxcode",
-                "irrlotcode",
-                "lottype",
-                "bsmtcode",
-                "bldgclasslanduse",
-            ]:
-                val1 = [i["values"] for i in v1_exp if i["field"] == field][0]
-                val2 = [i["values"] for i in v2_exp if i["field"] == field][0]
-                in1not2 = [i for i in val1 if i not in val2]
-                in2not1 = [i for i in val2 if i not in val1]
-                if len(in1not2) == 0 and len(in2not1) == 0:
-                    pass
-                else:
-                    st.markdown(f"### Expected value difference for {field}")
-                    if len(in1not2) != 0:
-                        st.markdown(f"* in {v1} but not in {v2}:")
-                        st.write(in1not2)
-                    if len(in2not1) != 0:
-                        st.markdown(f"* in {v2} but not in {v1}:")
-                        st.write(in2not1)
-
         def create_outlier(df, v1, v2, condo, mapped):
             versions = df.v.unique()
             if v1 not in versions:
