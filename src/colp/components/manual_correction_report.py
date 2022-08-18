@@ -17,9 +17,8 @@ class ManualCorrection:
         if df is None:
             st.write("Manual correction table for applied records is not available.")
             return
-        applied = self.modifications_applied
-        if not applied.empty:
-            count1 = applied.groupby("field").size()
+        if not df.empty:
+            count1 = df.groupby("field").size()
             count1 = count1.reset_index()
             count1.rename(
                 columns={"field": "Field", 0: "Number of Records"}, inplace=True
@@ -35,9 +34,8 @@ class ManualCorrection:
                 "Manual correction table for not applied records is not available."
             )
             return
-        not_applied = self.modifications_not_applied
-        if not not_applied.empty:
-            count2 = not_applied.groupby("field").size()
+        if not df.empty:
+            count2 = df.groupby("field").size()
             count2 = count2.reset_index()
             count2.rename(
                 columns={"field": "Field", 0: "Number of Records"}, inplace=True
