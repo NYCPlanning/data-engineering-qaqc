@@ -26,9 +26,13 @@ where would this list comes from? """
 
 def get_geometries(branch, table) -> dict:
     client = digital_ocean_client()
+    cache_key = client.cache_key(
+        f"db-cpdb/{branch}/latest/output/analysis/cpdb_summarystats_sagency.csv"
+    )
 
     gdf = client.shapefile_from_DO(
-        shapefile_zip=f"db-cpdb/{branch}/latest/output/{table}.shp.zip"
+        shapefile_zip=f"db-cpdb/{branch}/latest/output/{table}.shp.zip",
+        cache_key=cache_key,
     )
 
     return gdf

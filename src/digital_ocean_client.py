@@ -50,10 +50,11 @@ class DigitalOceanClient:
         except:
             return None
 
-    def shapefile_from_DO(self, shapefile_zip):
+    @st.experimental_memo
+    def shapefile_from_DO(_self, shapefile_zip, cache_key=""):
         try:
-            zip_obj = self.s3_resource.Object(
-                bucket_name=self.bucket_name, key=shapefile_zip
+            zip_obj = _self.s3_resource.Object(
+                bucket_name=_self.bucket_name, key=shapefile_zip
             )
             buffer = BytesIO(zip_obj.get()["Body"].read())
 
