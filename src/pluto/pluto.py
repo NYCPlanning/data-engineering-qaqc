@@ -14,6 +14,7 @@ def pluto():
     from src.constants import COLOR_SCHEME
     from src.pluto.components.corrections_report import CorrectionsReport
     from src.pluto.components.mismatch_report import MismatchReport
+    from src.pluto.components.null_graph import NullReport
     from src.pluto.components.source_data_versions_report import (
         SourceDataVersionsReport,
     )
@@ -82,159 +83,15 @@ def pluto():
             The graphs report the number of records that have a different value in a given field but share the same BBL between versions. \
             For example, you can read these graphs as "there are 300,000 records with the same BBL between {v1} to {v2}, but the exempttot value changed." \
             The graphs are useful to see if there are any dramatic changes in the values of fields between versions.
-
             There is an option to filter these graphs to just show condo lots. \
             Condos make up a small percentage of all lots, but they contain a large percentage of the residential housing. \
             A second filter enables you look at all lots or just mapped lots. \
             Unmapped lots are those with a record in PTS, but no corresponding record in DTM. \
             This happens because DOF updates are not in sync.
-
             In this series of graphs the x-axis is the field name and the y-axis is the total number of records. \
             Hover over the graph to see the percent of records that have a change.
         """
         )
-        # test
-        def create_null(df_null, v1, v2, v3, condo, mapped):
-            x = [
-                "borough",
-                "block",
-                "lot",
-                "cd",
-                # "bct2020",
-                # "bctcb2020",
-                "ct2010",
-                "cb2010",
-                "schooldist",
-                "council",
-                "zipcode",
-                "firecomp",
-                "policeprct",
-                "healtharea",
-                "sanitboro",
-                "sanitsub",
-                "address",
-                "zonedist1",
-                "zonedist2",
-                "zonedist3",
-                "zonedist4",
-                "overlay1",
-                "overlay2",
-                "spdist1",
-                "spdist2",
-                "spdist3",
-                "ltdheight",
-                "splitzone",
-                "bldgclass",
-                "landuse",
-                "easements",
-                "ownertype",
-                "ownername",
-                "lotarea",
-                "bldgarea",
-                "comarea",
-                "resarea",
-                "officearea",
-                "retailarea",
-                "garagearea",
-                "strgearea",
-                "factryarea",
-                "otherarea",
-                "areasource",
-                "numbldgs",
-                "numfloors",
-                "unitsres",
-                "unitstotal",
-                "lotfront",
-                "lotdepth",
-                "bldgfront",
-                "bldgdepth",
-                "ext",
-                "proxcode",
-                "irrlotcode",
-                "lottype",
-                "bsmtcode",
-                "assessland",
-                "assesstot",
-                "exempttot",
-                "yearbuilt",
-                "yearalter1",
-                "yearalter2",
-                "histdist",
-                "landmark",
-                "builtfar",
-                "residfar",
-                "commfar",
-                "facilfar",
-                "borocode",
-                "bbl",
-                "condono",
-                "tract2010",
-                "xcoord",
-                "ycoord",
-                "longitude",
-                "latitude",
-                "zonemap",
-                "zmcode",
-                "sanborn",
-                "taxmap",
-                "edesignum",
-                "appbbl",
-                "appdate",
-                "plutomapid",
-                "version",
-                "sanitdistrict",
-                "healthcenterdistrict",
-                "firm07_flag",
-                "pfirm15_flag",
-            ]
-
-            def generate_graph(r, total, title):
-                y = [r[i] for i in x]
-                text = [f"{round(r[i]/total*100, 2)}%" for i in x]
-                return go.Scatter(
-                    x=x,
-                    y=y,
-                    mode="lines",
-                    name=title,
-                    hovertemplate="<b>%{x} %{text}</b>",
-                    text=text,
-                )
-
-            df = df_null.loc[
-                (df_null.condo == condo)
-                & (df_null.mapped == mapped)
-                & (df_null.pair.isin([f"{v1} - {v2}", f"{v2} - {v3}"])),
-                :,
-            ].drop_duplicates()
-
-            v1v2 = df.loc[df_null.pair == f"{v1} - {v2}", :]
-            v2v3 = df.loc[df_null.pair == f"{v2} - {v3}", :]
-
-            fig = go.Figure()
-            if v1v2.empty and v2v3.empty:
-                st.write("Null Graph")
-                st.info("There is no change in NULL values across three versions.")
-                return
-            if not v1v2.empty:
-                v1v2 = v1v2.to_dict("records")[0]
-                v1v2_total = v1v2.pop("total")
-                fig.add_trace(generate_graph(v1v2, v1v2_total, f"{v1} - {v2}"))
-            if not v2v3.empty:
-                v2v3 = v2v3.to_dict("records")[0]
-                v2v3_total = v2v3.pop("total")
-                fig.add_trace(generate_graph(v2v3, v2v3_total, f"{v2} - {v3}"))
-
-            fig.update_layout(
-                title="Null graph", template="plotly_white", colorway=COLOR_SCHEME
-            )
-            st.plotly_chart(fig)
-            st.info(
-                """
-                The above graph highlights records that formerly had a value and are now NULL, or vice versa.
-                The number records going from NULL to not NULL or vice versa should be small for any field.
-            """
-            )
-            st.write(df)
 
         def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
             df = df_aggregate.loc[
@@ -312,7 +169,6 @@ def pluto():
                 The aggregate graph may show that the aggregated sum increased by 5%. 
                 Totals for assessland, assesstot, and exempttot should only change after the tentative and final rolls. 
                 Pay attention to any large changes to residential units (unitsres).
-
                 The graph shows the percent increase or decrease in the sum of the field between version. 
                 The table reports the raw numbers for more in depth analysis.
             """
@@ -376,10 +232,12 @@ def pluto():
         MismatchReport(
             data=data["df_mismatch"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
         )()
-
-        create_null(data["df_null"], v1, v2, v3, condo, mapped)
-
+        
         create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
+        
+        NullReport(
+            data=data["df_null"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
+        )()
 
         SourceDataVersionsReport(version_text=data["version_text"])()
 
