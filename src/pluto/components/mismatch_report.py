@@ -19,7 +19,7 @@ class MismatchReport:
         v1v2 = self.filter_by_version(df, f"{self.v1} - {self.v2}")
         v2v3 = self.filter_by_version(df, f"{self.v2} - {self.v3}")
 
-        for group in self.get_groups():
+        for group in self.groups:
             self.display_graph(v1v2, v2v3, group)
 
         st.subheader("Summary of Differences by Field")
@@ -82,11 +82,12 @@ class MismatchReport:
 
         return new_df
 
-    def get_groups(self):
+    @property
+    def groups(self):
         return [
             {
                 "title": "Mismatch graph -- finance fields",
-                "columns": self.get_finance_columns(),
+                "columns": self.finance_columns,
                 "description": """
                     DOF updates the assessment and exempt values twice a year. 
                     The tentative tax roll is released in mid-January and the final tax roll is released in late May. 
@@ -98,7 +99,7 @@ class MismatchReport:
             },
             {
                 "title": "Mismatch graph -- area fields",
-                "columns": self.get_area_columns(),
+                "columns": self.area_columns,
                 "description": """
                     CAMA is the primary source for the area fields. Updates reflect new construction, as well as updates by assessors for the tentative roll. 
                     Several thousand lots may have updates in the version created after the tentative tax roll.
@@ -106,7 +107,7 @@ class MismatchReport:
             },
             {
                 "title": "Mismatch graph -- zoning fields",
-                "columns": self.get_zoning_columns(),
+                "columns": self.zoning_columns,
                 "description": """
                 Unless DCP does a major rezoning, the number of lots with changed values should be **no more than a couple of hundred**.
                 Lots may get a changed value due to a split/merge or if TRD is cleaning up boundaries between zoning districts.
@@ -115,7 +116,7 @@ class MismatchReport:
             },
             {
                 "title": "Mismatch graph -- geo fields",
-                "columns": self.get_geo_columns(),
+                "columns": self.geo_columns,
                 "description": """
                 These fields are updated from **Geosupport**. Changes should be minimal unless a municipal service
                 area changes or more high-rise buildings opt into the composite recycling program.
@@ -124,7 +125,7 @@ class MismatchReport:
             },
             {
                 "title": "Mismatch graph -- building fields",
-                "columns": self.get_bldg_columns(),
+                "columns": self.bldg_columns,
                 "description": """
                     Changes in these fields are most common after the tentative roll has been released. 
                     Several fields in this group are changed by DCP to improve data quality, including ownername and yearbuilt. 
@@ -133,7 +134,8 @@ class MismatchReport:
             },
         ]
 
-    def get_finance_columns(self):
+    @property
+    def finance_columns(self):
         return [
             "assessland",
             "assesstot",
@@ -144,7 +146,8 @@ class MismatchReport:
             "plutomapid",
         ]
 
-    def get_area_columns(self):
+    @property
+    def area_columns(self):
         return [
             "lotarea",
             "bldgarea",
@@ -160,7 +163,8 @@ class MismatchReport:
             "areasource",
         ]
 
-    def get_zoning_columns(self):
+    @property
+    def zoning_columns(self):
         return [
             "residfar",
             "commfar",
@@ -181,7 +185,8 @@ class MismatchReport:
             "edesignum",
         ]
 
-    def get_geo_columns(self):
+    @property
+    def geo_columns(self):
         return [
             "cd",
             # "bct2020",
@@ -213,7 +218,8 @@ class MismatchReport:
             "pfirm15_flag",
         ]
 
-    def get_bldg_columns(self):
+    @property
+    def bldg_columns(self):
         return [
             "bldgclass",
             "landuse",
