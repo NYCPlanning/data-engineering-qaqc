@@ -19,6 +19,13 @@ class DigitalOceanClient:
         self.repo_name = repo_name
         self.s3_resource = self.get_s3_resource()
 
+    def cache_key(self, url):
+        return str(
+            self.s3_resource.ObjectSummary(
+                bucket_name=self.bucket_name, key=url
+            ).last_modified
+        )
+
     def bucket(self):
         return self.s3_resource.Bucket(self.bucket_name)
 
@@ -64,12 +71,14 @@ class DigitalOceanClient:
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
 
-    def csv_from_DO(self, url, kwargs={}):
+    @st.experimental_memo
+    def csv_from_DO(_self, url, _kwargs={}, cache_key=""):
+        print("fetching data from Digital Ocean")
         try:
-            if self.bucket_is_public():
-                return self.public_csv_from_DO(url, kwargs)
+            if _self.bucket_is_public():
+                return _self.public_csv_from_DO(url, _kwargs)
             else:
-                return self.private_csv_from_DO(url, kwargs)
+                return _self.private_csv_from_DO(url, _kwargs)
         except:
             st.info(f"There was an issue downloading {url} from Digital Ocean.")
 

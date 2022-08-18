@@ -17,22 +17,29 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output"
 
     client = digital_ocean_client()
+    cache_key = client.cache_key(
+        f"db-pluto/{branch}/latest/output/source_data_versions.csv"
+    )
     kwargs = {"true_values": ["t"], "false_values": ["f"]}
 
     rv["df_mismatch"] = client.csv_from_DO(
-        url=f"{url}/qaqc/qaqc_mismatch.csv", kwargs=kwargs
+        url=f"{url}/qaqc/qaqc_mismatch.csv", cache_key=cache_key, _kwargs=kwargs
     )
-    rv["df_null"] = client.csv_from_DO(url=f"{url}/qaqc/qaqc_null.csv", kwargs=kwargs)
+    rv["df_null"] = client.csv_from_DO(
+        url=f"{url}/qaqc/qaqc_null.csv", cache_key=cache_key, _kwargs=kwargs
+    )
     rv["df_aggregate"] = client.csv_from_DO(
-        url=f"{url}/qaqc/qaqc_aggregate.csv", kwargs=kwargs
+        url=f"{url}/qaqc/qaqc_aggregate.csv", cache_key=cache_key, _kwargs=kwargs
     )
     rv["df_expected"] = client.csv_from_DO(
         url=f"{url}/qaqc/qaqc_expected.csv",
-        kwargs={"converters": {"expected": json.loads}} | kwargs,
+        cache_key=cache_key,
+        _kwargs={"converters": {"expected": json.loads}} | kwargs,
     )
     rv["df_outlier"] = client.csv_from_DO(
         url=f"{url}/qaqc/qaqc_outlier.csv",
-        kwargs={"converters": {"outlier": json.loads}} | kwargs,
+        cache_key=cache_key,
+        _kwargs={"converters": {"outlier": json.loads}} | kwargs,
     )
 
     pluto_corrections_zip = client.zip_from_DO(
@@ -50,7 +57,9 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
         csv_filename="pluto_corrections_not_applied.csv", zipfile=pluto_corrections_zip
     )
 
-    source_data_versions = client.csv_from_DO(url=f"{url}/source_data_versions.csv")
+    source_data_versions = client.csv_from_DO(
+        url=f"{url}/source_data_versions.csv", cache_key=cache_key
+    )
 
     rv["source_data_version"] = source_data_versions
     sdv = source_data_versions.to_dict("records")

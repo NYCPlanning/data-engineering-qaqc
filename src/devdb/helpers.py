@@ -175,20 +175,27 @@ def get_data(branch):
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/{branch}/latest/output"
 
     client = digital_ocean_client()
+    cache_key = client.cache_key(
+        url=f"db-developments/{branch}/latest/output/version.txt"
+    )
 
     rv["qaqc_app"] = client.csv_from_DO(
         url=f"{url}/qaqc_app.csv",
-        kwargs={"dtype": {"job_number": "str"}},
+        _kwargs={"dtype": {"job_number": "str"}},
+        cache_key=cache_key,
     )
 
     rv["qaqc_historic"] = client.csv_from_DO(url=f"{url}/qaqc_historic.csv")
 
     rv["qaqc_field_distribution"] = client.csv_from_DO(
-        f"{url}/qaqc_field_distribution.csv",
-        kwargs={"converters": {"result": json.loads}},
+        url=f"{url}/qaqc_field_distribution.csv",
+        _kwargs={"converters": {"result": json.loads}},
+        cache_key=cache_key,
     )
 
-    rv["qaqc_quarter_check"] = client.csv_from_DO(url=f"{url}/qaqc_quarter_check.csv")
+    rv["qaqc_quarter_check"] = client.csv_from_DO(
+        url=f"{url}/qaqc_quarter_check.csv", cache_key=cache_key
+    )
 
     return rv
 
