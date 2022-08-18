@@ -4,6 +4,7 @@ def colp():
     import numpy as np
     import os
     import pdb
+    import json
     from src.colp.helpers import get_data
     from src.colp.components.agency_usetype_report import (
         RecordsByAgency,
@@ -11,11 +12,10 @@ def colp():
         RecordsByAgencyUsetype,
     )
     from src.colp.components.outlier_report import OutlierReport
+    from src.colp.components.geospatial_check import GeospatialCheck
 
     st.title("City Owned and Leased Properties QAQC")
-    branch = st.sidebar.selectbox(
-        "select a branch", ["main", "212-Records-by-Agency-Usetype"]
-    )
+    branch = st.sidebar.selectbox("select a branch", ["dev"])
     st.markdown(
         body="""
         ### About COLP Database
@@ -37,3 +37,4 @@ def colp():
         records_by_agency_usetype=data["records_by_agency_usetype"]
     )()
     OutlierReport(data=data)()
+    GeospatialCheck(data=data)()
