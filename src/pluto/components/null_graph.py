@@ -18,7 +18,7 @@ class NullReport:
     def __call__(self):
         st.subheader("Null Graph")
         field_range = st.slider(
-            "Select a range of values",
+            "Select which fields to display (ranked from most to least nulls)",
             min_value=0,
             max_value=len(self.fields),
             value=[0, 12],
@@ -33,7 +33,14 @@ class NullReport:
         ].drop_duplicates()
 
         df_transformed = df.drop(columns=["condo", "mapped", "total"])
-        df_transformed = self.sort_and_filter_df(df_transformed, field_range)
+        sorted_df = df_transformed.set_index("pair").T
+        sorted_df.sort_values(
+            by=f"{self.v1} - {self.v2}", ascending=False, inplace=True
+        )
+        fields_in_order = sorted_df.index.values.tolist()
+        df_transformed = self.sort_and_filter_df(
+            df_transformed, field_range, fields_in_order
+        )
 
         v1v2 = f"{self.v1} - {self.v2}" in df_transformed.version.unique()
         v2v3 = f"{self.v2} - {self.v3}" in df_transformed.version.unique()
@@ -152,8 +159,9 @@ class NullReport:
             "pfirm15_flag",
         ]
 
-    def sort_and_filter_df(self, df, range):
-        df = df[["pair"] + df.columns.tolist()[range[0] + 1 : range[1] + 1]]
+    def sort_and_filter_df(self, df, range, fields):
+        selected = fields[range[0] : range[1]]
+        df = df[["pair"] + selected]
         df_transformed = df.set_index("pair").stack().reset_index()
         df_transformed.rename(
             columns={"pair": "version", "level_1": "field", 0: "change"}, inplace=True
