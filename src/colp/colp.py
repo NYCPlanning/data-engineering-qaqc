@@ -44,4 +44,13 @@ def colp():
     OutlierReport(data=data)()
     GeospatialCheck(data=data)()
 
-    UsetypeVersionComparisonReport(data=data)()
+    usetype_changes = data["usetype_changes"]
+    if usetype_changes is None:
+        version_for_comparison = None
+    else:
+        version_for_comparison = st.sidebar.selectbox(
+            "Select a Version for Comparison", usetype_changes.v_current.unique()
+        )
+    UsetypeVersionComparisonReport(
+        usetype_changes=usetype_changes, version=version_for_comparison
+    )()
