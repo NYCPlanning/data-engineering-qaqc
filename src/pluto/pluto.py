@@ -99,8 +99,10 @@ def pluto():
             data=data["df_mismatch"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
         )()
 
-        AggregateReport(data=data["df_aggregate"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped)()
-        
+        AggregateReport(
+            data=data["df_aggregate"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
+        )()
+
         NullReport(
             data=data["df_null"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
         )()
