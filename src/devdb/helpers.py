@@ -3,8 +3,10 @@ from typing import Dict
 from urllib.error import HTTPError
 import streamlit as st
 import json
+from src.digital_ocean_client import DigitalOceanClient
 
 BUCKET_NAME = "edm-publishing"
+REPO_NAME = "db-developments"
 
 QAQC_CHECK_SECTIONS = {
     "Class B": "These checks are related to class A and class B unit distinctions.",
@@ -163,33 +165,33 @@ QAQC_CHECK_DICTIONARY = {
     "manual_corrections_not_applied": {
         "description": "This will return the full list of jobs that have any manual corrections did not get applied.",
         "field_type": "boolean",
-        "section": "n/a"
-    }
+        "section": "n/a",
+    },
 }
+
 
 def get_data(branch):
     rv = {}
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/{branch}/latest/output"
 
-    rv["qaqc_app"] = csv_from_DO(
-        f"{url}/qaqc_app.csv",
+    client = digital_ocean_client()
+
+    rv["qaqc_app"] = client.csv_from_DO(
+        url=f"{url}/qaqc_app.csv",
         kwargs={"dtype": {"job_number": "str"}},
     )
 
-    rv["qaqc_historic"] = csv_from_DO(f"{url}/qaqc_historic.csv")
+    rv["qaqc_historic"] = client.csv_from_DO(url=f"{url}/qaqc_historic.csv")
 
-    rv["qaqc_field_distribution"] = csv_from_DO(
+    rv["qaqc_field_distribution"] = client.csv_from_DO(
         f"{url}/qaqc_field_distribution.csv",
         kwargs={"converters": {"result": json.loads}},
     )
 
-    rv["qaqc_quarter_check"] = csv_from_DO(f"{url}/qaqc_quarter_check.csv")
+    rv["qaqc_quarter_check"] = client.csv_from_DO(url=f"{url}/qaqc_quarter_check.csv")
 
     return rv
 
 
-def csv_from_DO(url, kwargs={}):
-    try:
-        return pd.read_csv(url, **kwargs)
-    except:
-        st.warning(f"{url} not found")
+def digital_ocean_client():
+    return DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
