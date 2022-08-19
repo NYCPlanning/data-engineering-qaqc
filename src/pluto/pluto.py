@@ -22,6 +22,7 @@ def pluto():
         ExpectedValueDifferencesReport,
     )
     from src.pluto.components.outlier_report import OutlierReport
+    from src.pluto.components.aggregate_report import AggregateReport
 
     st.title("PLUTO QAQC")
     st.markdown(
@@ -94,93 +95,12 @@ def pluto():
         """
         )
 
-        def create_aggregate(df_aggregate, v1, v2, v3, condo, mapped):
-            df = df_aggregate.loc[
-                (df_aggregate.condo == condo)
-                & (df_aggregate.mapped == mapped)
-                & (df_aggregate.v.isin([v1, v2, v3])),
-                :,
-            ]
-            v1 = df.loc[df.v == v1, :].to_dict("records")[0]
-            v2 = df.loc[df.v == v2, :].to_dict("records")[0]
-            v3 = df.loc[df.v == v3, :].to_dict("records")[0]
-
-            def generate_graph(v1, v2):
-                _v1 = v1["v"]
-                _v2 = v2["v"]
-
-                y = [
-                    "unitsres",
-                    "lotarea",
-                    "bldgarea",
-                    "comarea",
-                    "resarea",
-                    "officearea",
-                    "retailarea",
-                    "garagearea",
-                    "strgearea",
-                    "factryarea",
-                    "otherarea",
-                    "assessland",
-                    "assesstot",
-                    "exempttot",
-                    "firm07_flag",
-                    "pfirm15_flag",
-                ]
-                x = [(v1[i] / v2[i] - 1) * 100 for i in y]
-                diff = [v1[i] - v2[i] for i in y]
-                real_v1 = [v1[i] for i in y]
-                real_v2 = [v2[i] for i in y]
-                hovertemplate = "<b>%{x}</b> %{text}"
-                text = []
-                for n in range(len(y)):
-                    text.append(
-                        "Diff: {} | Current: {} | Prev: {}".format(
-                            numerize(diff[n]),
-                            numerize(real_v1[n]),
-                            numerize(real_v2[n]),
-                        )
-                    )
-
-                return go.Scatter(
-                    x=y,
-                    y=x,
-                    mode="lines",
-                    name=f"{_v1} - {_v2}",
-                    hovertemplate=hovertemplate,
-                    text=text,
-                )
-
-            fig = go.Figure()
-            fig.add_trace(generate_graph(v1, v2))
-            fig.add_trace(generate_graph(v2, v3))
-            fig.add_hline(y=0, line_color="grey", opacity=0.5)
-            fig.update_layout(
-                title="Aggregate graph",
-                template="plotly_white",
-                yaxis={"title": "Percent Change"},
-                colorway=COLOR_SCHEME,
-            )
-            st.plotly_chart(fig)
-            st.write(df.sort_values(by="v", ascending=False))
-            st.info(
-                """
-                In addition to looking at the number of lots with a changed value, it’s important to look at the magnitude of the change. 
-                For example, the mismatch graph for finance may show that over 90% of lots get an updated assessment when the tentative roll is released. 
-                The aggregate graph may show that the aggregated sum increased by 5%. 
-                Totals for assessland, assesstot, and exempttot should only change after the tentative and final rolls. 
-                Pay attention to any large changes to residential units (unitsres).
-                The graph shows the percent increase or decrease in the sum of the field between version. 
-                The table reports the raw numbers for more in depth analysis.
-            """
-            )
-
         MismatchReport(
             data=data["df_mismatch"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
         )()
 
-        create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
-
+        AggregateReport(data=data["df_aggregate"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped)()
+        
         NullReport(
             data=data["df_null"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
         )()
