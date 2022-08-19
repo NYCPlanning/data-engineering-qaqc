@@ -1,9 +1,13 @@
+from src.colp.components.usetype_version_comparison_report import (
+    UsetypeVersionComparisonReport,
+)
+
+
 def colp():
     import streamlit as st
     import pandas as pd
     import numpy as np
     import os
-    import pdb
     import json
     from src.colp.helpers import get_data
     from src.colp.components.agency_usetype_report import (
@@ -42,3 +46,13 @@ def colp():
     ManualCorrection(data=data)()
     GeospatialCheck(data=data)()
 
+    usetype_changes = data["usetype_changes"]
+    if usetype_changes is None:
+        version_for_comparison = None
+    else:
+        version_for_comparison = st.sidebar.selectbox(
+            "Select a Version for Comparison", usetype_changes.v_current.unique()
+        )
+    UsetypeVersionComparisonReport(
+        usetype_changes=usetype_changes, version=version_for_comparison
+    )()
