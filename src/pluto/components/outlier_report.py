@@ -4,7 +4,7 @@ from st_aggrid import AgGrid
 
 
 class OutlierReport:
-    def __init__(self, data, v1, v2 ,condo, mapped):
+    def __init__(self, data, v1, v2, condo, mapped):
         self.df = data
         self.v1 = v1
         self.v2 = v2
@@ -16,7 +16,7 @@ class OutlierReport:
 
         if self.v1 not in self.versions:
             st.info("There is no outlier report available for selected version.")
-            return           
+            return
 
         self.display_dataframe("building_area_increase")
 
@@ -26,7 +26,7 @@ class OutlierReport:
 
     def display_dataframe(self, field):
         df = self.fetch_dataframe(field)
-        
+
         if df.empty:
             st.markdown(self.markdown_dict[field])
             st.write("There are no outliers for this check.")
@@ -40,7 +40,9 @@ class OutlierReport:
             st.info(self.info_dict[field])
 
     def fetch_dataframe(self, field):
-        records = [i["values"] for i in self.v1_outlier_records if i["field"] == field][0]
+        records = [i["values"] for i in self.v1_outlier_records if i["field"] == field][
+            0
+        ]
 
         if records:
             df = pd.DataFrame(records)
@@ -56,11 +58,13 @@ class OutlierReport:
     @property
     def versions(self):
         return self.df.v.unique()
-    
+
     @property
     def outlier_records(self):
         return self.df.loc[
-            (self.df.condo == self.condo) & (self.df.mapped == self.mapped) & (self.df.v == self.v1),
+            (self.df.condo == self.condo)
+            & (self.df.mapped == self.mapped)
+            & (self.df.v == self.v1),
             :,
         ].to_dict("records")
 
@@ -79,7 +83,7 @@ class OutlierReport:
             "unitsres_resarea": f"### Report of BBLs with buildings containing unreasonably small apartments",
             "lotarea_numfloor": f"### Table of BBLs where bldgarea/lotarea > numfloors*2",
         }
-    
+
     @property
     def info_dict(self):
         return {

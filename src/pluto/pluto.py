@@ -175,13 +175,12 @@ def pluto():
             """
             )
 
-
         MismatchReport(
             data=data["df_mismatch"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
         )()
-        
+
         create_aggregate(data["df_aggregate"], v1, v2, v3, condo, mapped)
-        
+
         NullReport(
             data=data["df_null"], v1=v1, v2=v2, v3=v3, condo=condo, mapped=mapped
         )()
@@ -190,7 +189,9 @@ def pluto():
 
         ExpectedValueDifferencesReport(data=data["df_expected"], v1=v1, v2=v2)()
 
-        OutlierReport(data=data["df_outlier"], v1=v1, v2=v2, condo=condo, mapped=mapped)()
+        OutlierReport(
+            data=data["df_outlier"], v1=v1, v2=v2, condo=condo, mapped=mapped
+        )()
 
     if report_type == "Compare with Previous Version":
         version_comparison_report(data)
