@@ -5,7 +5,6 @@ import plotly.express as px
 from st_aggrid import AgGrid
 from src.constants import COLOR_SCHEME
 from abc import ABC
-import pdb
 
 
 class UsetypeVersionComparisonReport:

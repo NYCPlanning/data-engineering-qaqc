@@ -8,7 +8,6 @@ def colp():
     import pandas as pd
     import numpy as np
     import os
-    import pdb
     import json
     from src.colp.helpers import get_data
     from src.colp.components.agency_usetype_report import (
