@@ -15,7 +15,7 @@ class OutlierReport:
         st.header("Outlier Analysis")
 
         if self.v1 not in self.versions:
-            st.write("There is no outlier report available for selected version.")
+            st.info("There is no outlier report available for selected version.")
             return           
 
         self.display_dataframe("building_area_increase")
@@ -35,7 +35,7 @@ class OutlierReport:
             st.markdown(self.markdown_dict[field])
 
             AgGrid(df)
-            
+
             st.write(f"There are {df.shape[0]} outliers in total.")
             st.info(self.info_dict[field])
 
