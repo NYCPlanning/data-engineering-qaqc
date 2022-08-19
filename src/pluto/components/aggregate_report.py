@@ -49,27 +49,6 @@ class AggregateReport:
             "records"
         )[0]
 
-    @property
-    def y_columns(self):
-        return [
-            "unitsres",
-            "lotarea",
-            "bldgarea",
-            "comarea",
-            "resarea",
-            "officearea",
-            "retailarea",
-            "garagearea",
-            "strgearea",
-            "factryarea",
-            "otherarea",
-            "assessland",
-            "assesstot",
-            "exempttot",
-            "firm07_flag",
-            "pfirm15_flag",
-        ]
-
     def x_columns(self, v1, v2):
         return [(v1[i] / v2[i] - 1) * 100 for i in self.y_columns]
 
@@ -134,3 +113,24 @@ class AggregateReport:
             The graph shows the percent increase or decrease in the sum of the field between version. 
             The table reports the raw numbers for more in depth analysis.
         """
+
+    @property
+    def y_columns(self):
+        return [
+            "unitsres",
+            "lotarea",
+            "bldgarea",
+            "comarea",
+            "resarea",
+            "officearea",
+            "retailarea",
+            "garagearea",
+            "strgearea",
+            "factryarea",
+            "otherarea",
+            "assessland",
+            "assesstot",
+            "exempttot",
+            "firm07_flag",
+            "pfirm15_flag",
+        ]
