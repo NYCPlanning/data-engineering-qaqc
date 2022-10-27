@@ -6,7 +6,7 @@ from src.digital_ocean_client import DigitalOceanClient
 load_dotenv()
 
 
-BUCKET_NAME = "edm-private"
+BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-cpdb"
 
 VIZKEY = {
