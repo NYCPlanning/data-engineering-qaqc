@@ -46,19 +46,15 @@ def get_data(branch) -> dict:
     client = digital_ocean_client()
 
     for t in tables["analysis"]:
-        rv[t] = client.csv_from_DO(
-            url=f"db-cpdb/{branch}/latest/output/analysis/{t}.csv"
-        )
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t, sub_folder="analysis/"))
         rv["pre_" + t] = client.csv_from_DO(
-            url=f"db-cpdb/main/2022-04-15/output/analysis/{t}.csv"
+            url=construct_url("main", t, "2022-04-15", sub_folder="analysis/")
         )
     for t in tables["others"]:
-        rv[t] = client.csv_from_DO(url=f"db-cpdb/{branch}/latest/output/{t}.csv")
-        rv["pre_" + t] = client.csv_from_DO(
-            url=f"db-cpdb/main/2022-04-15/output/{t}.csv"
-        )
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t))
+        rv["pre_" + t] = client.csv_from_DO(url=construct_url("main", t, "2022-04-15"))
     for t in tables["no_version_compare"]:
-        rv[t] = client.csv_from_DO(url=f"db-cpdb/{branch}/latest/output/{t}.csv")
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t))
     for t in tables["geometries"]:
         rv[t] = get_geometries(branch, table=t)
     print(rv.keys())
@@ -100,6 +96,13 @@ def sort_base_on_option(
     )
 
     return df_sort
+
+
+def construct_url(branch, table, build="latest", sub_folder=""):
+    return (
+        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-cpdb/{branch}"
+        f"/{build}/output/{sub_folder}{table}.csv"
+    )
 
 
 def digital_ocean_client():
