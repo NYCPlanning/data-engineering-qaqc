@@ -1,4 +1,3 @@
-from distutils.command.build import build
 import pandas as pd
 from dotenv import load_dotenv
 import geopandas as gpd
@@ -6,7 +5,7 @@ from src.digital_ocean_client import DigitalOceanClient
 
 load_dotenv()
 
-cpdb_published_version = [
+cpdb_published_versions = [
     "2022-10-25",  # '22 CPDB Adopted
     "2022-06-08",  # '22 CPDB Executive
     "2022-04-15",  # '22 CPDB Prelminary
