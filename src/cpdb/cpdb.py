@@ -8,6 +8,7 @@ from src.cpdb.helpers import (
     get_map_percent_diff,
     sort_base_on_option,
     VIZKEY,
+    cpdb_published_version,
 )
 import plotly.express as px
 import plotly.graph_objects as go
@@ -22,6 +23,10 @@ from src.cpdb.components.withinNYC_check import withinNYC_check
 def cpdb():
     st.title("Capital Projects Database QAQC")
     branch = st.sidebar.selectbox("select a branch", ["main"])
+    build = st.sidebar.selectbox(
+        "Pick a published version of CPDB to compare with latest (by date):",
+        cpdb_published_version,
+    )
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",
@@ -43,7 +48,7 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    data = get_data(branch=branch)
+    data = get_data(branch, build)
 
     st.markdown(
         body="""
