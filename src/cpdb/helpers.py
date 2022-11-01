@@ -5,6 +5,12 @@ from src.digital_ocean_client import DigitalOceanClient
 
 load_dotenv()
 
+cpdb_published_versions = [
+    "2022-10-25",  # '22 CPDB Adopted
+    "2022-06-08",  # '22 CPDB Executive
+    "2022-04-15",  # '22 CPDB Prelminary
+]
+
 
 BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-cpdb"
@@ -34,7 +40,7 @@ def get_geometries(branch, table) -> dict:
     return gdf
 
 
-def get_data(branch) -> dict:
+def get_data(branch, previous_version) -> dict:
     rv = {}
     tables = {
         "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
@@ -48,11 +54,13 @@ def get_data(branch) -> dict:
     for t in tables["analysis"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t, sub_folder="analysis/"))
         rv["pre_" + t] = client.csv_from_DO(
-            url=construct_url("main", t, "2022-04-15", sub_folder="analysis/")
+            url=construct_url(branch, t, previous_version, sub_folder="analysis/")
         )
     for t in tables["others"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t))
-        rv["pre_" + t] = client.csv_from_DO(url=construct_url("main", t, "2022-04-15"))
+        rv["pre_" + t] = client.csv_from_DO(
+            url=construct_url(branch, t, previous_version)
+        )
     for t in tables["no_version_compare"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t))
     for t in tables["geometries"]:
