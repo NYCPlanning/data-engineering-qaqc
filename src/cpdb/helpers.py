@@ -5,8 +5,14 @@ from src.digital_ocean_client import DigitalOceanClient
 
 load_dotenv()
 
+cpdb_published_versions = [
+    "2022-10-25",  # '22 CPDB Adopted
+    "2022-06-08",  # '22 CPDB Executive
+    "2022-04-15",  # '22 CPDB Prelminary
+]
 
-BUCKET_NAME = "edm-private"
+
+BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-cpdb"
 
 VIZKEY = {
@@ -34,7 +40,7 @@ def get_geometries(branch, table) -> dict:
     return gdf
 
 
-def get_data(branch) -> dict:
+def get_data(branch, previous_version) -> dict:
     rv = {}
     tables = {
         "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
@@ -46,19 +52,17 @@ def get_data(branch) -> dict:
     client = digital_ocean_client()
 
     for t in tables["analysis"]:
-        rv[t] = client.csv_from_DO(
-            url=f"db-cpdb/{branch}/latest/output/analysis/{t}.csv"
-        )
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t, sub_folder="analysis/"))
         rv["pre_" + t] = client.csv_from_DO(
-            url=f"db-cpdb/main/2022-04-15/output/analysis/{t}.csv"
+            url=construct_url(branch, t, previous_version, sub_folder="analysis/")
         )
     for t in tables["others"]:
-        rv[t] = client.csv_from_DO(url=f"db-cpdb/{branch}/latest/output/{t}.csv")
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t))
         rv["pre_" + t] = client.csv_from_DO(
-            url=f"db-cpdb/main/2022-04-15/output/{t}.csv"
+            url=construct_url(branch, t, previous_version)
         )
     for t in tables["no_version_compare"]:
-        rv[t] = client.csv_from_DO(url=f"db-cpdb/{branch}/latest/output/{t}.csv")
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t))
     for t in tables["geometries"]:
         rv[t] = get_geometries(branch, table=t)
     print(rv.keys())
@@ -100,6 +104,13 @@ def sort_base_on_option(
     )
 
     return df_sort
+
+
+def construct_url(branch, table, build="latest", sub_folder=""):
+    return (
+        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-cpdb/{branch}"
+        f"/{build}/output/{sub_folder}{table}.csv"
+    )
 
 
 def digital_ocean_client():
