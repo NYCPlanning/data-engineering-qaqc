@@ -20,7 +20,7 @@ def colp():
     from src.colp.components.geospatial_check import GeospatialCheck
 
     st.title("City Owned and Leased Properties QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["dev"])
+    branch = st.sidebar.selectbox("select a branch", ["dev", "main"])
 
     st.markdown(
         body="""
