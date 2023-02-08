@@ -35,7 +35,7 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
         kwargs={"converters": {"outlier": json.loads}} | kwargs,
     )
 
-    rv = rv | get_corrections(client, branch)
+    rv = rv | get_changes(client, branch)
 
     rv["source_data_versions"] = client.csv_from_DO(
         url=f"{url}/source_data_versions.csv"
@@ -46,7 +46,7 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     return rv
 
 
-def get_corrections(client, branch):
+def get_changes(client, branch):
     rv = {}
     pluto_corrections_zip = client.zip_from_DO(
         zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
