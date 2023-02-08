@@ -89,7 +89,7 @@ def get_version_text(source_data_versions):
 def get_branches():
     all_branches = DigitalOceanClient(
         bucket_name=BUCKET_NAME, repo_name=REPO_NAME
-    ).get_all_folders_in_repo_folder()
+    ).get_all_folder_names_in_repo_folder()
 
     rv = blacklist_branches(all_branches)
     return rv
