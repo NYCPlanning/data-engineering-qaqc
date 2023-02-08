@@ -16,7 +16,7 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     rv = {}
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output"
 
-    client = digital_ocean_client()
+    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
     kwargs = {"true_values": ["t"], "false_values": ["f"]}
 
     rv["df_mismatch"] = client.csv_from_DO(
@@ -87,7 +87,9 @@ def get_version_text(source_data_versions):
 
 
 def get_branches():
-    all_branches = digital_ocean_client().get_all_folders_in_repo()
+    all_branches = DigitalOceanClient(
+        bucket_name=BUCKET_NAME, repo_name=REPO_NAME
+    ).get_all_folders_in_repo()
 
     rv = blacklist_branches(all_branches)
     return rv
@@ -112,7 +114,3 @@ def blacklist_branches(branches):
         ) and b != "latest":
             rv.append(b)
     return rv
-
-
-def digital_ocean_client():
-    return DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)

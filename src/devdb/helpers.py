@@ -174,7 +174,7 @@ def get_data(branch):
     rv = {}
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/{branch}/latest/output"
 
-    client = digital_ocean_client()
+    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
 
     rv["qaqc_app"] = client.csv_from_DO(
         url=f"{url}/qaqc_app.csv",
@@ -191,7 +191,3 @@ def get_data(branch):
     rv["qaqc_quarter_check"] = client.csv_from_DO(url=f"{url}/qaqc_quarter_check.csv")
 
     return rv
-
-
-def digital_ocean_client():
-    return DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
