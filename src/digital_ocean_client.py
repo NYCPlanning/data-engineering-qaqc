@@ -39,7 +39,7 @@ class DigitalOceanClient:
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
 
-    def get_all_folders_in_repo(self):
+    def get_all_folders_in_repo_folder(self):
         all_folders = set()
 
         for obj in self.repo:
