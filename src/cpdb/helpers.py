@@ -31,7 +31,7 @@ where would this list comes from? """
 
 
 def get_geometries(branch, table) -> dict:
-    client = digital_ocean_client()
+    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
 
     gdf = client.shapefile_from_DO(
         shapefile_zip=f"db-cpdb/{branch}/latest/output/{table}.shp.zip"
@@ -49,7 +49,7 @@ def get_data(branch, previous_version) -> dict:
         "geometries": ["cpdb_dcpattributes_pts", "cpdb_dcpattributes_poly"],
     }
 
-    client = digital_ocean_client()
+    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
 
     for t in tables["analysis"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t, sub_folder="analysis/"))
@@ -81,7 +81,6 @@ def get_diff_dataframe(df: pd.DataFrame, df_pre: pd.DataFrame):
 
 
 def get_map_percent_diff(df: pd.DataFrame, df_pre: pd.DataFrame, keys: dict):
-
     diff = pd.DataFrame(
         columns=["percent_mapped", "pre_percent_mapped", "diff_percent_mapped"],
         index=df.index,
@@ -98,7 +97,6 @@ def get_map_percent_diff(df: pd.DataFrame, df_pre: pd.DataFrame, keys: dict):
 def sort_base_on_option(
     df: pd.DataFrame, subcategory, view_type, map_option, ascending=True
 ):
-
     df_sort = df.sort_values(
         by=VIZKEY[subcategory][view_type]["values"][map_option], ascending=ascending
     )
@@ -111,7 +109,3 @@ def construct_url(branch, table, build="latest", sub_folder=""):
         f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-cpdb/{branch}"
         f"/{build}/output/{sub_folder}{table}.csv"
     )
-
-
-def digital_ocean_client():
-    return DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)

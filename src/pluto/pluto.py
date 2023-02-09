@@ -12,7 +12,7 @@ def pluto():
     from numerize.numerize import numerize
 
     from src.constants import COLOR_SCHEME
-    from src.pluto.components.corrections_report import CorrectionsReport
+    from src.pluto.components.changes_report import ChangesReport
     from src.pluto.components.mismatch_report import MismatchReport
     from src.pluto.components.null_graph import NullReport
     from src.pluto.components.source_data_versions_report import (
@@ -25,11 +25,6 @@ def pluto():
     from src.pluto.components.aggregate_report import AggregateReport
 
     st.title("PLUTO QAQC")
-    st.markdown(
-        """
-    ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/NYCPlanning/db-pluto?label=version) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/CI?label=CI) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/CAMA%20Processing?label=CAMA) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/PTS%20processing?label=PTS)
-    """
-    )
 
     branches = get_branches()
     branch = st.sidebar.selectbox(
@@ -40,7 +35,7 @@ def pluto():
 
     report_type = st.sidebar.selectbox(
         "Choose a Report Type",
-        ["Compare with Previous Version", "Review Manual Corrections"],
+        ["Compare with Previous Version", "Review Manual Changes"],
     )
 
     data = get_data(branch)
@@ -79,21 +74,32 @@ def pluto():
         mapped = st.sidebar.checkbox("mapped only")
 
         st.text(
-            f"Current version: {v1}, Previous version: {v2}, Previous Previous version: {v3}"
+            f"""
+            Current version: {v1}
+            Previous version: {v2}
+            Previous Previous version: {v3}
+        """
         )
         st.markdown(
             f"""
-            This series of reports compares the version of PLUTO selected with the previous version ({v1} to {v2}) in blue, and the previous two versions ({v2} to {v3}) in red. \
-            The graphs report the number of records that have a different value in a given field but share the same BBL between versions. \
-            For example, you can read these graphs as "there are 300,000 records with the same BBL between {v1} to {v2}, but the exempttot value changed." \
+            This series of reports compares the version of PLUTO selected with the previous version ({v1} to {v2}) in blue, and the previous two versions ({v2} to {v3}) in red.
+
+            The graphs report the number of records that have a different value in a given field but share the same BBL between versions.
+
+            In this series of graphs the x-axis is the field name and the y-axis is the total number of records. \
+
             The graphs are useful to see if there are any dramatic changes in the values of fields between versions.
+
+            For example, you can read these graphs as "there are 300,000 records with the same BBL between {v1} to {v2}, but the exempttot value changed."
+
+            Hover over the graph to see the percent of records that have a change.
+
             There is an option to filter these graphs to just show condo lots. \
             Condos make up a small percentage of all lots, but they contain a large percentage of the residential housing. \
             A second filter enables you look at all lots or just mapped lots. \
             Unmapped lots are those with a record in PTS, but no corresponding record in DTM. \
             This happens because DOF updates are not in sync.
-            In this series of graphs the x-axis is the field name and the y-axis is the total number of records. \
-            Hover over the graph to see the percent of records that have a change.
+
         """
         )
 
@@ -119,5 +125,5 @@ def pluto():
 
     if report_type == "Compare with Previous Version":
         version_comparison_report(data)
-    elif report_type == "Review Manual Corrections":
-        CorrectionsReport(data)()
+    elif report_type == "Review Manual Changes":
+        ChangesReport(data)()

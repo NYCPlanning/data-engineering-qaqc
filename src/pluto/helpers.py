@@ -12,11 +12,15 @@ BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-pluto"
 
 
-def get_data(branch) -> Dict[str, pd.DataFrame]:
-    rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output"
+def get_output_folder_path(branch: str) -> str:
+    return f"{REPO_NAME}/{branch}/latest/output"
 
-    client = digital_ocean_client()
+
+def get_data(branch: str) -> Dict[str, pd.DataFrame]:
+    rv = {}
+    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/{get_output_folder_path(branch)}"
+
+    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
     kwargs = {"true_values": ["t"], "false_values": ["f"]}
 
     rv["df_mismatch"] = client.csv_from_DO(
@@ -35,7 +39,7 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
         kwargs={"converters": {"outlier": json.loads}} | kwargs,
     )
 
-    rv = rv | get_corrections(client, branch)
+    rv = rv | get_changes(client, branch)
 
     rv["source_data_versions"] = client.csv_from_DO(
         url=f"{url}/source_data_versions.csv"
@@ -46,24 +50,49 @@ def get_data(branch) -> Dict[str, pd.DataFrame]:
     return rv
 
 
-def get_corrections(client, branch):
+def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFrame]:
     rv = {}
-    pluto_corrections_zip = client.zip_from_DO(
-        zip_filename=f"db-pluto/{branch}/latest/output/pluto_corrections.zip",
+    valid_changes_files_group = [
+        # latest set of filenames
+        {
+            "zip_filename": "pluto_changes.zip",
+            "applied_filename": "pluto_changes_applied.csv",
+            "not_applied_filename": "pluto_changes_not_applied.csv",
+        },
+        # a legacy set of filenames
+        {
+            "zip_filename": "pluto_corrections.zip",
+            "applied_filename": "pluto_corrections_applied.csv",
+            "not_applied_filename": "pluto_corrections_not_applied.csv",
+        },
+    ]
+    output_filenames = client.get_all_filenames_in_folder(
+        folder_path=get_output_folder_path(branch)
     )
 
-    rv["pluto_corrections"] = client.unzip_csv(
-        csv_filename="pluto_corrections.csv", zipfile=pluto_corrections_zip
-    )
+    for changes_files_group in valid_changes_files_group:
+        if changes_files_group["zip_filename"] in output_filenames:
+            pluto_changes_zip = client.zip_from_DO(
+                zip_filename=f"db-pluto/{branch}/latest/output/{changes_files_group['zip_filename']}",
+            )
+            rv["pluto_changes_applied"] = client.unzip_csv(
+                csv_filename=changes_files_group["applied_filename"],
+                zipfile=pluto_changes_zip,
+            )
+            rv["pluto_changes_not_applied"] = client.unzip_csv(
+                csv_filename=changes_files_group["applied_filename"],
+                zipfile=pluto_changes_zip,
+            )
 
-    rv["pluto_corrections_applied"] = client.unzip_csv(
-        csv_filename="pluto_corrections_applied.csv", zipfile=pluto_corrections_zip
-    )
-    rv["pluto_corrections_not_applied"] = client.unzip_csv(
-        csv_filename="pluto_corrections_not_applied.csv", zipfile=pluto_corrections_zip
-    )
+            return rv
 
-    return rv
+    raise FileNotFoundError(
+        f"""
+        No valid pluto changes zip file found!
+        Files in branch folder "{branch}"
+        {output_filenames}
+        """
+    )
 
 
 def get_version_text(source_data_versions):
@@ -87,7 +116,9 @@ def get_version_text(source_data_versions):
 
 
 def get_branches():
-    all_branches = digital_ocean_client().get_all_folders_in_repo()
+    all_branches = DigitalOceanClient(
+        bucket_name=BUCKET_NAME, repo_name=REPO_NAME
+    ).get_all_folder_names_in_repo_folder()
 
     rv = blacklist_branches(all_branches)
     return rv
@@ -112,7 +143,3 @@ def blacklist_branches(branches):
         ) and b != "latest":
             rv.append(b)
     return rv
-
-
-def digital_ocean_client():
-    return DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
