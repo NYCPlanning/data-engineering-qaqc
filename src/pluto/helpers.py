@@ -12,9 +12,13 @@ BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-pluto"
 
 
-def get_data(branch) -> Dict[str, pd.DataFrame]:
+def get_output_folderpath(branch: str) -> str:
+    return f"{REPO_NAME}/{branch}/latest/output"
+
+
+def get_data(branch: str) -> Dict[str, pd.DataFrame]:
     rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-pluto/{branch}/latest/output"
+    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/{get_output_folderpath(branch)}"
 
     client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
     kwargs = {"true_values": ["t"], "false_values": ["f"]}
