@@ -128,7 +128,7 @@ class NotAppliedChangesSection(ChangesSection):
         st.subheader("Manual Changes Not Applied", anchor="changes-not-applied")
         st.markdown(
             """ 
-            For each record in the PLUTO Changes table, PLUTO attempts to correct a record by matching on the BBL and the 
+            For each record in the PLUTO Changes table, PLUTO attempts to change a record by matching on the BBL and the 
             Old Value column. As the underlying datasources change and improve, PLUTO records may no longer match the old value 
             specified in the pluto changes table. The graph and table below outline the records in the pluto changes table that failed to be applied for this reason.
             """
