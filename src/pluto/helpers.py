@@ -53,11 +53,13 @@ def get_data(branch: str) -> Dict[str, pd.DataFrame]:
 def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFrame]:
     rv = {}
     valid_changes_files_group = [
+        # latest set of filenames
         {
             "zip_filename": "pluto_changes.zip",
-            "applied_filename": "pluto_chanes_applied.csv",
-            "not_applied_filename": "pluto_chanes_not_applied.csv",
+            "applied_filename": "pluto_changes_applied.csv",
+            "not_applied_filename": "pluto_changes_not_applied.csv",
         },
+        # a legacy set of filenames
         {
             "zip_filename": "pluto_corrections.zip",
             "applied_filename": "pluto_corrections_applied.csv",
