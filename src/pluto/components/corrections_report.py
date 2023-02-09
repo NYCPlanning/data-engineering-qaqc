@@ -12,7 +12,9 @@ class CorrectionsReport:
         self.applied_corrections = data["pluto_corrections_applied"]
         self.not_applied_corrections = data["pluto_corrections_not_applied"]
         self.version_dropdown = np.insert(
-            np.flip(np.sort(data["pluto_corrections"].version.dropna().unique())),
+            np.flip(
+                np.sort(data["pluto_corrections_applied"].version.dropna().unique())
+            ),
             0,
             "All",
         )
@@ -76,7 +78,7 @@ class CorrectionsSection(ABC):
         figure = self.generate_graph(self.field_correction_counts(df), title)
         st.plotly_chart(figure)
 
-        self.display_corrections_df(df)
+        self.display_corrections_df(df, title)
 
     def generate_graph(self, corrections, title):
         return px.bar(
@@ -92,12 +94,12 @@ class CorrectionsSection(ABC):
     def field_correction_counts(self, df):
         return df.groupby(["field"]).size().to_frame("size").reset_index()
 
-    def display_corrections_df(self, corrections):
+    def display_corrections_df(self, corrections, title):
         corrections = corrections.sort_values(
             by=["version", "reason", "bbl"], ascending=[False, True, True]
         )
 
-        AgGrid(corrections)
+        AgGrid(data=corrections, key=f"display_corrections_df_{title}")
 
 
 class AppliedCorrectionsSection(CorrectionsSection):
