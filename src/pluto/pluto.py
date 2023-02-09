@@ -12,7 +12,7 @@ def pluto():
     from numerize.numerize import numerize
 
     from src.constants import COLOR_SCHEME
-    from src.pluto.components.corrections_report import CorrectionsReport
+    from src.pluto.components.changes_report import ChangesReport
     from src.pluto.components.mismatch_report import MismatchReport
     from src.pluto.components.null_graph import NullReport
     from src.pluto.components.source_data_versions_report import (
@@ -126,4 +126,4 @@ def pluto():
     if report_type == "Compare with Previous Version":
         version_comparison_report(data)
     elif report_type == "Review Manual Changes":
-        CorrectionsReport(data)()
+        ChangesReport(data)()

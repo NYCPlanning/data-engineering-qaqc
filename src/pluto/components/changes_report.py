@@ -7,12 +7,12 @@ from src.constants import COLOR_SCHEME
 from abc import ABC
 
 
-class CorrectionsReport:
+class ChangesReport:
     def __init__(self, data) -> None:
-        self.applied_corrections = data["pluto_corrections_applied"]
-        self.not_applied_corrections = data["pluto_corrections_not_applied"]
+        self.applied_changes = data["pluto_changes_applied"]
+        self.not_applied_changes = data["pluto_changes_not_applied"]
         self.version_dropdown = np.flip(
-            np.sort(data["pluto_corrections_applied"].version.dropna().unique())
+            np.sort(data["pluto_changes_applied"].version.dropna().unique())
         )
 
     def __call__(self):
@@ -37,7 +37,7 @@ class CorrectionsReport:
             """
         )
 
-        if self.applied_corrections is None or self.not_applied_corrections is None:
+        if self.applied_changes is None or self.not_applied_changes is None:
             st.info(
                 "There are no available changes reports for this branch. This is likely due to a problem on the backend with the files on Digital Ocean."
             )
@@ -48,8 +48,8 @@ class CorrectionsReport:
             self.version_dropdown,
         )
 
-        AppliedCorrectionsSection(self.applied_corrections, version)()
-        NotAppliedCorrectionsSection(self.not_applied_corrections, version)()
+        AppliedChangesSection(self.applied_changes, version)()
+        NotAppliedChangesSection(self.not_applied_changes, version)()
 
         st.info(
             """
@@ -59,10 +59,10 @@ class CorrectionsReport:
         )
 
 
-class CorrectionsSection(ABC):
-    def __init__(self, corrections, version) -> None:
+class ChangesSection(ABC):
+    def __init__(self, changes, version) -> None:
         super().__init__()
-        self.corrections = self.filter_by_version(corrections, version)
+        self.changes = self.filter_by_version(changes, version)
         self.version_text = self.version_text(version)
 
     def filter_by_version(self, df, version):
@@ -74,15 +74,15 @@ class CorrectionsSection(ABC):
     def version_text(self, version):
         return "All Versions" if version == "All" else f"Version {version}"
 
-    def display_corrections_figures(self, df, title):
-        figure = self.generate_graph(self.field_correction_counts(df), title)
+    def display_changes_figures(self, df, title):
+        figure = self.generate_graph(self.field_change_counts(df), title)
         st.plotly_chart(figure)
 
-        self.display_corrections_df(df, title)
+        self.display_changes_df(df, title)
 
-    def generate_graph(self, corrections, title):
+    def generate_graph(self, changes, title):
         return px.bar(
-            corrections,
+            changes,
             x="field",
             y="size",
             text="size",
@@ -91,28 +91,28 @@ class CorrectionsSection(ABC):
             color_discrete_sequence=COLOR_SCHEME,
         )
 
-    def field_correction_counts(self, df):
+    def field_change_counts(self, df):
         return df.groupby(["field"]).size().to_frame("size").reset_index()
 
-    def display_corrections_df(self, corrections, title):
-        corrections = corrections.sort_values(
+    def display_changes_df(self, changes, title):
+        changes = changes.sort_values(
             by=["version", "reason", "bbl"], ascending=[False, True, True]
         )
 
-        AgGrid(data=corrections, key=f"display_corrections_df_{title}")
+        AgGrid(data=changes, key=f"display_changes_df_{title}")
 
 
-class AppliedCorrectionsSection(CorrectionsSection):
+class AppliedChangesSection(ChangesSection):
     def __call__(self):
         st.subheader("Manual Changes Applied", anchor="changes-applied")
 
-        if self.corrections.empty:
+        if self.changes.empty:
             st.info(f"No Changes introduced in {self.version_text} were applied.")
         else:
             title_text = (
                 f"Applied Manual Changes introduced in {self.version_text} by Field"
             )
-            self.display_corrections_figures(self.corrections, title_text)
+            self.display_changes_figures(self.changes, title_text)
         st.markdown(
             """
             For each record in the PLUTO Changes table, PLUTO attempts to change a record to the New Value column by matching on the BBL and the 
@@ -121,7 +121,7 @@ class AppliedCorrectionsSection(CorrectionsSection):
         )
 
 
-class NotAppliedCorrectionsSection(CorrectionsSection):
+class NotAppliedChangesSection(ChangesSection):
     def __call__(self):
         st.subheader("Manual Changes Not Applied", anchor="changes-not-applied")
         st.markdown(
@@ -132,10 +132,10 @@ class NotAppliedCorrectionsSection(CorrectionsSection):
             """
         )
 
-        if self.corrections.empty:
+        if self.changes.empty:
             st.info(f"All Changes introduced in {self.version_text} were applied.")
         else:
             title_text = (
                 f"Manual Changes not Applied introduced in {self.version_text} by Field"
             )
-            self.display_corrections_figures(self.corrections, title_text)
+            self.display_changes_figures(self.changes, title_text)

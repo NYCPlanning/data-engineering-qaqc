@@ -75,11 +75,11 @@ def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFra
             pluto_changes_zip = client.zip_from_DO(
                 zip_filename=f"db-pluto/{branch}/latest/output/{changes_files_group['zip_filename']}",
             )
-            rv["pluto_corrections_applied"] = client.unzip_csv(
+            rv["pluto_changes_applied"] = client.unzip_csv(
                 csv_filename=changes_files_group["applied_filename"],
                 zipfile=pluto_changes_zip,
             )
-            rv["pluto_corrections_not_applied"] = client.unzip_csv(
+            rv["pluto_changes_not_applied"] = client.unzip_csv(
                 csv_filename=changes_files_group["applied_filename"],
                 zipfile=pluto_changes_zip,
             )
