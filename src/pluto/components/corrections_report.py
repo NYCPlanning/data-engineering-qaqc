@@ -11,12 +11,8 @@ class CorrectionsReport:
     def __init__(self, data) -> None:
         self.applied_corrections = data["pluto_corrections_applied"]
         self.not_applied_corrections = data["pluto_corrections_not_applied"]
-        self.version_dropdown = np.insert(
-            np.flip(
-                np.sort(data["pluto_corrections_applied"].version.dropna().unique())
-            ),
-            0,
-            "All",
+        self.version_dropdown = np.flip(
+            np.sort(data["pluto_corrections_applied"].version.dropna().unique())
         )
 
     def __call__(self):
