@@ -16,4 +16,4 @@ Best practice to run the app locally is to use the dev container (especially via
 
 2. If in VS Code, a popup should appear with an option to navigate to the site in a browser
 
-3. If an error of `Access to localhost was denied` appears in the browser, try navigating to `http://127.0.0.1:5000/`
+3. If an error of `Access to localhost was denied` appears in the browser, try navigating to `127.0.0.1:5000` rather than `localhost:5000`
