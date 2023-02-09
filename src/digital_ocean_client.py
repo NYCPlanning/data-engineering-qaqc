@@ -47,9 +47,17 @@ class DigitalOceanClient:
 
         return all_folders
 
-    def get_all_filenames_in_folder(self, folder: str):
-        # TODO
-        return None
+    def get_all_filenames_in_folder(self, folder_name: str):
+        file_names = set()
+        response = self.list_objects_v2(
+            Bucket=self.bucket_name,
+            Prefix=f"{folder_name}",
+        )
+        files = response.get("Contents")
+        for file in files:
+            file_names.add(file["Key"])
+
+        return files
 
     def unzip_csv(self, csv_filename, zipfile):
         try:
