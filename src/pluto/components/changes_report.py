@@ -33,7 +33,9 @@ class ChangesReport:
             For more information about the structure of the pluto changes report,
             see the [Pluto Changelog Readme](https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/pluto_change_file_readme.pdf?r=22v1).
 
-            NOTE: This report is based on the files `pluto_changes_applied.csv` and `pluto_changes_not_applied.csv`
+            NOTE: This report is based on the files
+            `pluto_changes_applied.csv`/`pluto_changes_not_applied.csv`
+            (or legacy files `pluto_corrections_applied.csv`/`pluto_corrections_not_applied.csv`)
             """
         )
 
