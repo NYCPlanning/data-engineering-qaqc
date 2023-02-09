@@ -35,7 +35,7 @@ def pluto():
 
     report_type = st.sidebar.selectbox(
         "Choose a Report Type",
-        ["Compare with Previous Version", "Review Manual Corrections"],
+        ["Compare with Previous Version", "Review Manual Changes"],
     )
 
     data = get_data(branch)
@@ -125,5 +125,5 @@ def pluto():
 
     if report_type == "Compare with Previous Version":
         version_comparison_report(data)
-    elif report_type == "Review Manual Corrections":
+    elif report_type == "Review Manual Changes":
         CorrectionsReport(data)()

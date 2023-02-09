@@ -16,7 +16,7 @@ class CorrectionsReport:
         )
 
     def __call__(self):
-        st.header("Manual Corrections")
+        st.header("Manual Changes")
 
         st.markdown(
             """
@@ -24,23 +24,27 @@ class CorrectionsReport:
             improve data quality, the Department of City Planning (DCP) applies changes to selected field
             values.
 
-            Each Field Correction is labeled for a version of PLUTO. For programmatic changes, this is version in which the programmatic change was
+            Each change to a field is labeled for a version of PLUTO.
+            
+            For programmatic changes, this is version in which the programmatic change was
             implemented. For research and user reported changes, this is the version in which the BBL
             change was added to PLUTO_input_research.csv.
 
-            For more information about the structure of the pluto corrections report,
+            For more information about the structure of the pluto changes report,
             see the [Pluto Changelog Readme](https://www1.nyc.gov/assets/planning/download/pdf/data-maps/open-data/pluto_change_file_readme.pdf?r=22v1).
+
+            NOTE: This report is based on the files `pluto_changes_applied.csv` and `pluto_changes_not_applied.csv`
             """
         )
 
         if self.applied_corrections is None or self.not_applied_corrections is None:
             st.info(
-                "There are no available corrections reports for this branch. This is likely due to a problem on the backend with the files on Digital Ocean."
+                "There are no available changes reports for this branch. This is likely due to a problem on the backend with the files on Digital Ocean."
             )
             return
 
         version = st.sidebar.selectbox(
-            "Filter the field corrections by the PLUTO Version in which they were first introduced",
+            "Filter the changes to fields by the PLUTO Version in which they were first introduced",
             self.version_dropdown,
         )
 
@@ -100,36 +104,38 @@ class CorrectionsSection(ABC):
 
 class AppliedCorrectionsSection(CorrectionsSection):
     def __call__(self):
-        st.subheader("Manual Corrections Applied", anchor="corrections-applied")
+        st.subheader("Manual Changes Applied", anchor="changes-applied")
 
         if self.corrections.empty:
-            st.info(f"No Corrections introduced in {self.version_text} were applied.")
+            st.info(f"No Changes introduced in {self.version_text} were applied.")
         else:
             title_text = (
-                f"Applied Manual Corrections introduced in {self.version_text} by Field"
+                f"Applied Manual Changes introduced in {self.version_text} by Field"
             )
             self.display_corrections_figures(self.corrections, title_text)
         st.markdown(
             """
-            For each record in the PLUTO Corrections table, PLUTO attempts to change a record to the New Value column by matching on the BBL and the 
-            Old Value column. The graph and table below outline the records in the pluto corrections table that were successfully applied to PLUTO.
+            For each record in the PLUTO Changes table, PLUTO attempts to change a record to the New Value column by matching on the BBL and the 
+            Old Value column. The graph and table below outline the records in the pluto changes table that were successfully applied to PLUTO.
             """
         )
 
 
 class NotAppliedCorrectionsSection(CorrectionsSection):
     def __call__(self):
-        st.subheader("Manual Corrections Not Applied", anchor="corrections-not-applied")
+        st.subheader("Manual Changes Not Applied", anchor="changes-not-applied")
         st.markdown(
             """ 
-            For each record in the PLUTO Corrections table, PLUTO attempts to correct a record by matching on the BBL and the 
+            For each record in the PLUTO Changes table, PLUTO attempts to correct a record by matching on the BBL and the 
             Old Value column. As the underlying datasources change and improve, PLUTO records may no longer match the old value 
-            specified in the pluto corrections table. The graph and table below outline the records in the pluto corrections table that failed to be applied for this reason.
+            specified in the pluto changes table. The graph and table below outline the records in the pluto changes table that failed to be applied for this reason.
             """
         )
 
         if self.corrections.empty:
-            st.info(f"All Corrections introduced in {self.version_text} were applied.")
+            st.info(f"All Changes introduced in {self.version_text} were applied.")
         else:
-            title_text = f"Manual Corrections not Applied introduced in {self.version_text} by Field"
+            title_text = (
+                f"Manual Changes not Applied introduced in {self.version_text} by Field"
+            )
             self.display_corrections_figures(self.corrections, title_text)
