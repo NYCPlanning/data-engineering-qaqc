@@ -25,11 +25,6 @@ def pluto():
     from src.pluto.components.aggregate_report import AggregateReport
 
     st.title("PLUTO QAQC")
-    st.markdown(
-        """
-    ![GitHub release (latest SemVer)](https://img.shields.io/github/v/release/NYCPlanning/db-pluto?label=version) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/CI?label=CI) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/CAMA%20Processing?label=CAMA) ![GitHub Workflow Status](https://img.shields.io/github/workflow/status/NYCPlanning/db-pluto/PTS%20processing?label=PTS)
-    """
-    )
 
     branches = get_branches()
     branch = st.sidebar.selectbox(
