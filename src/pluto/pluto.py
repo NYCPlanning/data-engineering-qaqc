@@ -78,9 +78,9 @@ def pluto():
         condo = st.sidebar.checkbox("condo only")
         mapped = st.sidebar.checkbox("mapped only")
 
+        st.markdown(
             f"Current version: {v1}, Previous version: {v2}, Previous Previous version: {v3}"
         )
-        st.markdown(
         st.text(
             f"""
             The graphs report the number of records that have a different value in a given field but share the same BBL between versions. \
@@ -94,21 +94,6 @@ def pluto():
             Unmapped lots are those with a record in PTS, but no corresponding record in DTM. \
             This happens because DOF updates are not in sync.
 
-            In this series of graphs the x-axis is the field name and the y-axis is the total number of records. \
-            Hover over the graph to see the percent of records that have a change.
-        """
-        )
-        st.markdown(
-            f"""
-            This series of reports compares the version of PLUTO selected with the previous version ({v1} to {v2}) in blue, and the previous two versions ({v2} to {v3}) in red. \
-            The graphs report the number of records that have a different value in a given field but share the same BBL between versions. \
-            For example, you can read these graphs as "there are 300,000 records with the same BBL between {v1} to {v2}, but the exempttot value changed." \
-            The graphs are useful to see if there are any dramatic changes in the values of fields between versions.
-            There is an option to filter these graphs to just show condo lots. \
-            Condos make up a small percentage of all lots, but they contain a large percentage of the residential housing. \
-            A second filter enables you look at all lots or just mapped lots. \
-            Unmapped lots are those with a record in PTS, but no corresponding record in DTM. \
-            This happens because DOF updates are not in sync.
             In this series of graphs the x-axis is the field name and the y-axis is the total number of records. \
             Hover over the graph to see the percent of records that have a change.
         """
