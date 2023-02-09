@@ -13,7 +13,11 @@ setup(
         "plotly",
         "python-dotenv",
         "boto3",
-        "streamlit-aggrid"
+        "streamlit-aggrid",
+        "geopandas",
+        "matplotlib",
+        "python-abc",
+        "numerize",
     ],
     zip_safe=False,
 )

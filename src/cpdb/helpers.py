@@ -1,12 +1,19 @@
-# from asyncio.windows_events import NULL
-from io import StringIO
-import streamlit as st
-import os
 import pandas as pd
-import boto3
 from dotenv import load_dotenv
+import geopandas as gpd
+from src.digital_ocean_client import DigitalOceanClient
 
 load_dotenv()
+
+cpdb_published_versions = [
+    "2022-10-25",  # '22 CPDB Adopted
+    "2022-06-08",  # '22 CPDB Executive
+    "2022-04-15",  # '22 CPDB Prelminary
+]
+
+
+BUCKET_NAME = "edm-publishing"
+REPO_NAME = "db-cpdb"
 
 VIZKEY = {
     "all categories": {
@@ -23,35 +30,42 @@ VIZKEY = {
 where would this list comes from? """
 
 
-def get_data(branch, table) -> dict:
+def get_geometries(branch, table) -> dict:
+    client = digital_ocean_client()
+
+    gdf = client.shapefile_from_DO(
+        shapefile_zip=f"db-cpdb/{branch}/latest/output/{table}.shp.zip"
+    )
+
+    return gdf
+
+
+def get_data(branch, previous_version) -> dict:
     rv = {}
+    tables = {
+        "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
+        "others": ["cpdb_adminbounds"],
+        "no_version_compare": ["geospatial_check"],
+        "geometries": ["cpdb_dcpattributes_pts", "cpdb_dcpattributes_poly"],
+    }
 
-    client = boto3.client(
-        "s3",
-        aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
-        aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
-        endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
-    )
-    # for table in ['magency', 'sagency']:
-    obj = client.get_object(
-        Bucket="edm-private",
-        Key=f"db-cpdb/{branch}/latest/output/analysis/cpdb_summarystats_{table}.csv",
-    )
-    s = str(obj["Body"].read(), "utf8")
-    data = StringIO(s)
-    df = pd.read_csv(data, encoding="utf8")
-    rv[table] = df
+    client = digital_ocean_client()
 
-    # this could be modified once open data for cpdb is set up
-    obj = client.get_object(
-        Bucket="edm-private",
-        Key=f"db-cpdb/{branch}/2022-04-15/output/analysis/cpdb_summarystats_{table}.csv",
-    )
-    s = str(obj["Body"].read(), "utf8")
-    data = StringIO(s)
-    df = pd.read_csv(data, encoding="utf8")
-    rv["pre_" + table] = df
-
+    for t in tables["analysis"]:
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t, sub_folder="analysis/"))
+        rv["pre_" + t] = client.csv_from_DO(
+            url=construct_url(branch, t, previous_version, sub_folder="analysis/")
+        )
+    for t in tables["others"]:
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t))
+        rv["pre_" + t] = client.csv_from_DO(
+            url=construct_url(branch, t, previous_version)
+        )
+    for t in tables["no_version_compare"]:
+        rv[t] = client.csv_from_DO(url=construct_url(branch, t))
+    for t in tables["geometries"]:
+        rv[t] = get_geometries(branch, table=t)
+    print(rv.keys())
     return rv
 
 
@@ -90,3 +104,14 @@ def sort_base_on_option(
     )
 
     return df_sort
+
+
+def construct_url(branch, table, build="latest", sub_folder=""):
+    return (
+        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-cpdb/{branch}"
+        f"/{build}/output/{sub_folder}{table}.csv"
+    )
+
+
+def digital_ocean_client():
+    return DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
