@@ -42,6 +42,7 @@ def pluto():
 
     def version_comparison_report(data):
         versions = [
+            "23v1",
             "22v3.1",
             "22v3",
             "22v2",
