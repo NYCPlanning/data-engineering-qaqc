@@ -48,6 +48,7 @@ def get_data(branch: str) -> Dict[str, pd.DataFrame]:
     data["version_text"] = get_version_text(data["source_data_versions"])
 
     # standarzie minor versions strings to be dot notation
+    # NOTE this is a temporary approach until data-library is improved to use dot notation
     data_to_standardize = ["df_mismatch", "df_null"]
     for data_name in data_to_standardize:
         data[data_name].replace(
