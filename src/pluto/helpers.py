@@ -47,6 +47,12 @@ def get_data(branch: str) -> Dict[str, pd.DataFrame]:
 
     data["version_text"] = get_version_text(data["source_data_versions"])
 
+    # standarzie minor versions strings to be dot notation
+    data["df_mismatch"] = data["df_mismatch"].replace(
+        to_replace={
+            "23v1 - 22v3_1": "23v1 - 22v3.1",
+        }
+    )
 
     return data
 
