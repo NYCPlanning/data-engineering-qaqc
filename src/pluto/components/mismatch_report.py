@@ -71,7 +71,12 @@ class MismatchReport:
         ]
 
     def filter_by_version(self, df, version_pair):
-        return df.loc[df.pair == version_pair, :]
+        version_pair_data = df.loc[df.pair == version_pair, :]
+        if len(version_pair_data) == 0:
+            raise ValueError(
+                f"No data found in qaqc_mismatch for version pair {version_pair}"
+            )
+        return version_pair_data
 
     def total(self, df):
         return df["total"].iloc[0]
