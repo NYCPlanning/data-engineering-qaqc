@@ -17,37 +17,38 @@ def get_output_folder_path(branch: str) -> str:
 
 
 def get_data(branch: str) -> Dict[str, pd.DataFrame]:
-    rv = {}
+    data = {}
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/{get_output_folder_path(branch)}"
 
     client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
     kwargs = {"true_values": ["t"], "false_values": ["f"]}
 
-    rv["df_mismatch"] = client.csv_from_DO(
+    data["df_mismatch"] = client.csv_from_DO(
         url=f"{url}/qaqc/qaqc_mismatch.csv", kwargs=kwargs
     )
-    rv["df_null"] = client.csv_from_DO(url=f"{url}/qaqc/qaqc_null.csv", kwargs=kwargs)
-    rv["df_aggregate"] = client.csv_from_DO(
+    data["df_null"] = client.csv_from_DO(url=f"{url}/qaqc/qaqc_null.csv", kwargs=kwargs)
+    data["df_aggregate"] = client.csv_from_DO(
         url=f"{url}/qaqc/qaqc_aggregate.csv", kwargs=kwargs
     )
-    rv["df_expected"] = client.csv_from_DO(
+    data["df_expected"] = client.csv_from_DO(
         url=f"{url}/qaqc/qaqc_expected.csv",
         kwargs={"converters": {"expected": json.loads}} | kwargs,
     )
-    rv["df_outlier"] = client.csv_from_DO(
+    data["df_outlier"] = client.csv_from_DO(
         url=f"{url}/qaqc/qaqc_outlier.csv",
         kwargs={"converters": {"outlier": json.loads}} | kwargs,
     )
 
-    rv = rv | get_changes(client, branch)
+    data = data | get_changes(client, branch)
 
-    rv["source_data_versions"] = client.csv_from_DO(
+    data["source_data_versions"] = client.csv_from_DO(
         url=f"{url}/source_data_versions.csv"
     )
 
-    rv["version_text"] = get_version_text(rv["source_data_versions"])
+    data["version_text"] = get_version_text(data["source_data_versions"])
 
-    return rv
+
+    return data
 
 
 def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFrame]:
@@ -120,8 +121,8 @@ def get_branches():
         bucket_name=BUCKET_NAME, repo_name=REPO_NAME
     ).get_all_folder_names_in_repo_folder()
 
-    rv = blacklist_branches(all_branches)
-    return rv
+    branches = sorted(blacklist_branches(all_branches))
+    return branches
 
 
 def convert(dt):
