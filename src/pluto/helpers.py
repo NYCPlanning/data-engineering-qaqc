@@ -146,8 +146,8 @@ def convert(dt):
 def blacklist_branches(branches):
     """For pluto this is done by programmatically, can also be hard-coded"""
     valid_branches = []
-    data_regex = r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
+    date_regex = r"[0-9]{4}-[0-9]{2}-[0-9]{2}"
     for b in branches:
-        if (re.match(data_regex, b) is None) and b != "latest":
+        if (re.match(date_regex, b) is None) and b != "latest":
             valid_branches.append(b)
     return valid_branches
