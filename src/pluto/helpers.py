@@ -58,7 +58,7 @@ def get_data(branch: str) -> Dict[str, pd.DataFrame]:
 
 
 def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFrame]:
-    rv = {}
+    changes = {}
     valid_changes_files_group = [
         # latest set of filenames
         {
@@ -82,16 +82,16 @@ def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFra
             pluto_changes_zip = client.zip_from_DO(
                 zip_filename=f"db-pluto/{branch}/latest/output/{changes_files_group['zip_filename']}",
             )
-            rv["pluto_changes_applied"] = client.unzip_csv(
+            changes["pluto_changes_applied"] = client.unzip_csv(
                 csv_filename=changes_files_group["applied_filename"],
                 zipfile=pluto_changes_zip,
             )
-            rv["pluto_changes_not_applied"] = client.unzip_csv(
+            changes["pluto_changes_not_applied"] = client.unzip_csv(
                 csv_filename=changes_files_group["applied_filename"],
                 zipfile=pluto_changes_zip,
             )
 
-            return rv
+            return changes
 
     raise FileNotFoundError(
         f"""
