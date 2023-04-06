@@ -4,8 +4,6 @@ WORKDIR /app
 
 COPY . .
 
-# RUN python3 -m venv venv
-
 RUN pip3 install poetry
 RUN poetry install
 
