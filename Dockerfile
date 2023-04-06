@@ -4,8 +4,7 @@ WORKDIR /app
 
 COPY . .
 
-RUN pip3 install poetry
-RUN poetry install
+RUN dev/install_python_packages.sh
 
 
 CMD [ "./entrypoint.sh" ]
