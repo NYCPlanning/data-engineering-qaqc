@@ -1,4 +1,0 @@
-#!/bin/bash
-# UNUSED??
-export $(cat .env | sed 's/#.*//g' | xargs)
-poetry run streamlit run index.py
