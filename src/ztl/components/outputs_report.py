@@ -1,6 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
-from src.ztl.helpers import get_data, ZONING_FIELD_CATEGORIES
+from src.ztl.helpers import get_output_data, ZONING_FIELD_CATEGORIES
 from src.constants import COLOR_SCHEME
 
 def output_report():
@@ -11,7 +11,7 @@ def output_report():
         qaqc_mismatch,
         qaqc_bbl,
         qaqc_null,
-    ) = get_data()
+    ) = get_output_data()
 
 
     st.markdown(

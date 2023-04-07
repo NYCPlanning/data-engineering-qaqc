@@ -36,7 +36,7 @@ ZONING_FIELD_CATEGORIES = {
 
 
 @st.cache_data
-def get_data():
+def get_output_data():
     source_data_versions = pd.read_csv(
         f"{OUTPUT_DATA_URL}source_data_versions.csv", index_col=False
     )
