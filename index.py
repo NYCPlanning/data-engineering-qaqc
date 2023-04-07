@@ -1,6 +1,6 @@
 import streamlit as st
 from src.pluto.pluto import pluto
-from src.ztl import ztl
+from src.ztl.ztl import ztl
 from src.facdb.facdb import facdb
 from src.devdb.devdb import devdb
 from src.geocode import geocode
