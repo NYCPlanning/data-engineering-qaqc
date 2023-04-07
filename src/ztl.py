@@ -10,7 +10,7 @@ def ztl():
 
     pd.options.display.float_format = "{:.2f}%".format
 
-    @st.cache(suppress_st_warning=True, allow_output_mutation=True)
+    @st.cache_data(suppress_st_warning=True, allow_output_mutation=True)
     def get_data():
         url = "https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/"
         source_data_versions = pd.read_csv(
