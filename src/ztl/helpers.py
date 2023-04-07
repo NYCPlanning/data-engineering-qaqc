@@ -38,23 +38,47 @@ ZONING_FIELD_CATEGORIES = {
 
 
 @st.cache_data
-def get_output_data():
-    source_data_versions = pd.read_csv(
-        f"{OUTPUT_DATA_URL}source_data_versions.csv", index_col=False
+def get_latest_build_version() -> str:
+    return requests.get(
+        f"{OUTPUT_DATA_URL}version.txt",
+        timeout=10,
+    ).text
+
+
+def get_source_data_versions() -> pd.DataFrame:
+    return pd.read_csv(
+        f"{OUTPUT_DATA_URL}source_data_versions.csv",
+        index_col=False,
     )
-    qaqc_bbl = pd.read_csv(f"{OUTPUT_DATA_URL}qaqc_bbl.csv", index_col=False)
-    qaqc_mismatch = pd.read_csv(f"{OUTPUT_DATA_URL}qaqc_mismatch.csv", index_col=False)
+
+
+@st.cache_data
+def get_output_data() -> tuple:
+    last_build = get_latest_build_version()
+    source_data_versions = get_source_data_versions()
+    qaqc_bbl = pd.read_csv(
+        f"{OUTPUT_DATA_URL}qaqc_bbl.csv",
+        index_col=False,
+    )
+    qaqc_mismatch = pd.read_csv(
+        f"{OUTPUT_DATA_URL}qaqc_mismatch.csv",
+        index_col=False,
+    )
     bbldiff = pd.read_csv(
-        f"{OUTPUT_DATA_URL}qc_bbldiffs.csv", dtype=str, index_col=False
+        f"{OUTPUT_DATA_URL}qc_bbldiffs.csv",
+        dtype=str,
+        index_col=False,
     )
     bbldiff = bbldiff.fillna("NULL")
-    qaqc_null = pd.read_csv(f"{OUTPUT_DATA_URL}qaqc_null.csv", index_col=False)
-    last_build = requests.get(f"{OUTPUT_DATA_URL}version.txt").text
+    qaqc_null = pd.read_csv(
+        f"{OUTPUT_DATA_URL}qaqc_null.csv",
+        index_col=False,
+    )
 
     return (
+        last_build,
         source_data_versions,
         bbldiff,
-        last_build,
         qaqc_mismatch,
         qaqc_bbl,
         qaqc_null,
