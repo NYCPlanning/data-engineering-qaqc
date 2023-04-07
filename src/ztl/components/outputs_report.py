@@ -3,6 +3,7 @@ import plotly.graph_objects as go
 from src.ztl.helpers import get_output_data, ZONING_FIELD_CATEGORIES
 from src.constants import COLOR_SCHEME
 
+
 def output_report():
     (
         source_data_versions,
@@ -12,7 +13,6 @@ def output_report():
         qaqc_bbl,
         qaqc_null,
     ) = get_output_data()
-
 
     st.markdown(
         f"[![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml) last build: {last_build}"
@@ -93,7 +93,9 @@ def output_report():
     change_by_category = qaqc_mismatch[["version", "version_prev"]]
     category = ["Commercial Overlay", "Zoning Districts", "Special Districts", "Other"]
     for cat in category:
-        change_by_category[cat] = qaqc_mismatch[ZONING_FIELD_CATEGORIES[cat]].sum(axis=1)
+        change_by_category[cat] = qaqc_mismatch[ZONING_FIELD_CATEGORIES[cat]].sum(
+            axis=1
+        )
     create_plot(change_by_category, category, key="cat")
     st.markdown(
         """

@@ -1,9 +1,10 @@
-def ztl():
-    import streamlit as st
-    import pandas as pd
-    from src.ztl.components.outputs_report import output_report
-    from src.ztl.components.inputs_report import inputs_report
+import streamlit as st
+import pandas as pd
+from src.ztl.components.outputs_report import output_report
+from src.ztl.components.inputs_report import inputs_report
 
+
+def ztl():
     pd.options.display.float_format = "{:.2f}%".format
 
     st.title("Zoning Tax Lots QAQC")

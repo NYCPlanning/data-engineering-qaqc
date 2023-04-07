@@ -2,7 +2,9 @@ import streamlit as st
 import pandas as pd
 import requests
 
-OUTPUT_DATA_URL = "https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/"
+OUTPUT_DATA_URL = (
+    "https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/"
+)
 
 ZONING_FIELD_CATEGORIES = {
     "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
@@ -42,7 +44,9 @@ def get_output_data():
     )
     qaqc_bbl = pd.read_csv(f"{OUTPUT_DATA_URL}qaqc_bbl.csv", index_col=False)
     qaqc_mismatch = pd.read_csv(f"{OUTPUT_DATA_URL}qaqc_mismatch.csv", index_col=False)
-    bbldiff = pd.read_csv(f"{OUTPUT_DATA_URL}qc_bbldiffs.csv", dtype=str, index_col=False)
+    bbldiff = pd.read_csv(
+        f"{OUTPUT_DATA_URL}qc_bbldiffs.csv", dtype=str, index_col=False
+    )
     bbldiff = bbldiff.fillna("NULL")
     qaqc_null = pd.read_csv(f"{OUTPUT_DATA_URL}qaqc_null.csv", index_col=False)
     last_build = requests.get(f"{OUTPUT_DATA_URL}version.txt").text
