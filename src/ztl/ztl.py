@@ -6,8 +6,6 @@ def ztl():
 
     pd.options.display.float_format = "{:.2f}%".format
 
-    
-
     st.title("Zoning Tax Lots QAQC")
 
     report_type = st.sidebar.radio(
