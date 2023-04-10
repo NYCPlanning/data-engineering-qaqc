@@ -19,8 +19,8 @@
 	},
 	// Use 'forwardPorts' to make a list of ports inside the container available locally.
 	// "forwardPorts": [],
-	// Uncomment the next line to run commands after the container is created - for example installing curl.
-	"postCreateCommand": "./dev/install_python_packages.sh",
+	// // Uncomment the next line to run commands after the container is created - for example installing curl.
+	// "postCreateCommand": "./dev/setup_env.sh",
 	// Adding id_rsa so that we can push to github from the dev container
 	"initializeCommand": "ssh-add",
 	// Uncomment when using a ptrace-based debugger like C++, Go, and Rust

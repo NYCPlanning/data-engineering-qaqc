@@ -1,6 +1,14 @@
 FROM python:3.11-slim as build
 
-RUN apt update && apt install -y git
+RUN export DEBIAN_FRONTEND=noninteractive
+
+# Run environment setup script
+COPY bash/ /bash/
+COPY requirements.txt /.
+RUN bash/setup_env.sh
+
+# Run dev environment setups
+RUN apt-get install -y git
 RUN pip install -U black
 RUN pip install -U bandit
 
