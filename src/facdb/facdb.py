@@ -57,7 +57,7 @@ def facdb():
         label="Refresh data", help="Download newest files from Digital Ocean"
     ):
 
-        st.experimental_memo.clear()
+        st.cache_data.clear()
         get_data(branch)
 
     general_or_classification = st.sidebar.selectbox(

@@ -1,0 +1,11 @@
+boto3==1.*
+geopandas==0.*
+matplotlib==3.*
+numerize==0.*
+numpy==1.*
+pandas==1.*
+plotly==5.*
+python-abc==0.*
+python-dotenv==0.*
+streamlit-aggrid==0.*
+streamlit==1.*

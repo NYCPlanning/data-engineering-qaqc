@@ -1,14 +1,10 @@
-FROM python:3.9-slim as build
+FROM python:3.11-slim as build
 
 WORKDIR /app
 
 COPY . .
 
-# RUN python3 -m venv venv
-
-RUN pip3 install poetry
-RUN poetry install
-
+RUN dev/install_python_packages.sh
 
 CMD [ "./entrypoint.sh" ]
 

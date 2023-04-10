@@ -26,7 +26,7 @@ remove_branches = [
 ]
 
 
-@st.experimental_memo
+@st.cache_data
 def get_data(branch):
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/{branch}/latest/output"
     qc_diff = pd.read_csv(f"{url}/qc_diff.csv")
