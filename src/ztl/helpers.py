@@ -1,9 +1,17 @@
 import streamlit as st
 import pandas as pd
 import requests
+from mysqltotsv import Splitter
+import regex
 
-OUTPUT_DATA_URL = (
-    "https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/"
+REFERENCE_VESION = "2023/03/01"
+
+INPUT_DATA_URL = lambda dataset, version: (
+    f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
+)
+
+OUTPUT_DATA_DIRECTORY_URL = lambda version: (
+    f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/{version}/output/"
 )
 
 ZONING_FIELD_CATEGORIES = {
@@ -38,40 +46,69 @@ ZONING_FIELD_CATEGORIES = {
 
 
 @st.cache_data
+def get_data_columns(data_url: str) -> list[str]:
+    return pd.read_csv(data_url, nrows=1).columns.tolist()
+
+
+@st.cache_data
 def get_latest_build_version() -> str:
     return requests.get(
-        f"{OUTPUT_DATA_URL}version.txt",
-        timeout=10,
+        f"{OUTPUT_DATA_DIRECTORY_URL('latest')}version.txt", timeout=10
     ).text
 
 
-def get_source_data_versions() -> pd.DataFrame:
-    return pd.read_csv(
-        f"{OUTPUT_DATA_URL}source_data_versions.csv",
+@st.cache_data
+def get_source_data_versions(version: str = "latest") -> pd.DataFrame:
+    source_data_versions = pd.read_csv(
+        f"{OUTPUT_DATA_DIRECTORY_URL(version)}source_data_versions.csv",
         index_col=False,
     )
+    source_data_versions.rename(
+        columns={
+            "schema_name": "datalibrary_name",
+            "v": "version",
+        },
+        errors="raise",
+        inplace=True,
+    )
+    source_data_versions.sort_values(
+        by=["datalibrary_name"], ascending=True
+    ).reset_index(drop=True, inplace=True)
+    return source_data_versions
+
+
+@st.cache_data
+def get_source_data(dataset: str, version: int = "latest") -> pd.DataFrame:
+    # TODO gotta assume it's a sql file like
+    # https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/dcp_zoningmapamendments/latest/dcp_zoningmapamendments.sql
+    # return pd.read_sql(INPUT_DATA_URL(dataset, version))
+
+    tsv = Splitter({"file": INPUT_DATA_URL(dataset, version)})
+    return pd.read_table(tsv)
 
 
 @st.cache_data
 def get_output_data() -> tuple:
     last_build = get_latest_build_version()
     source_data_versions = get_source_data_versions()
-    qaqc_bbl = pd.read_csv(
-        f"{OUTPUT_DATA_URL}qaqc_bbl.csv",
-        index_col=False,
-    )
-    qaqc_mismatch = pd.read_csv(
-        f"{OUTPUT_DATA_URL}qaqc_mismatch.csv",
-        index_col=False,
-    )
+    data_url = OUTPUT_DATA_DIRECTORY_URL("latest")
+
     bbldiff = pd.read_csv(
-        f"{OUTPUT_DATA_URL}qc_bbldiffs.csv",
+        f"{data_url}qc_bbldiffs.csv",
         dtype=str,
         index_col=False,
     )
     bbldiff = bbldiff.fillna("NULL")
+    qaqc_mismatch = pd.read_csv(
+        f"{data_url}qaqc_mismatch.csv",
+        index_col=False,
+    )
+    qaqc_bbl = pd.read_csv(
+        f"{data_url}qaqc_bbl.csv",
+        index_col=False,
+    )
     qaqc_null = pd.read_csv(
-        f"{OUTPUT_DATA_URL}qaqc_null.csv",
+        f"{data_url}qaqc_null.csv",
         index_col=False,
     )
 

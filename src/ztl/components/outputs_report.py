@@ -6,17 +6,13 @@ from src.constants import COLOR_SCHEME
 
 def output_report():
     (
+        last_build,
         source_data_versions,
         bbldiff,
-        last_build,
         qaqc_mismatch,
         qaqc_bbl,
         qaqc_null,
     ) = get_output_data()
-
-    st.markdown(
-        f"[![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml) last build: {last_build}"
-    )
 
     # TOTAL QAQC DIFF BY BOROUGH =============================
     total_diff_by_borough = bbldiff.groupby(["boroughcode"]).size().to_dict()
@@ -128,5 +124,5 @@ def output_report():
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
-    st.table(source_data_versions.sort_values(by=["schema_name"], ascending=True))
+    st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================
