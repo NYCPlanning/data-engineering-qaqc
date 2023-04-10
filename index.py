@@ -1,25 +1,6 @@
+import importlib
 import streamlit as st
-from src.pluto.pluto import pluto
-from src.ztl.ztl import ztl
-from src.facdb.facdb import facdb
-from src.devdb.devdb import devdb
-from src.geocode import geocode
-from src.cpdb.cpdb import cpdb
-from src.colp.colp import colp
-from src.home import home
-import requests
-import datetime
-
-datasets = {
-    "Home": home,
-    "PLUTO": pluto,
-    "Zoning Tax Lots": ztl,
-    "Facilities DB": facdb,
-    "Developments DB": devdb,
-    "Geosupport Demo": geocode,
-    "Capital Projects DB": cpdb,
-    "City Owned and Leased Properties":colp,
-}
+from src.constants import DATASET_PAGES
 
 
 def run():
@@ -34,7 +15,7 @@ def run():
         unsafe_allow_html=True,
     )
 
-    datasets_list = list(datasets.keys())
+    datasets_list = list(DATASET_PAGES.keys())
     query_params = st.experimental_get_query_params()
 
     if query_params:
@@ -43,13 +24,14 @@ def run():
         name = "Home"
 
     name = st.sidebar.selectbox(
-        "select a dataset for qaqc", datasets_list, index=datasets_list.index(name)
+        "Select a dataset for qaqc", datasets_list, index=datasets_list.index(name)
     )
 
     st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
 
-    app = datasets[name]
-    app()
+    dataset_module = importlib.import_module(f"src.{DATASET_PAGES[name]}.{DATASET_PAGES[name]}")
+    dataset_page = getattr(dataset_module, DATASET_PAGES[name])
+    dataset_page()
 
 
 if __name__ == "__main__":
