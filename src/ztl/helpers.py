@@ -1,8 +1,8 @@
+import os
 import streamlit as st
 import pandas as pd
 import requests
-from mysqltotsv import Splitter
-import regex
+from src.postgres_client import SQL_FILE_DIRECTORY, load_data_from_sql_dump, execute_sql_file
 
 REFERENCE_VESION = "2023/03/01"
 
@@ -13,6 +13,8 @@ INPUT_DATA_URL = lambda dataset, version: (
 OUTPUT_DATA_DIRECTORY_URL = lambda version: (
     f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/{version}/output/"
 )
+
+DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
 
 ZONING_FIELD_CATEGORIES = {
     "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
@@ -58,7 +60,7 @@ def get_latest_build_version() -> str:
 
 
 @st.cache_data
-def get_source_data_versions(version: str = "latest") -> pd.DataFrame:
+def get_source_data_versions(version: str) -> pd.DataFrame:
     source_data_versions = pd.read_csv(
         f"{OUTPUT_DATA_DIRECTORY_URL(version)}source_data_versions.csv",
         index_col=False,
@@ -78,13 +80,28 @@ def get_source_data_versions(version: str = "latest") -> pd.DataFrame:
 
 
 @st.cache_data
-def get_source_data(dataset: str, version: int = "latest") -> pd.DataFrame:
-    # TODO gotta assume it's a sql file like
-    # https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/dcp_zoningmapamendments/latest/dcp_zoningmapamendments.sql
-    # return pd.read_sql(INPUT_DATA_URL(dataset, version))
+def load_source_data(dataset: str, version: str) -> None:
+    sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
+    version_for_local_path = version.replace("/", "_")
+    table_name = f"{dataset}_{version_for_local_path}" 
+    file_name = f"{table_name}.sql"
+    sql_dump_file_path_local = f"{SQL_FILE_DIRECTORY}/{file_name}"
 
-    tsv = Splitter({"file": INPUT_DATA_URL(dataset, version)})
-    return pd.read_table(tsv)
+    print(f"getting sql dump file {sql_dump_file_path_s3}")
+
+    data_mysqldump = requests.get(
+        sql_dump_file_path_s3, timeout=10
+    )
+    if not os.path.exists(SQL_FILE_DIRECTORY):
+        os.makedirs(SQL_FILE_DIRECTORY)
+    with open(sql_dump_file_path_local, 'wb') as f:
+        f.write(data_mysqldump.content)
+    
+    # print(f"loading data to DB {sql_dump_file_path_s3}")
+    dev_schemas = load_data_from_sql_dump(table_name)
+    print("DEV schemas in postgres 11.17 DB EDM_DATA/edm-qaqc:")
+    print(f"{dev_schemas}")
+    # execute_sql_file(file_name)
 
 
 @st.cache_data
