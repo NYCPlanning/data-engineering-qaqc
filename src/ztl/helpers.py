@@ -5,6 +5,7 @@ import requests
 from src.postgres_client import SQL_FILE_DIRECTORY, load_data_from_sql_dump, execute_sql_file
 
 REFERENCE_VESION = "2023/03/01"
+STAGING_VERSION = "latest"
 
 INPUT_DATA_URL = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
@@ -82,7 +83,7 @@ def get_source_data_versions(version: str) -> pd.DataFrame:
 @st.cache_data
 def load_source_data(dataset: str, version: str) -> None:
     sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
-    version_for_local_path = version.replace("/", "_")
+    version_for_local_path = str(version).replace("/", "_")
     table_name = f"{dataset}_{version_for_local_path}" 
     file_name = f"{table_name}.sql"
     sql_dump_file_path_local = f"{SQL_FILE_DIRECTORY}/{file_name}"

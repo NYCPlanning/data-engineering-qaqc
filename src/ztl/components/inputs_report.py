@@ -1,8 +1,9 @@
 import streamlit as st
-from src.ztl.helpers import REFERENCE_VESION, get_source_data_versions, load_source_data
+from src.ztl.helpers import REFERENCE_VESION, STAGING_VERSION, get_source_data_versions, load_source_data
 
 
 def inputs_report():
+    print("STARTING Source Data Review")
     st.header("Source Data Review")
     st.markdown(
         f"""
@@ -15,12 +16,13 @@ def inputs_report():
 
     st.subheader("Compare Source Data Versions")
     reference_source_data_versions = get_source_data_versions(version=REFERENCE_VESION)
-    latest_source_data_versions = get_source_data_versions(version="latest")
+    latest_source_data_versions = get_source_data_versions(version=STAGING_VERSION)
     source_data_versions = reference_source_data_versions.merge(
         latest_source_data_versions,
         on="datalibrary_name",
         suffixes=("_reference", "_latest"),
     )
+    source_data_versions.set_index("datalibrary_name", inplace=True)
     st.table(source_data_versions)
 
     if not st.session_state.get("source_load_button", False):
@@ -31,6 +33,7 @@ def inputs_report():
             key="source_load_button",
         )
         return
+
     st.session_state.data_loaded = True
     st.button(
         label="🔄 Refrash page to reload source data",
@@ -43,14 +46,15 @@ def inputs_report():
 
     st.subheader("Compare Source Data Schemas")
     # TODO load all source datasets into a DB
-    print("LOADING ALL SOURCE DATA")
+    print("LOADING SOURCE DATA")
+    dev_dataset = "dcp_zoningmapamendments"
     load_source_data(
-        dataset="dcp_zoningmapamendments",
-        version=REFERENCE_VESION,
+        dataset=dev_dataset,
+        version=source_data_versions.loc[dev_dataset, "version_reference"],
     )
     load_source_data(
-        dataset="dcp_zoningmapamendments",
-        version="latest",
+        dataset=dev_dataset,
+        version=source_data_versions.loc[dev_dataset, "version_latest"],
     )
 
     st.subheader("Compare Source Data Row Counts")

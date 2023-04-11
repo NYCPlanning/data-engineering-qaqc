@@ -1,4 +1,5 @@
 import os
+import subprocess
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
@@ -15,12 +16,14 @@ def load_data_from_sql_dump(table_name: str) -> pd.DataFrame:
     print(f"Loading data into table {table_name} ...")
     file_name = f"{table_name}.sql"
     execute_sql_file_low_level(filename=file_name)
+    # TODO rename table to be same as filename
+    # TODO consider moving/copyiing from public to data product schema
     table_names = execute_sql_select_query(
         """
-        SELECT * FROM information_schema.tables;
+        SELECT * FROM information_schema.tables WHERE table_schema = "public";
         """
     )
-    return table_names 
+    return table_names
 
 
 def create_sql_schema(schema_name: str) -> pd.DataFrame:
@@ -73,5 +76,13 @@ def execute_sql_file(filename: str) -> None:
         else:
             continue
 
+
 def execute_sql_file_low_level(filename: str) -> None:
-    os.system(f"postgres {BUILD_ENGINE} --set ON_ERROR_STOP=1 --file {filename}")
+    print()
+    subprocess.run(
+        [
+            f"psql {BUILD_ENGINE} --set ON_ERROR_STOP=1 --file {SQL_FILE_DIRECTORY}/{filename}"
+        ],
+        shell=True,
+        check=True,
+    )
