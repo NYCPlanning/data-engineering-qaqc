@@ -113,6 +113,7 @@ def execute_sql_file(filename: str) -> None:
 
 def execute_sql_file_low_level(filename: str) -> None:
     print()
+    # TODO see if this can have a timeout
     subprocess.run(
         [
             f"psql {BUILD_ENGINE} --set ON_ERROR_STOP=1 --file {SQL_FILE_DIRECTORY}/{filename}"
