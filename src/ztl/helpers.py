@@ -2,7 +2,7 @@ import os
 import streamlit as st
 import pandas as pd
 import requests
-from src.postgres_client import (
+from src.postgres_utils import (
     SQL_FILE_DIRECTORY,
     create_sql_schema,
     load_data_from_sql_dump,
