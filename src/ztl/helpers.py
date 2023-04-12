@@ -2,26 +2,24 @@ import os
 import streamlit as st
 import pandas as pd
 import requests
+from src.digital_ocean_utils import (
+    INPUT_DATA_URL,
+    OUTPUT_DATA_DIRECTORY_URL,
+    get_datatset_config,
+)
 from src.postgres_utils import (
     SQL_FILE_DIRECTORY,
     create_sql_schema,
     load_data_from_sql_dump,
 )
 
+DATASET_NAME = "db-zoningtaxlots"
 DATASET_QAQC_DB_SCHEMA = "db_zoningtaxlots"
 
 DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
 
 REFERENCE_VESION = "2023/03/01"
 STAGING_VERSION = "latest"
-
-INPUT_DATA_URL = lambda dataset, version: (
-    f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
-)
-
-OUTPUT_DATA_DIRECTORY_URL = lambda version: (
-    f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/{version}/output/"
-)
 
 
 ZONING_FIELD_CATEGORIES = {
@@ -56,21 +54,17 @@ ZONING_FIELD_CATEGORIES = {
 
 
 @st.cache_data
-def get_data_columns(data_url: str) -> list[str]:
-    return pd.read_csv(data_url, nrows=1).columns.tolist()
-
-
-@st.cache_data
 def get_latest_build_version() -> str:
     return requests.get(
-        f"{OUTPUT_DATA_DIRECTORY_URL('latest')}version.txt", timeout=10
+        f"{OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version='latest')}version.txt",
+        timeout=10,
     ).text
 
 
 @st.cache_data
-def get_source_data_versions(version: str) -> pd.DataFrame:
+def get_source_data_versions_from_build(version: str) -> pd.DataFrame:
     source_data_versions = pd.read_csv(
-        f"{OUTPUT_DATA_DIRECTORY_URL(version)}source_data_versions.csv",
+        f"{OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version=version)}source_data_versions.csv",
         index_col=False,
     )
     source_data_versions.rename(
@@ -84,20 +78,43 @@ def get_source_data_versions(version: str) -> pd.DataFrame:
     source_data_versions.sort_values(
         by=["datalibrary_name"], ascending=True
     ).reset_index(drop=True, inplace=True)
+    source_data_versions.set_index("datalibrary_name", inplace=True)
     return source_data_versions
+
+
+@st.cache_data
+def get_source_dataset_names() -> pd.DataFrame:
+    source_data_versions = get_source_data_versions_from_build(version=REFERENCE_VESION)
+    return source_data_versions.index.values.tolist()
+
+@st.cache_data
+def get_latest_source_data_versions() -> pd.DataFrame:
+    source_data_versions = get_source_data_versions_from_build(version=REFERENCE_VESION)
+    source_data_versions["version"] = source_data_versions.index.map(
+        lambda dataset: get_datatset_config(
+            dataset=dataset,
+            version="latest",
+        )[
+            "dataset"
+        ]["version"]
+    )
+    return source_data_versions
+
 
 def create_source_data_schema() -> None:
     table_schema_names = create_sql_schema(table_schema=DATASET_QAQC_DB_SCHEMA)
     print("DEV schemas in DB EDM_DATA/edm-qaqc:")
     print(f"{table_schema_names}")
 
+
 def load_source_data(dataset: str, version: str) -> None:
+    # TODO move some of this to digital_ocean_utils
     sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
     version_for_paths = str(version).replace("/", "_")
     dataset_by_version = f"{dataset}_{version_for_paths}"
     file_name = f"{dataset_by_version}.sql"
     sql_dump_file_path_local = f"{SQL_FILE_DIRECTORY}/{file_name}"
-    
+
     print(f"getting sql dump file {sql_dump_file_path_s3}")
 
     data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=10)
@@ -118,8 +135,8 @@ def load_source_data(dataset: str, version: str) -> None:
 @st.cache_data
 def get_output_data() -> tuple:
     last_build = get_latest_build_version()
-    source_data_versions = get_source_data_versions()
-    data_url = OUTPUT_DATA_DIRECTORY_URL("latest")
+    source_data_versions = get_source_data_versions_from_build()
+    data_url = OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version="latest")
 
     bbldiff = pd.read_csv(
         f"{data_url}qc_bbldiffs.csv",

@@ -9,12 +9,15 @@ def ztl():
     pd.options.display.float_format = "{:.2f}%".format
 
     st.title("Zoning Tax Lots QAQC")
+    # TODO put these on the same line in a nice way
     latest_build = get_latest_build_version()
-    st.markdown(
+
+    col1, col2, col3 = st.columns(3)
+    col1.markdown(
         f"""[![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml)"""
     )
-    st.markdown(f"latest build version: `{latest_build}`")
-    st.markdown(f"[github repo]({DATASET_REPO_URL})")
+    col2.markdown(f"latest build version: `{latest_build}`")
+    col3.markdown(f"[github repo]({DATASET_REPO_URL})")
 
     report_type = st.sidebar.radio(
         "Select a report type",

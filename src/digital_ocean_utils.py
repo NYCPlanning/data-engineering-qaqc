@@ -1,3 +1,5 @@
+import requests
+import json
 import boto3
 import pandas as pd
 from io import BytesIO
@@ -6,11 +8,25 @@ from io import StringIO
 import os
 from dotenv import load_dotenv
 import streamlit as st
-from datetime import datetime
-import shutil
 import geopandas as gpd
 
+INPUT_DATA_URL = lambda dataset, version: (
+    f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
+)
+
+INPUT_CONFIG_URL = lambda dataset, version: (
+    f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/config.json"
+)
+
+OUTPUT_DATA_DIRECTORY_URL = lambda dataset, version: (
+    f"https://edm-publishing.nyc3.digitaloceanspaces.com/{dataset}/{version}/output/"
+)
+
 load_dotenv()
+
+def get_datatset_config(dataset:str, version:str) -> dict:
+    response = requests.get(INPUT_CONFIG_URL(dataset=dataset, version=version), timeout=10)
+    return json.loads(response.text)
 
 
 class DigitalOceanClient:
