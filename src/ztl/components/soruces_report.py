@@ -8,7 +8,7 @@ from src.ztl.helpers import (
 )
 
 
-def inputs_report():
+def sources_report():
     print("STARTING Source Data Review")
     st.header("Source Data Review")
     st.markdown(

@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from src.ztl.components.outputs_report import output_report
-from src.ztl.components.inputs_report import inputs_report
+from src.ztl.components.soruces_report import sources_report
 from src.ztl.helpers import get_latest_build_version, DATASET_REPO_URL
 
 
@@ -22,11 +22,11 @@ def ztl():
 
     report_type = st.sidebar.radio(
         "Select a report type",
-        ("Inputs", "Outputs"),
+        ("Sources", "Outputs"),
     )
 
-    if report_type == "Inputs":
-        inputs_report()
+    if report_type == "Sources":
+        sources_report()
     elif report_type == "Outputs":
         output_report()
     else:
