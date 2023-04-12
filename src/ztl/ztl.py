@@ -1,7 +1,7 @@
 import streamlit as st
 import pandas as pd
 from src.ztl.components.outputs_report import output_report
-from src.ztl.components.soruces_report import sources_report
+from src.ztl.components.sources_report import sources_report
 from src.ztl.helpers import get_latest_build_version, DATASET_REPO_URL
 
 
