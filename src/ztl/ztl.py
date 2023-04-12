@@ -13,16 +13,15 @@ def ztl():
     st.markdown(
         f"""[![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml)"""
     )
-    st.markdown(
-        f"latest build version: `{latest_build}`"
-    )
-    st.markdown(
-        f"[github repo]({DATASET_REPO_URL})"
-    )
+    st.markdown(f"latest build version: `{latest_build}`")
+    st.markdown(f"[github repo]({DATASET_REPO_URL})")
 
     report_type = st.sidebar.radio(
         "Select a report type",
-        ("Sources", "Outputs"),
+        (
+            "Sources",
+            "Outputs",
+        ),
     )
 
     if report_type == "Sources":

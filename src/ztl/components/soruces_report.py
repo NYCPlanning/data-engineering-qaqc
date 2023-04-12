@@ -20,7 +20,7 @@ def sources_report():
     """
     )
 
-    st.subheader("Compare Source Data Versions")
+    st.subheader("Compare source data versions")
     reference_source_data_versions = get_source_data_versions(version=REFERENCE_VESION)
     latest_source_data_versions = get_source_data_versions(version=STAGING_VERSION)
     source_data_versions = reference_source_data_versions.merge(
@@ -48,7 +48,7 @@ def sources_report():
         disabled=True,
     )
 
-    st.subheader("Compare Source Data Schemas")
+    st.subheader("Compare source data schemas")
     print("LOADING SOURCE DATA")
     create_source_data_schema()
     dev_dataset = "dcp_zoningmapamendments"
@@ -61,4 +61,4 @@ def sources_report():
         version=source_data_versions.loc[dev_dataset, "version_latest"],
     )
 
-    st.subheader("Compare Source Data Row Counts")
+    st.subheader("Compare source data row counts")
