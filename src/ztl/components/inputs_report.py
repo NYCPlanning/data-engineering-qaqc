@@ -1,5 +1,11 @@
 import streamlit as st
-from src.ztl.helpers import REFERENCE_VESION, STAGING_VERSION, get_source_data_versions, load_source_data
+from src.ztl.helpers import (
+    REFERENCE_VESION,
+    STAGING_VERSION,
+    get_source_data_versions,
+    create_source_data_schema,
+    load_source_data,
+)
 
 
 def inputs_report():
@@ -42,11 +48,9 @@ def inputs_report():
         disabled=True,
     )
 
-    # TODO add details about tables in ZTL QAQC postgress DB
-
     st.subheader("Compare Source Data Schemas")
-    # TODO load all source datasets into a DB
     print("LOADING SOURCE DATA")
+    create_source_data_schema()
     dev_dataset = "dcp_zoningmapamendments"
     load_source_data(
         dataset=dev_dataset,

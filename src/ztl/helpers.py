@@ -2,7 +2,15 @@ import os
 import streamlit as st
 import pandas as pd
 import requests
-from src.postgres_client import SQL_FILE_DIRECTORY, load_data_from_sql_dump, execute_sql_file
+from src.postgres_client import (
+    SQL_FILE_DIRECTORY,
+    create_sql_schema,
+    load_data_from_sql_dump,
+)
+
+DATASET_QAQC_DB_SCHEMA = "db_zoningtaxlots"
+
+DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
 
 REFERENCE_VESION = "2023/03/01"
 STAGING_VERSION = "latest"
@@ -15,7 +23,6 @@ OUTPUT_DATA_DIRECTORY_URL = lambda version: (
     f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/{version}/output/"
 )
 
-DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
 
 ZONING_FIELD_CATEGORIES = {
     "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
@@ -79,30 +86,33 @@ def get_source_data_versions(version: str) -> pd.DataFrame:
     ).reset_index(drop=True, inplace=True)
     return source_data_versions
 
+def create_source_data_schema() -> None:
+    table_schema_names = create_sql_schema(table_schema=DATASET_QAQC_DB_SCHEMA)
+    print("DEV schemas in DB EDM_DATA/edm-qaqc:")
+    print(f"{table_schema_names}")
 
-@st.cache_data
 def load_source_data(dataset: str, version: str) -> None:
     sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
-    version_for_local_path = str(version).replace("/", "_")
-    table_name = f"{dataset}_{version_for_local_path}" 
-    file_name = f"{table_name}.sql"
+    version_for_paths = str(version).replace("/", "_")
+    dataset_by_version = f"{dataset}_{version_for_paths}"
+    file_name = f"{dataset_by_version}.sql"
     sql_dump_file_path_local = f"{SQL_FILE_DIRECTORY}/{file_name}"
-
+    
     print(f"getting sql dump file {sql_dump_file_path_s3}")
 
-    data_mysqldump = requests.get(
-        sql_dump_file_path_s3, timeout=10
-    )
+    data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=10)
     if not os.path.exists(SQL_FILE_DIRECTORY):
         os.makedirs(SQL_FILE_DIRECTORY)
-    with open(sql_dump_file_path_local, 'wb') as f:
+    with open(sql_dump_file_path_local, "wb") as f:
         f.write(data_mysqldump.content)
-    
-    # print(f"loading data to DB {sql_dump_file_path_s3}")
-    dev_schemas = load_data_from_sql_dump(table_name)
-    print("DEV schemas in postgres 11.17 DB EDM_DATA/edm-qaqc:")
-    print(f"{dev_schemas}")
-    # execute_sql_file(file_name)
+
+    table_names = load_data_from_sql_dump(
+        table_schema=DATASET_QAQC_DB_SCHEMA,
+        dataset_by_version=dataset_by_version,
+        dataset_name=dataset,
+    )
+    print(f"DEV tables in DB EDM_DATA/edm-qaqc:{DATASET_QAQC_DB_SCHEMA}")
+    print(f"{table_names}")
 
 
 @st.cache_data

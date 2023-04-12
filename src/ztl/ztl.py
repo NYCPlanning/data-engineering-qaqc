@@ -11,10 +11,13 @@ def ztl():
     st.title("Zoning Tax Lots QAQC")
     latest_build = get_latest_build_version()
     st.markdown(
-        f"""[![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml) latest build version: `{latest_build}`"""
+        f"""[![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml)"""
     )
     st.markdown(
-        f"[github repo](DATASET_REPO_URL)"
+        f"latest build version: `{latest_build}`"
+    )
+    st.markdown(
+        f"[github repo]({DATASET_REPO_URL})"
     )
 
     report_type = st.sidebar.radio(

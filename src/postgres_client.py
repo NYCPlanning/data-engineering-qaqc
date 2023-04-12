@@ -10,36 +10,70 @@ load_dotenv()
 
 BUILD_ENGINE = os.getenv("SQL_ENGINE_EDM_DATA", "")
 SQL_FILE_DIRECTORY = ".data/sql"
+TABLE_INDEX_PK = lambda table_name: f"{table_name}_pk"
+TABLE_INDEX_GEOM = lambda table_name: f"{table_name}_wkb_geometry_geom_idx"
 
 
-def load_data_from_sql_dump(table_name: str) -> pd.DataFrame:
-    print(f"Loading data into table {table_name} ...")
-    file_name = f"{table_name}.sql"
+def load_data_from_sql_dump(
+    table_schema: str,
+    dataset_by_version: str,
+    dataset_name: str,
+) -> list:
+    print(f"Loading data into table {table_schema}.{dataset_name} ...")
+    file_name = f"{dataset_by_version}.sql"
+    # run sql dump file to create initial table
     execute_sql_file_low_level(filename=file_name)
-    # TODO rename table to be same as filename
-    # TODO consider moving/copyiing from public to data product schema
+    # copy inital data to a new table in the dataset-specific schema
+    execute_sql_query(
+        """
+        CREATE TABLE :table_schema.:dataset_by_version AS TABLE :dataset_name
+        """,
+        {
+            "table_schema": AsIs(table_schema),
+            "dataset_by_version": AsIs(dataset_by_version),
+            "dataset_name": AsIs(dataset_name),
+        },
+    )
+    # copy inital data to a new table in the dataset-specific schema
+    execute_sql_query(
+        """
+        DROP TABLE IF EXISTS :dataset_name CASCADE
+        """,
+        {
+            "dataset_name": AsIs(dataset_name),
+        },
+    )
     table_names = execute_sql_select_query(
         """
-        SELECT * FROM information_schema.tables WHERE table_schema = "public";
-        """
+        SELECT table_name FROM information_schema.tables WHERE table_schema = :table_schema
+        """,
+        {"table_schema": table_schema},
     )
-    return table_names
+    
+    return table_names["table_name"].to_list()
 
 
-def create_sql_schema(schema_name: str) -> pd.DataFrame:
-    placeholders = {"schema_name": AsIs(schema_name)}
-    create_schema_query = """
-        CREATE SCHEMA IF NOT EXISTS :schema_name
-    """
-    execute_sql_query(create_schema_query, placeholders)
-    schema_names = execute_sql_select_query(
+def create_postigs_extension() -> None:
+    query = "CREATE EXTENSION POSTIG"
+    execute_sql_query(query)
+
+
+def create_sql_schema(table_schema: str) -> pd.DataFrame:
+    execute_sql_query(
+        "DROP SCHEMA IF EXISTS :table_schema CASCADE",
+        {"table_schema": AsIs(table_schema)},
+    )
+    execute_sql_query(
+        "CREATE SCHEMA :table_schema", {"table_schema": AsIs(table_schema)}
+    )
+    table_schema_name = execute_sql_select_query(
         """
         SELECT schema_name
-        FROM :information_schema_name.schemata;
+        FROM :table_schema.schemata;
         """,
-        {"information_schema_name": AsIs("information_schema")},
+        {"table_schema": AsIs("information_schema")},
     )
-    return schema_names
+    return table_schema_name
 
 
 def execute_sql_select_query(query: str, placeholders: dict = {}) -> pd.DataFrame:
