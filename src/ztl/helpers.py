@@ -59,7 +59,7 @@ ZONING_FIELD_CATEGORIES = {
 
 
 def dataframe_style_source_report_results(value: bool):
-    color = "#5eae76" if value else "#de796e"
+    color = "rgba(0,155,0,.2)" if value else "rgba(155,0,0,.2)"
     return f"background-color: {color}"
 
 
@@ -213,9 +213,9 @@ def load_source_data(dataset: str, version: str) -> str:
             dataset_by_version=dataset_by_version,
             dataset_name=dataset,
         )
-        status_message = f"Loaded {dataset_by_version}"
+        status_message = f"Loaded `{dataset_by_version}`"
     else:
-        status_message = f"Database already has {dataset_by_version}"
+        status_message = f"Database already has `{dataset_by_version}`"
 
     return status_message
 

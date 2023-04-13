@@ -104,7 +104,7 @@ def sources_report():
         )
     )
 
-    st.subheader("DEV DEBUG SECTION")
+    st.header("DEV DEBUG SECTION")
     st.dataframe(df_source_report_results)
     st.table(df_source_report_results)
     st.json(source_report_results)
