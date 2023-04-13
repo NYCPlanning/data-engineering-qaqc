@@ -43,9 +43,11 @@ def test_get_source_dataset_names():
 
 def test_compare_source_data_columns():
     source_report_results = compare_source_data_columns(TEST_SOURCE_REPORT_RESULTS)
+    assert isinstance(source_report_results[TEST_DATA_SOURCE_NAME]["same_columns"], bool)
     assert source_report_results[TEST_DATA_SOURCE_NAME]["same_columns"] == True
 
 
 def test_compare_source_data_row_count():
     source_report_results = compare_source_data_row_count(TEST_SOURCE_REPORT_RESULTS)
+    assert isinstance(source_report_results[TEST_DATA_SOURCE_NAME]["same_row_count"], bool)
     assert source_report_results[TEST_DATA_SOURCE_NAME]["same_row_count"] == False

@@ -88,7 +88,7 @@ def get_table_row_count(table_schema: str, table_name: str) -> int:
         """,
         {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
     )
-    return row_counts["row_count"][0]
+    return int(row_counts["row_count"][0])
 
 
 def create_postigs_extension() -> None:

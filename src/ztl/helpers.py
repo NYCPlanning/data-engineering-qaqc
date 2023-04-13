@@ -60,6 +60,11 @@ ZONING_FIELD_CATEGORIES = {
 }
 
 
+def dataframe_color_results(val):
+    color = 'green' if val else 'red'
+    return f'background-color: {color}'
+
+
 @st.cache_data
 def get_latest_build_version() -> str:
     return requests.get(
@@ -115,11 +120,11 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
         reference_table = SOURCE_TABLE_NAME(
             dataset_name, source_report_results[dataset_name]["version_reference"]
         )
-        reference_columns = get_table_columns(
-            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
-        )
         latest_table = SOURCE_TABLE_NAME(
             dataset_name, source_report_results[dataset_name]["version_latest"]
+        )
+        reference_columns = get_table_columns(
+            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
         )
         latest_columns = get_table_columns(
             table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
@@ -135,11 +140,11 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
         reference_table = SOURCE_TABLE_NAME(
             dataset_name, source_report_results[dataset_name]["version_reference"]
         )
-        reference_row_count = get_table_row_count(
-            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
-        )
         latest_table = SOURCE_TABLE_NAME(
             dataset_name, source_report_results[dataset_name]["version_latest"]
+        )
+        reference_row_count = get_table_row_count(
+            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
         )
         latest_row_count = get_table_row_count(
             table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
