@@ -45,6 +45,11 @@ def sources_report():
     st.table(source_data_versions)
     source_report_results = source_data_versions.to_dict(orient="index")
 
+    # TODO use the real list based on reference version
+    # source_dataset_names = get_source_dataset_names()
+    source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
+    st.warning(f"Only using DEV source datasets {source_dataset_names}")
+
     if not st.session_state.get("source_load_button", False):
         st.session_state.data_loaded = False
         st.button(
@@ -61,11 +66,6 @@ def sources_report():
         disabled=True,
     )
 
-    # TODO use the real list based on reference version
-    # source_dataset_names = get_source_dataset_names()
-    # print(f"LOADING SOURCE DATA FOR {source_dataset_names}")
-    st.warning(f"Only using DEV source datasets {source_dataset_names}")
-    source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
     print(f"LOADING SOURCE DATA FOR {DATASET_NAME}")
     with st.spinner(f"⏳ Loading source data ..."):
         create_source_data_schema()

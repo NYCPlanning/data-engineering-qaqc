@@ -120,7 +120,7 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
         latest_columns = get_table_columns(
             table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
         )
-        source_report_results[dataset_name]["columns_identical"] = (
+        source_report_results[dataset_name]["same_columns"] = (
             reference_columns == latest_columns
         )
     return source_report_results
