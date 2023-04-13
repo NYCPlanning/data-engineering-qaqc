@@ -10,8 +10,7 @@ load_dotenv()
 
 BUILD_ENGINE = os.getenv("SQL_ENGINE_EDM_DATA", "")
 SQL_FILE_DIRECTORY = ".data/sql"
-TABLE_INDEX_PK = lambda table_name: f"{table_name}_pk"
-TABLE_INDEX_GEOM = lambda table_name: f"{table_name}_wkb_geometry_geom_idx"
+SOURCE_TABLE_NAME = lambda dataset, version: f"{dataset}_{version}"
 
 
 def load_data_from_sql_dump(

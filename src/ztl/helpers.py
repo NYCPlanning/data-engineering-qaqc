@@ -11,6 +11,7 @@ from src.digital_ocean_utils import (
 )
 from src.postgres_utils import (
     SQL_FILE_DIRECTORY,
+    SOURCE_TABLE_NAME,
     create_sql_schema,
     load_data_from_sql_dump,
     get_schema_tables,
@@ -107,16 +108,13 @@ def get_latest_source_data_versions() -> pd.DataFrame:
     return source_data_versions
 
 
-# TODO
 def compare_source_data_columns(source_report_results: dict) -> dict:
     for dataset_name in source_report_results:
-        reference_version = source_report_results[dataset_name]["version_reference"]
-        reference_table = f"{dataset_name}_{reference_version}"
+        reference_table = SOURCE_TABLE_NAME(dataset_name, source_report_results[dataset_name]["version_reference"])
         reference_columns = get_table_columns(
             table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
         )
-        latest_version = source_report_results[dataset_name]["version_latest"]
-        latest_table = f"{dataset_name}_{latest_version}"
+        latest_table = SOURCE_TABLE_NAME(dataset_name, source_report_results[dataset_name]["version_latest"])
         latest_columns = get_table_columns(
             table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
         )
@@ -125,6 +123,8 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
         )
     return source_report_results
 
+def compare_source_data_row_count(source_report_results: dict) -> dict:
+    return source_report_results
 
 def create_source_data_schema() -> None:
     table_schema_names = create_sql_schema(table_schema=DATASET_QAQC_DB_SCHEMA)
