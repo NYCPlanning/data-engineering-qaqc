@@ -25,7 +25,6 @@ def sources_report():
     )
 
     st.subheader("Compare source data versions")
-    # TODO get latest versions of datasets, not versions used in the latest build
     # TODO (nice-to-have) add column with links to data-library yaml templates
     reference_source_data_versions = get_source_data_versions_from_build(
         version=REFERENCE_VESION
