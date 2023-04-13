@@ -13,6 +13,7 @@ from src.ztl.helpers import (
     get_source_dataset_names,
     compare_source_data_columns,
     compare_source_data_row_count,
+    dataframe_style_source_report_results,
 )
 
 
@@ -87,19 +88,29 @@ def sources_report():
     table_names = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
     # TODO consider adding table names to source_report_results
 
-    st.subheader("Compare source data columns")
+    st.subheader("Compare source data shapes")
     with st.spinner(f"⏳ Comparing columns ..."):
         source_report_results = compare_source_data_columns(source_report_results)
-    st.subheader("Compare source data row counts")
     with st.spinner(f"⏳ Comparing row counts ..."):
         source_report_results = compare_source_data_row_count(source_report_results)
 
+    df_source_report_results = pd.DataFrame.from_dict(
+        source_report_results, orient="index"
+    )
+    st.dataframe(
+        df_source_report_results.style.applymap(
+            dataframe_style_source_report_results,
+            subset=["same_columns", "same_row_count"],
+        )
+    )
+
     st.subheader("DEV DEBUG SECTION")
+    st.dataframe(df_source_report_results)
+    st.table(df_source_report_results)
+    st.json(source_report_results)
     st.success(
         f"""
         Tables in QAQC databse schema {DATASET_QAQC_DB_SCHEMA}:
         {table_names}
         """
     )
-    st.json(source_report_results)
-    st.table(pd.DataFrame.from_dict(source_report_results, orient="index"))

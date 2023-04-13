@@ -2,8 +2,6 @@ import os
 import streamlit as st
 import pandas as pd
 import requests
-import multiprocessing
-import itertools
 from src.digital_ocean_utils import (
     INPUT_DATA_URL,
     OUTPUT_DATA_DIRECTORY_URL,
@@ -60,9 +58,9 @@ ZONING_FIELD_CATEGORIES = {
 }
 
 
-def dataframe_color_results(val):
-    color = 'green' if val else 'red'
-    return f'background-color: {color}'
+def dataframe_style_source_report_results(value: bool):
+    color = "#5eae76" if value else "#de796e"
+    return f"background-color: {color}"
 
 
 @st.cache_data
@@ -217,7 +215,7 @@ def load_source_data(dataset: str, version: str) -> str:
         )
         status_message = f"Loaded {dataset_by_version}"
     else:
-        status_message = f"Already loaded {dataset_by_version}"
+        status_message = f"Database already has {dataset_by_version}"
 
     return status_message
 
