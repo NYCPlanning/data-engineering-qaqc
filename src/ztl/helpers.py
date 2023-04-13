@@ -14,6 +14,7 @@ from src.postgres_utils import (
     SOURCE_TABLE_NAME,
     create_sql_schema,
     load_data_from_sql_dump,
+    get_schemas,
     get_schema_tables,
     get_table_columns,
     get_table_row_count,
@@ -150,9 +151,11 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
 
 
 def create_source_data_schema() -> None:
-    table_schema_names = create_sql_schema(table_schema=DATASET_QAQC_DB_SCHEMA)
+    schema_names = get_schemas()
+    if DATASET_QAQC_DB_SCHEMA not in schema_names:
+        schema_names = create_sql_schema(table_schema=DATASET_QAQC_DB_SCHEMA)
     print("DEV schemas in DB EDM_DATA/edm-qaqc:")
-    print(f"{table_schema_names}")
+    print(f"{schema_names}")
 
 
 def load_all_source_data(
@@ -169,37 +172,49 @@ def load_all_source_data(
 
 def load_source_data_to_compare(
     dataset: str, source_data_versions: pd.DataFrame
-) -> None:
+) -> list[str]:
+    status_messages = []
     version_reference = source_data_versions.loc[dataset, "version_reference"]
     version_staging = source_data_versions.loc[dataset, "version_latest"]
     print(f"⏳ Loading {dataset} ({version_reference}, {version_staging}) ...")
-    load_source_data(dataset=dataset, version=version_reference)
-    load_source_data(dataset=dataset, version=version_staging)
+    for version in [version_reference, version_staging]:
+        status_message = load_source_data(dataset=dataset, version=version)
+        status_messages.append(status_message)
+
+    return status_messages
 
 
-def load_source_data(dataset: str, version: str) -> None:
+def load_source_data(dataset: str, version: str) -> str:
+    status_message = None
     # TODO move some of this to digital_ocean_utils
     sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
     version_for_paths = str(version).replace("/", "_")
     dataset_by_version = SOURCE_TABLE_NAME(dataset, version_for_paths)
-    file_name = f"{dataset_by_version}.sql"
-    sql_dump_file_path_local = f"{SQL_FILE_DIRECTORY}/{file_name}"
+    sql_dump_file_path_local = f"{SQL_FILE_DIRECTORY}/{dataset_by_version}.sql"
 
-    print(f"getting sql dump file {sql_dump_file_path_s3}")
-
-    data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=10)
     if not os.path.exists(SQL_FILE_DIRECTORY):
         os.makedirs(SQL_FILE_DIRECTORY)
-    with open(sql_dump_file_path_local, "wb") as f:
-        f.write(data_mysqldump.content)
 
-    table_names = load_data_from_sql_dump(
-        table_schema=DATASET_QAQC_DB_SCHEMA,
-        dataset_by_version=dataset_by_version,
-        dataset_name=dataset,
-    )
-    print(f"DEV tables in DB EDM_DATA/edm-qaqc:{DATASET_QAQC_DB_SCHEMA}")
-    print(f"{table_names}")
+    if os.path.exists(sql_dump_file_path_local):
+        print(f"sql dump file already pulled : ({sql_dump_file_path_s3}")
+    else:
+        print(f"getting sql dump file : {sql_dump_file_path_s3} ...")
+        data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=10)
+        with open(sql_dump_file_path_local, "wb") as f:
+            f.write(data_mysqldump.content)
+
+    schema_tables = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
+    if not dataset_by_version in schema_tables:
+        load_data_from_sql_dump(
+            table_schema=DATASET_QAQC_DB_SCHEMA,
+            dataset_by_version=dataset_by_version,
+            dataset_name=dataset,
+        )
+        status_message = f"Loaded {dataset_by_version}"
+    else:
+        status_message = f"Already loaded {dataset_by_version}"
+
+    return status_message
 
 
 @st.cache_data

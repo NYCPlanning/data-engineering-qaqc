@@ -8,6 +8,9 @@ from src.ztl.helpers import (
     get_latest_source_data_versions,
     create_source_data_schema,
     load_all_source_data,
+    load_source_data_to_compare,
+    get_schema_tables,
+    get_source_dataset_names,
     compare_source_data_columns,
     compare_source_data_row_count,
 )
@@ -46,15 +49,14 @@ def sources_report():
     st.table(source_data_versions)
     source_report_results = source_data_versions.to_dict(orient="index")
 
-    # TODO use the real list based on reference version
-    # source_dataset_names = get_source_dataset_names()
-    source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
+    source_dataset_names = get_source_dataset_names()
+    # source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
     # DEV remove non-dev source datasets from full source_report_results
-    source_report_results = {
-        dataset_name: source_report_results[dataset_name]
-        for dataset_name in source_dataset_names
-    }
-    st.warning(f"Only using DEV source datasets {source_dataset_names}")
+    # source_report_results = {
+    #     dataset_name: source_report_results[dataset_name]
+    #     for dataset_name in source_dataset_names
+    # }
+    # st.warning(f"Only using DEV source datasets {source_dataset_names}")
 
     if not st.session_state.get("source_load_button", False):
         st.session_state.data_loaded = False
@@ -73,18 +75,22 @@ def sources_report():
     )
 
     print(f"LOADING SOURCE DATA FOR {DATASET_NAME}")
-    with st.spinner(f"⏳ Loading source data ..."):
-        create_source_data_schema()
-        table_names = load_all_source_data(
-            dataset_names=source_dataset_names,
-            source_data_versions=source_data_versions,
-        )
+    create_source_data_schema()
+    for dataset in source_dataset_names:
+        with st.spinner(f"⏳ Loading {dataset} versions ..."):
+            status_messages = load_source_data_to_compare(dataset=dataset, source_data_versions=source_data_versions)
+        success_message = "\n\n".join(status_messages)
+        st.success(success_message)
+    
+    table_names = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
     # TODO consider adding table names to source_report_results
 
-    st.subheader("Compare source data schemas")
-    source_report_results = compare_source_data_columns(source_report_results)
+    st.subheader("Compare source data columns")
+    with st.spinner(f"⏳ Comparing columns ..."):
+        source_report_results = compare_source_data_columns(source_report_results)
     st.subheader("Compare source data row counts")
-    source_report_results = compare_source_data_row_count(source_report_results)
+    with st.spinner(f"⏳ Comparing row counts ..."):
+        source_report_results = compare_source_data_row_count(source_report_results)
 
     st.subheader("DEV DEBUG SECTION")
     st.success(
