@@ -2,6 +2,8 @@ import os
 import streamlit as st
 import pandas as pd
 import requests
+import multiprocessing
+import itertools
 from src.digital_ocean_utils import (
     INPUT_DATA_URL,
     OUTPUT_DATA_DIRECTORY_URL,
@@ -11,6 +13,8 @@ from src.postgres_utils import (
     SQL_FILE_DIRECTORY,
     create_sql_schema,
     load_data_from_sql_dump,
+    get_schema_tables,
+    get_table_columns,
 )
 
 DATASET_NAME = "db-zoningtaxlots"
@@ -85,7 +89,8 @@ def get_source_data_versions_from_build(version: str) -> pd.DataFrame:
 @st.cache_data
 def get_source_dataset_names() -> pd.DataFrame:
     source_data_versions = get_source_data_versions_from_build(version=REFERENCE_VESION)
-    return source_data_versions.index.values.tolist()
+    return sorted(source_data_versions.index.values.tolist())
+
 
 @st.cache_data
 def get_latest_source_data_versions() -> pd.DataFrame:
@@ -101,10 +106,37 @@ def get_latest_source_data_versions() -> pd.DataFrame:
     return source_data_versions
 
 
+# TODO
+# def compare_source_data_columns() -> bool:
+#     reference_columns = get_table_columns(table_schema=DATASET_QAQC_DB_SCHEMA, table_name=)
+
+
 def create_source_data_schema() -> None:
     table_schema_names = create_sql_schema(table_schema=DATASET_QAQC_DB_SCHEMA)
     print("DEV schemas in DB EDM_DATA/edm-qaqc:")
     print(f"{table_schema_names}")
+
+
+def load_all_source_data(
+    dataset_names: list[str], source_data_versions: pd.DataFrame
+) -> list:
+    pool = multiprocessing.Pool(processes=4)
+    pool.starmap(
+        load_source_data_to_compare,
+        zip(dataset_names, itertools.repeat(source_data_versions)),
+    )
+    table_names = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
+    return table_names
+
+
+def load_source_data_to_compare(
+    dataset: str, source_data_versions: pd.DataFrame
+) -> None:
+    version_reference = source_data_versions.loc[dataset, "version_reference"]
+    version_staging = source_data_versions.loc[dataset, "version_latest"]
+    print(f"⏳ Loading {dataset} ({version_reference}, {version_staging}) ...")
+    load_source_data(dataset=dataset, version=version_reference)
+    load_source_data(dataset=dataset, version=version_staging)
 
 
 def load_source_data(dataset: str, version: str) -> None:

@@ -43,14 +43,31 @@ def load_data_from_sql_dump(
             "dataset_name": AsIs(dataset_name),
         },
     )
+    table_names = get_schema_tables(table_schema=table_schema)
+    return table_names
+
+
+def get_schema_tables(table_schema: str) -> list:
     table_names = execute_sql_select_query(
         """
         SELECT table_name FROM information_schema.tables WHERE table_schema = :table_schema
         """,
         {"table_schema": table_schema},
     )
-    
-    return table_names["table_name"].to_list()
+
+    return sorted(table_names["table_name"].to_list())
+
+
+def get_table_columns(table_schema: str, table_name: str) -> list:
+    columns = execute_sql_select_query(
+        """
+        SELECT column_name FROM information_schema.columns
+        WHERE table_schema = ':table_schema'
+        AND table_name   = ':table_name';
+        """,
+        {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
+    )
+    return sorted(columns["column_name"])
 
 
 def create_postigs_extension() -> None:
