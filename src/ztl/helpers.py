@@ -23,7 +23,7 @@ DATASET_QAQC_DB_SCHEMA = "db_zoningtaxlots"
 DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
 
 REFERENCE_VESION = "2023/03/01"
-STAGING_VERSION = "latest"
+STAGING_VERSION = None
 
 
 ZONING_FIELD_CATEGORIES = {
@@ -70,6 +70,7 @@ def get_source_data_versions_from_build(version: str) -> pd.DataFrame:
     source_data_versions = pd.read_csv(
         f"{OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version=version)}source_data_versions.csv",
         index_col=False,
+        dtype=str,
     )
     source_data_versions.rename(
         columns={
@@ -107,8 +108,22 @@ def get_latest_source_data_versions() -> pd.DataFrame:
 
 
 # TODO
-# def compare_source_data_columns() -> bool:
-#     reference_columns = get_table_columns(table_schema=DATASET_QAQC_DB_SCHEMA, table_name=)
+def compare_source_data_columns(source_report_results: dict) -> dict:
+    for dataset_name in source_report_results:
+        reference_version = source_report_results[dataset_name]["version_reference"]
+        reference_table = f"{dataset_name}_{reference_version}"
+        reference_columns = get_table_columns(
+            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
+        )
+        latest_version = source_report_results[dataset_name]["version_latest"]
+        latest_table = f"{dataset_name}_{latest_version}"
+        latest_columns = get_table_columns(
+            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
+        )
+        source_report_results[dataset_name]["columns_identical"] = (
+            reference_columns == latest_columns
+        )
+    return source_report_results
 
 
 def create_source_data_schema() -> None:

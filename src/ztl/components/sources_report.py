@@ -6,9 +6,9 @@ from src.ztl.helpers import (
     STAGING_VERSION,
     get_source_data_versions_from_build,
     get_latest_source_data_versions,
-    get_source_dataset_names,
     create_source_data_schema,
     load_all_source_data,
+    compare_source_data_columns,
 )
 
 
@@ -29,10 +29,12 @@ def sources_report():
     reference_source_data_versions = get_source_data_versions_from_build(
         version=REFERENCE_VESION
     )
-    # latest_source_data_versions = get_source_data_versions_from_build(
-    #     version=STAGING_VERSION
-    # )
-    latest_source_data_versions = get_latest_source_data_versions()
+    if not STAGING_VERSION:
+        latest_source_data_versions = get_latest_source_data_versions()
+    else:
+        latest_source_data_versions = get_source_data_versions_from_build(
+            version=STAGING_VERSION
+        )
     source_data_versions = reference_source_data_versions.merge(
         latest_source_data_versions,
         left_index=True,
@@ -41,6 +43,7 @@ def sources_report():
     )
     source_data_versions.sort_index(ascending=True, inplace=True)
     st.table(source_data_versions)
+    source_report_results = source_data_versions.to_dict(orient="index")
 
     if not st.session_state.get("source_load_button", False):
         st.session_state.data_loaded = False
@@ -61,6 +64,7 @@ def sources_report():
     # TODO use the real list based on reference version
     # source_dataset_names = get_source_dataset_names()
     # print(f"LOADING SOURCE DATA FOR {source_dataset_names}")
+    st.warning(f"Only using DEV source datasets {source_dataset_names}")
     source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
     print(f"LOADING SOURCE DATA FOR {DATASET_NAME}")
     with st.spinner(f"⏳ Loading source data ..."):
@@ -69,9 +73,14 @@ def sources_report():
             dataset_names=source_dataset_names,
             source_data_versions=source_data_versions,
         )
+    # DEV remove non-dev source datasets from full source_report_results
+    source_report_results = {
+        dataset_name: source_report_results[dataset_name]
+        for dataset_name in source_dataset_names
+    }
 
     st.subheader("Compare source data schemas")
-
+    source_report_results = compare_source_data_columns(source_report_results)
     st.subheader("Compare source data row counts")
 
     st.subheader("DEV DEBUG SECTION")
@@ -81,5 +90,4 @@ def sources_report():
         {table_names}
         """
     )
-    source_data_comparison = source_data_versions.to_json(orient="index")
-    st.json(source_data_comparison)
+    st.json(source_report_results)
