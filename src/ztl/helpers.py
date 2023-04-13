@@ -16,6 +16,7 @@ from src.postgres_utils import (
     load_data_from_sql_dump,
     get_schema_tables,
     get_table_columns,
+    get_table_row_count,
 )
 
 DATASET_NAME = "db-zoningtaxlots"
@@ -110,11 +111,15 @@ def get_latest_source_data_versions() -> pd.DataFrame:
 
 def compare_source_data_columns(source_report_results: dict) -> dict:
     for dataset_name in source_report_results:
-        reference_table = SOURCE_TABLE_NAME(dataset_name, source_report_results[dataset_name]["version_reference"])
+        reference_table = SOURCE_TABLE_NAME(
+            dataset_name, source_report_results[dataset_name]["version_reference"]
+        )
         reference_columns = get_table_columns(
             table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
         )
-        latest_table = SOURCE_TABLE_NAME(dataset_name, source_report_results[dataset_name]["version_latest"])
+        latest_table = SOURCE_TABLE_NAME(
+            dataset_name, source_report_results[dataset_name]["version_latest"]
+        )
         latest_columns = get_table_columns(
             table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
         )
@@ -123,8 +128,26 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
         )
     return source_report_results
 
+
 def compare_source_data_row_count(source_report_results: dict) -> dict:
+    for dataset_name in source_report_results:
+        reference_table = SOURCE_TABLE_NAME(
+            dataset_name, source_report_results[dataset_name]["version_reference"]
+        )
+        reference_row_count = get_table_row_count(
+            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
+        )
+        latest_table = SOURCE_TABLE_NAME(
+            dataset_name, source_report_results[dataset_name]["version_latest"]
+        )
+        latest_row_count = get_table_row_count(
+            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
+        )
+        source_report_results[dataset_name]["same_row_count"] = (
+            reference_row_count == latest_row_count
+        )
     return source_report_results
+
 
 def create_source_data_schema() -> None:
     table_schema_names = create_sql_schema(table_schema=DATASET_QAQC_DB_SCHEMA)
@@ -158,7 +181,7 @@ def load_source_data(dataset: str, version: str) -> None:
     # TODO move some of this to digital_ocean_utils
     sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
     version_for_paths = str(version).replace("/", "_")
-    dataset_by_version = f"{dataset}_{version_for_paths}"
+    dataset_by_version = SOURCE_TABLE_NAME(dataset, version_for_paths)
     file_name = f"{dataset_by_version}.sql"
     sql_dump_file_path_local = f"{SQL_FILE_DIRECTORY}/{file_name}"
 

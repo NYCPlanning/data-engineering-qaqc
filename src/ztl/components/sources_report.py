@@ -9,6 +9,7 @@ from src.ztl.helpers import (
     create_source_data_schema,
     load_all_source_data,
     compare_source_data_columns,
+    compare_source_data_row_count,
 )
 
 
@@ -73,6 +74,7 @@ def sources_report():
             dataset_names=source_dataset_names,
             source_data_versions=source_data_versions,
         )
+    # TODO consider adding table names to source_report_results
     # DEV remove non-dev source datasets from full source_report_results
     source_report_results = {
         dataset_name: source_report_results[dataset_name]
@@ -82,6 +84,7 @@ def sources_report():
     st.subheader("Compare source data schemas")
     source_report_results = compare_source_data_columns(source_report_results)
     st.subheader("Compare source data row counts")
+    source_report_results = compare_source_data_row_count(source_report_results)
 
     st.subheader("DEV DEBUG SECTION")
     st.success(

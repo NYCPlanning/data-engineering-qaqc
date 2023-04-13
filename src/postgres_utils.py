@@ -42,6 +42,7 @@ def load_data_from_sql_dump(
             "dataset_name": AsIs(dataset_name),
         },
     )
+    vacuum_database()
     table_names = get_schema_tables(table_schema=table_schema)
     return table_names
 
@@ -58,7 +59,7 @@ def get_schema_tables(table_schema: str) -> list:
 
 
 def get_table_columns(table_schema: str, table_name: str) -> list:
-    columns = execute_sql_select_query(
+    column_names = execute_sql_select_query(
         """
         SELECT column_name FROM information_schema.columns
         WHERE table_schema = ':table_schema'
@@ -66,11 +67,30 @@ def get_table_columns(table_schema: str, table_name: str) -> list:
         """,
         {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
     )
-    return sorted(columns["column_name"])
+    return sorted(column_names["column_name"])
+
+
+def get_table_row_count(table_schema: str, table_name: str) -> int:
+    row_counts = execute_sql_select_query(
+        """
+        SELECT c.reltuples::bigint AS row_count
+        FROM pg_class c
+        JOIN pg_namespace n ON n.oid = c.relnamespace
+        WHERE c.relname = ':table_name'
+        AND n.nspname = ':table_schema';
+        """,
+        {"table_schema": AsIs(table_schema), "table_name": AsIs(table_name)},
+    )
+    return row_counts["row_count"][0]
 
 
 def create_postigs_extension() -> None:
     query = "CREATE EXTENSION POSTIG"
+    execute_sql_query(query)
+
+
+def vacuum_database() -> None:
+    query = "VACUUM (ANALYZE)"
     execute_sql_query(query)
 
 
@@ -101,7 +121,7 @@ def execute_sql_select_query(query: str, placeholders: dict = {}) -> pd.DataFram
 
 
 def execute_sql_query(query: str, placeholders: dict = {}) -> None:
-    sql_engine = create_engine(BUILD_ENGINE)
+    sql_engine = create_engine(BUILD_ENGINE, isolation_level="AUTOCOMMIT")
     with Session(sql_engine) as session:
         session.execute(statement=text(query), params=placeholders)
         session.commit()
