@@ -116,7 +116,7 @@ def execute_sql_select_query(query: str, placeholders: dict = {}) -> pd.DataFram
     sql_engine = create_engine(BUILD_ENGINE)
     with sql_engine.begin() as sql_conn:
         select_records = pd.read_sql(sql=text(query), con=sql_conn, params=placeholders)
-
+    sql_engine.dispose()
     return select_records
 
 
@@ -125,6 +125,7 @@ def execute_sql_query(query: str, placeholders: dict = {}) -> None:
     with Session(sql_engine) as session:
         session.execute(statement=text(query), params=placeholders)
         session.commit()
+    sql_engine.dispose()
 
 
 def execute_sql_file(filename: str) -> None:
