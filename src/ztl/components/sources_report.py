@@ -49,6 +49,11 @@ def sources_report():
     # TODO use the real list based on reference version
     # source_dataset_names = get_source_dataset_names()
     source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
+    # DEV remove non-dev source datasets from full source_report_results
+    source_report_results = {
+        dataset_name: source_report_results[dataset_name]
+        for dataset_name in source_dataset_names
+    }
     st.warning(f"Only using DEV source datasets {source_dataset_names}")
 
     if not st.session_state.get("source_load_button", False):
@@ -75,11 +80,6 @@ def sources_report():
             source_data_versions=source_data_versions,
         )
     # TODO consider adding table names to source_report_results
-    # DEV remove non-dev source datasets from full source_report_results
-    source_report_results = {
-        dataset_name: source_report_results[dataset_name]
-        for dataset_name in source_dataset_names
-    }
 
     st.subheader("Compare source data schemas")
     source_report_results = compare_source_data_columns(source_report_results)
