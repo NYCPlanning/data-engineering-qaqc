@@ -24,8 +24,11 @@ OUTPUT_DATA_DIRECTORY_URL = lambda dataset, version: (
 
 load_dotenv()
 
-def get_datatset_config(dataset:str, version:str) -> dict:
-    response = requests.get(INPUT_CONFIG_URL(dataset=dataset, version=version), timeout=10)
+
+def get_datatset_config(dataset: str, version: str) -> dict:
+    response = requests.get(
+        INPUT_CONFIG_URL(dataset=dataset, version=version), timeout=10
+    )
     return json.loads(response.text)
 
 

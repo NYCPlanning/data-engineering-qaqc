@@ -1,3 +1,4 @@
+import pandas as pd
 import streamlit as st
 from src.ztl.helpers import (
     DATASET_NAME,
@@ -7,7 +8,6 @@ from src.ztl.helpers import (
     get_source_data_versions_from_build,
     get_latest_source_data_versions,
     create_source_data_schema,
-    load_all_source_data,
     load_source_data_to_compare,
     get_schema_tables,
     get_source_dataset_names,
@@ -46,7 +46,7 @@ def sources_report():
         suffixes=("_reference", "_latest"),
     )
     source_data_versions.sort_index(ascending=True, inplace=True)
-    st.table(source_data_versions)
+    st.dataframe(source_data_versions)
     source_report_results = source_data_versions.to_dict(orient="index")
 
     source_dataset_names = get_source_dataset_names()
@@ -78,10 +78,12 @@ def sources_report():
     create_source_data_schema()
     for dataset in source_dataset_names:
         with st.spinner(f"⏳ Loading {dataset} versions ..."):
-            status_messages = load_source_data_to_compare(dataset=dataset, source_data_versions=source_data_versions)
+            status_messages = load_source_data_to_compare(
+                dataset=dataset, source_data_versions=source_data_versions
+            )
         success_message = "\n\n".join(status_messages)
         st.success(success_message)
-    
+
     table_names = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
     # TODO consider adding table names to source_report_results
 
@@ -100,3 +102,4 @@ def sources_report():
         """
     )
     st.json(source_report_results)
+    st.table(pd.DataFrame.from_dict(source_report_results, orient="index"))

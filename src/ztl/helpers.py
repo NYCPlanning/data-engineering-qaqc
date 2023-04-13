@@ -158,16 +158,16 @@ def create_source_data_schema() -> None:
     print(f"{schema_names}")
 
 
-def load_all_source_data(
-    dataset_names: list[str], source_data_versions: pd.DataFrame
-) -> list:
-    pool = multiprocessing.Pool(processes=4)
-    pool.starmap(
-        load_source_data_to_compare,
-        zip(dataset_names, itertools.repeat(source_data_versions)),
-    )
-    table_names = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
-    return table_names
+# def load_all_source_data(
+#     dataset_names: list[str], source_data_versions: pd.DataFrame
+# ) -> list:
+#     pool = multiprocessing.Pool(processes=4)
+#     pool.starmap(
+#         load_source_data_to_compare,
+#         zip(dataset_names, itertools.repeat(source_data_versions)),
+#     )
+#     table_names = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
+#     return table_names
 
 
 def load_source_data_to_compare(

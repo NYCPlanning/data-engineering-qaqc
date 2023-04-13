@@ -44,6 +44,7 @@ def load_data_from_sql_dump(
     )
     vacuum_database()
 
+
 def get_schemas() -> list:
     schema_names = execute_sql_select_query(
         """
@@ -51,6 +52,7 @@ def get_schemas() -> list:
         """
     )
     return sorted(schema_names["schema_name"].to_list())
+
 
 def get_schema_tables(table_schema: str) -> list:
     table_names = execute_sql_select_query(
