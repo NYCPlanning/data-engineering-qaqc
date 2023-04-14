@@ -1,8 +1,5 @@
 # functions used to generate source data reports
-import os
-import streamlit as st
 import pandas as pd
-import requests
 from src.constants import DATASET_BY_VERSION
 from src.digital_ocean_utils import (
     OUTPUT_DATA_DIRECTORY_URL,
@@ -19,7 +16,6 @@ from src.postgres_utils import (
     get_table_columns,
     get_table_row_count,
 )
-
 
 
 def dataframe_style_source_report_results(value: bool):
@@ -67,7 +63,10 @@ def get_latest_source_data_versions(dataset: str) -> pd.DataFrame:
     )
     return source_data_versions
 
-def get_source_data_versions_to_compare(dataset:str, reference_version:str, staging_version:str):
+
+def get_source_data_versions_to_compare(
+    dataset: str, reference_version: str, staging_version: str
+):
     # TODO (nice-to-have) add column with links to data-library yaml templates
     reference_source_data_versions = get_source_data_versions_from_build(
         dataset=dataset, version=reference_version
@@ -87,6 +86,7 @@ def get_source_data_versions_to_compare(dataset:str, reference_version:str, stag
     source_data_versions.sort_index(ascending=True, inplace=True)
 
     return source_data_versions
+
 
 def compare_source_data_columns(source_report_results: dict) -> dict:
     for dataset_name in source_report_results:

@@ -1,14 +1,13 @@
+import os
 import requests
 import json
 import boto3
 import pandas as pd
+import geopandas as gpd
 from io import BytesIO
 from zipfile import ZipFile
 from io import StringIO
-import os
 from dotenv import load_dotenv
-import streamlit as st
-import geopandas as gpd
 from src.constants import SQL_FILE_DIRECTORY, DATASET_BY_VERSION
 
 
@@ -115,7 +114,7 @@ class DigitalOceanClient:
 
             return gpd.read_file(buffer)
         except:
-            st.info(
+            raise ConnectionAbortedError(
                 f"There was an issue downloading {shapefile_zip} from Digital Ocean"
             )
 
@@ -126,7 +125,9 @@ class DigitalOceanClient:
             else:
                 return self.private_csv_from_DO(url, kwargs)
         except:
-            st.info(f"There was an issue downloading {url} from Digital Ocean.")
+            ConnectionAbortedError(
+                f"There was an issue downloading {url} from Digital Ocean."
+            )
 
     def public_csv_from_DO(self, url, kwargs):
         return pd.read_csv(url, **kwargs)

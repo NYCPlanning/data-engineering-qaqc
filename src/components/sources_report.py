@@ -1,4 +1,3 @@
-# TODO get this out of ztl folder
 import pandas as pd
 import streamlit as st
 from src.source_report_utils import (
@@ -69,7 +68,6 @@ def sources_report(dataset: str, reference_version: str, staging_version: str):
         st.success(success_message)
 
     # TODO consider adding table names to source_report_results
-
     st.subheader("Compare source data shapes")
     with st.spinner(f"⏳ Comparing columns ..."):
         source_report_results = compare_source_data_columns(source_report_results)
