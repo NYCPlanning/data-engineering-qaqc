@@ -2,8 +2,8 @@ import streamlit as st
 import pandas as pd
 from src.constants import DATASET_NAMES
 from src.digital_ocean_utils import get_latest_build_version
+from src.components.sources_report import sources_report
 from src.ztl.components.outputs_report import output_report
-from src.ztl.components.sources_report import sources_report
 
 DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
 REFERENCE_VESION = "2023/03/01"
