@@ -1,18 +1,64 @@
 import streamlit as st
+import pandas as pd
 import plotly.graph_objects as go
-from src.ztl.outputs_report_utils import get_output_data, ZONING_FIELD_CATEGORIES
 from src.constants import COLOR_SCHEME
+from src.digital_ocean_utils import (
+    OUTPUT_DATA_DIRECTORY_URL,
+    get_source_data_versions_from_build,
+)
+DATASET_NAME = "db-zoningtaxlots"
 
+ZONING_FIELD_CATEGORIES = {
+    "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
+    "Zoning Districts": [
+        "zoningdistrict1",
+        "zoningdistrict2",
+        "zoningdistrict3",
+        "zoningdistrict4",
+    ],
+    "Special Districts": [
+        "specialdistrict1",
+        "specialdistrict2",
+        "specialdistrict3",
+    ],
+    "Other": ["zoningmapcode", "zoningmapnumber", "limitedheightdistrict"],
+    "All": [
+        "commercialoverlay1",
+        "commercialoverlay2",
+        "zoningdistrict1",
+        "zoningdistrict2",
+        "zoningdistrict3",
+        "zoningdistrict4",
+        "specialdistrict1",
+        "specialdistrict2",
+        "specialdistrict3",
+        "zoningmapcode",
+        "zoningmapnumber",
+        "limitedheightdistrict",
+    ],
+}
 
 def output_report():
-    (
-        last_build,
-        source_data_versions,
-        bbldiff,
-        qaqc_mismatch,
-        qaqc_bbl,
-        qaqc_null,
-    ) = get_output_data()
+    data_url = OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version="latest")
+
+    bbldiff = pd.read_csv(
+        f"{data_url}qc_bbldiffs.csv",
+        dtype=str,
+        index_col=False,
+    )
+    bbldiff = bbldiff.fillna("NULL")
+    qaqc_mismatch = pd.read_csv(
+        f"{data_url}qaqc_mismatch.csv",
+        index_col=False,
+    )
+    qaqc_bbl = pd.read_csv(
+        f"{data_url}qaqc_bbl.csv",
+        index_col=False,
+    )
+    qaqc_null = pd.read_csv(
+        f"{data_url}qaqc_null.csv",
+        index_col=False,
+    )
 
     # TOTAL QAQC DIFF BY BOROUGH =============================
     total_diff_by_borough = bbldiff.groupby(["boroughcode"]).size().to_dict()
@@ -124,5 +170,6 @@ def output_report():
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
+    source_data_versions = get_source_data_versions_from_build(version="latest")
     st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================
