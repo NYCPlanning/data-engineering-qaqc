@@ -1,6 +1,7 @@
 import os
 import subprocess
 from dotenv import load_dotenv
+from pathlib import Path
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 from psycopg2.extensions import AsIs
@@ -9,7 +10,7 @@ import pandas as pd
 load_dotenv()
 
 BUILD_ENGINE = os.getenv("SQL_ENGINE_EDM_DATA", "")
-SQL_FILE_DIRECTORY = ".data/sql"
+SQL_FILE_DIRECTORY = Path().absolute() / ".data/sql"
 SOURCE_TABLE_NAME = lambda dataset, version: f"{dataset}_{version}"
 
 
@@ -137,8 +138,8 @@ def execute_sql_query(query: str, placeholders: dict = {}) -> None:
 
 
 def execute_sql_file(filename: str) -> None:
-    print(f"Executing {SQL_FILE_DIRECTORY}/{filename} ...")
-    sql_file = open(f"{SQL_FILE_DIRECTORY}/{filename}", "r")
+    print(f"Executing {SQL_FILE_DIRECTORY / filename} ...")
+    sql_file = open(SQL_FILE_DIRECTORY / filename, "r")
     sql_query = ""
     for line in sql_file:
         # ignore comment lines
@@ -159,7 +160,7 @@ def execute_sql_file(filename: str) -> None:
 def execute_sql_file_low_level(filename: str) -> None:
     subprocess.run(
         [
-            f"psql {BUILD_ENGINE} --set ON_ERROR_STOP=1 --file {SQL_FILE_DIRECTORY}/{filename}"
+            f"psql {BUILD_ENGINE} --set ON_ERROR_STOP=1 --file {SQL_FILE_DIRECTORY / filename}"
         ],
         shell=True,
         check=True,

@@ -1,4 +1,5 @@
 # test s3 and sql data IO
+# TODO abstract these functions out of ztl directory
 from src.postgres_utils import get_table_columns
 from src.digital_ocean_utils import get_datatset_config
 from src.ztl.helpers import DATASET_QAQC_DB_SCHEMA

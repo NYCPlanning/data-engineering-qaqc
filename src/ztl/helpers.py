@@ -193,7 +193,7 @@ def load_source_data(dataset: str, version: str) -> str:
     sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
     version_for_paths = str(version).replace("/", "_")
     dataset_by_version = SOURCE_TABLE_NAME(dataset, version_for_paths)
-    sql_dump_file_path_local = f"{SQL_FILE_DIRECTORY}/{dataset_by_version}.sql"
+    sql_dump_file_path_local = SQL_FILE_DIRECTORY / f"{dataset_by_version}.sql"
 
     if not os.path.exists(SQL_FILE_DIRECTORY):
         os.makedirs(SQL_FILE_DIRECTORY)
