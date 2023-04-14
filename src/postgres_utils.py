@@ -20,6 +20,7 @@ def load_data_from_sql_dump(
 ) -> list:
     print(f"Loading data into table {table_schema}.{dataset_name} ...")
     file_name = f"{dataset_by_version}.sql"
+    # DEV note
     # run sql dump file to create initial table
     execute_sql_file_low_level(filename=file_name)
     # copy inital data to a new table in the dataset-specific schema
