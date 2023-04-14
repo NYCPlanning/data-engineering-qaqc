@@ -1,3 +1,7 @@
+from pathlib import Path
+
+SQL_FILE_DIRECTORY = Path().absolute() / ".data/sql"
+DATASET_BY_VERSION = lambda dataset, version: f"{dataset}_{version.replace('/', '_')}"
 DATASET_PAGES = {
     "Home": "home",
     "PLUTO": "pluto",

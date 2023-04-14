@@ -1,17 +1,15 @@
 import os
 import subprocess
 from dotenv import load_dotenv
-from pathlib import Path
 from sqlalchemy import create_engine, text
 from sqlalchemy.orm import Session
 from psycopg2.extensions import AsIs
 import pandas as pd
+from src.constants import SQL_FILE_DIRECTORY
 
 load_dotenv()
 
 BUILD_ENGINE = os.getenv("SQL_ENGINE_EDM_DATA", "")
-SQL_FILE_DIRECTORY = Path().absolute() / ".data/sql"
-SOURCE_TABLE_NAME = lambda dataset, version: f"{dataset}_{version}"
 
 
 def load_data_from_sql_dump(

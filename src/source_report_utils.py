@@ -3,15 +3,15 @@ import os
 import streamlit as st
 import pandas as pd
 import requests
+from src.constants import DATASET_BY_VERSION
 from src.digital_ocean_utils import (
     INPUT_DATA_URL,
     get_datatset_config,
     get_source_data_versions_from_build,
+    load_source_data_sql_file,
 )
 
 from src.postgres_utils import (
-    SQL_FILE_DIRECTORY,
-    SOURCE_TABLE_NAME,
     create_sql_schema,
     load_data_from_sql_dump,
     get_schemas,
@@ -53,10 +53,10 @@ def get_latest_source_data_versions() -> pd.DataFrame:
 
 def compare_source_data_columns(source_report_results: dict) -> dict:
     for dataset_name in source_report_results:
-        reference_table = SOURCE_TABLE_NAME(
+        reference_table = DATASET_BY_VERSION(
             dataset_name, source_report_results[dataset_name]["version_reference"]
         )
-        latest_table = SOURCE_TABLE_NAME(
+        latest_table = DATASET_BY_VERSION(
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
         reference_columns = get_table_columns(
@@ -73,10 +73,10 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
 
 def compare_source_data_row_count(source_report_results: dict) -> dict:
     for dataset_name in source_report_results:
-        reference_table = SOURCE_TABLE_NAME(
+        reference_table = DATASET_BY_VERSION(
             dataset_name, source_report_results[dataset_name]["version_reference"]
         )
-        latest_table = SOURCE_TABLE_NAME(
+        latest_table = DATASET_BY_VERSION(
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
         reference_row_count = get_table_row_count(
@@ -126,25 +126,12 @@ def load_source_data_to_compare(
 
 
 def load_source_data(dataset: str, version: str) -> str:
-    status_message = None
-    # TODO move some of this to digital_ocean_utils
-    sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
-    version_for_paths = str(version).replace("/", "_")
-    dataset_by_version = SOURCE_TABLE_NAME(dataset, version_for_paths)
-    sql_dump_file_path_local = SQL_FILE_DIRECTORY / f"{dataset_by_version}.sql"
+    load_source_data_sql_file(dataset=dataset, version=version)
 
-    if not os.path.exists(SQL_FILE_DIRECTORY):
-        os.makedirs(SQL_FILE_DIRECTORY)
-
-    if os.path.exists(sql_dump_file_path_local):
-        print(f"sql dump file already pulled : ({sql_dump_file_path_s3}")
-    else:
-        print(f"getting sql dump file : {sql_dump_file_path_s3} ...")
-        data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=10)
-        with open(sql_dump_file_path_local, "wb") as f:
-            f.write(data_mysqldump.content)
-
+    dataset_by_version = DATASET_BY_VERSION(dataset, version)
     schema_tables = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
+
+    status_message = None
     if not dataset_by_version in schema_tables:
         load_data_from_sql_dump(
             table_schema=QAQC_DB_SCHEMA_SOURCE_DATA,

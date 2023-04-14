@@ -9,6 +9,7 @@ import os
 from dotenv import load_dotenv
 import streamlit as st
 import geopandas as gpd
+from src.constants import SQL_FILE_DIRECTORY, DATASET_BY_VERSION
 
 # DEV temprary
 DATASET_NAME = "db-zoningtaxlots"
@@ -65,6 +66,24 @@ def get_source_data_versions_from_build(version: str) -> pd.DataFrame:
     return source_data_versions
 
 
+def load_source_data_sql_file(dataset: str, version: str) -> None:
+    sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
+    dataset_by_version = DATASET_BY_VERSION(dataset, version)
+    sql_dump_file_path_local = SQL_FILE_DIRECTORY / f"{dataset_by_version}.sql"
+
+    if not os.path.exists(SQL_FILE_DIRECTORY):
+        os.makedirs(SQL_FILE_DIRECTORY)
+
+    if os.path.exists(sql_dump_file_path_local):
+        print(f"sql dump file already pulled : ({sql_dump_file_path_s3}")
+    else:
+        print(f"getting sql dump file : {sql_dump_file_path_s3} ...")
+        data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=10)
+        with open(sql_dump_file_path_local, "wb") as f:
+            f.write(data_mysqldump.content)
+
+
+# NOTE this class is a legacy approach used in many reports, but prefer a functional approach
 class DigitalOceanClient:
     def __init__(self, bucket_name, repo_name):
         self.bucket_name = bucket_name
