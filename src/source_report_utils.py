@@ -5,13 +5,13 @@ import pandas as pd
 import requests
 from src.constants import DATASET_BY_VERSION
 from src.digital_ocean_utils import (
-    INPUT_DATA_URL,
     get_datatset_config,
     get_source_data_versions_from_build,
     load_source_data_sql_file,
 )
 
 from src.postgres_utils import (
+    QAQC_DB_SCHEMA_SOURCE_DATA,
     create_sql_schema,
     load_data_from_sql_dump,
     get_schemas,
@@ -21,7 +21,6 @@ from src.postgres_utils import (
 )
 
 # TODO still wanna use a non default schema, make it something like source_data
-QAQC_DB_SCHEMA_SOURCE_DATA = "db_zoningtaxlots"
 REFERENCE_VESION = "2023/03/01"
 STAGING_VERSION = None
 
@@ -138,8 +137,8 @@ def load_source_data(dataset: str, version: str) -> str:
             dataset_by_version=dataset_by_version,
             dataset_name=dataset,
         )
-        status_message = f"Loaded `{dataset_by_version}`"
+        status_message = f"Loaded `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
     else:
-        status_message = f"Database already has `{dataset_by_version}`"
+        status_message = f"Database already has `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
 
     return status_message

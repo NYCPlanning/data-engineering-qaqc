@@ -7,9 +7,12 @@ from psycopg2.extensions import AsIs
 import pandas as pd
 from src.constants import SQL_FILE_DIRECTORY
 
-load_dotenv()
 
+load_dotenv()
 BUILD_ENGINE = os.getenv("SQL_ENGINE_EDM_DATA", "")
+
+QAQC_DB_SCHEMA_SOURCE_DATA = "source_data"
+
 
 
 def load_data_from_sql_dump(

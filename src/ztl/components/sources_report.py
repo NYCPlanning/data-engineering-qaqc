@@ -1,22 +1,21 @@
 # TODO get this out of ztl folder
 import pandas as pd
 import streamlit as st
+
+from src.digital_ocean_utils import (
+    get_source_data_versions_from_build,
+    DATASET_NAME,
+)
 from src.source_report_utils import (
-    QAQC_DB_SCHEMA_SOURCE_DATA,
     REFERENCE_VESION,
     STAGING_VERSION,
     get_latest_source_data_versions,
     create_source_data_schema,
     load_source_data_to_compare,
-    get_schema_tables,
     get_source_dataset_names,
     compare_source_data_columns,
     compare_source_data_row_count,
     dataframe_style_source_report_results,
-)
-from src.digital_ocean_utils import (
-    get_source_data_versions_from_build,
-    DATASET_NAME,
 )
 
 
@@ -60,7 +59,7 @@ def sources_report():
         dataset_name: source_report_results[dataset_name]
         for dataset_name in source_dataset_names
     }
-    st.warning(f"Only using DEV source datasets {source_dataset_names}")
+    st.warning(f"Only using DEV source datasets `{source_dataset_names}`")
 
     if not st.session_state.get("source_load_button", False):
         st.session_state.data_loaded = False
@@ -88,7 +87,6 @@ def sources_report():
         success_message = "\n\n".join(status_messages)
         st.success(success_message)
 
-    table_names = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
     # TODO consider adding table names to source_report_results
 
     st.subheader("Compare source data shapes")
@@ -111,9 +109,3 @@ def sources_report():
     st.dataframe(df_source_report_results)
     st.table(df_source_report_results)
     st.json(source_report_results)
-    st.success(
-        f"""
-        Tables in QAQC databse schema {QAQC_DB_SCHEMA_SOURCE_DATA}:
-        {table_names}
-        """
-    )
