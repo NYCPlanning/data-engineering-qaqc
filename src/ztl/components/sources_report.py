@@ -2,7 +2,7 @@
 import pandas as pd
 import streamlit as st
 from src.source_report_utils import (
-    DATASET_QAQC_DB_SCHEMA,
+    QAQC_DB_SCHEMA_SOURCE_DATA,
     REFERENCE_VESION,
     STAGING_VERSION,
     get_latest_source_data_versions,
@@ -88,7 +88,7 @@ def sources_report():
         success_message = "\n\n".join(status_messages)
         st.success(success_message)
 
-    table_names = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
+    table_names = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
     # TODO consider adding table names to source_report_results
 
     st.subheader("Compare source data shapes")
@@ -113,7 +113,7 @@ def sources_report():
     st.json(source_report_results)
     st.success(
         f"""
-        Tables in QAQC databse schema {DATASET_QAQC_DB_SCHEMA}:
+        Tables in QAQC databse schema {QAQC_DB_SCHEMA_SOURCE_DATA}:
         {table_names}
         """
     )

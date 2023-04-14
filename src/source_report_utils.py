@@ -21,7 +21,7 @@ from src.postgres_utils import (
 )
 
 # TODO still wanna use a non default schema, make it something like source_data
-DATASET_QAQC_DB_SCHEMA = "db_zoningtaxlots"
+QAQC_DB_SCHEMA_SOURCE_DATA = "db_zoningtaxlots"
 REFERENCE_VESION = "2023/03/01"
 STAGING_VERSION = None
 
@@ -60,10 +60,10 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
         reference_columns = get_table_columns(
-            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
+            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=reference_table
         )
         latest_columns = get_table_columns(
-            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
+            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=latest_table
         )
         source_report_results[dataset_name]["same_columns"] = (
             reference_columns == latest_columns
@@ -80,10 +80,10 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
         reference_row_count = get_table_row_count(
-            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=reference_table
+            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=reference_table
         )
         latest_row_count = get_table_row_count(
-            table_schema=DATASET_QAQC_DB_SCHEMA, table_name=latest_table
+            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA, table_name=latest_table
         )
         source_report_results[dataset_name]["same_row_count"] = (
             reference_row_count == latest_row_count
@@ -93,8 +93,8 @@ def compare_source_data_row_count(source_report_results: dict) -> dict:
 
 def create_source_data_schema() -> None:
     schema_names = get_schemas()
-    if DATASET_QAQC_DB_SCHEMA not in schema_names:
-        schema_names = create_sql_schema(table_schema=DATASET_QAQC_DB_SCHEMA)
+    if QAQC_DB_SCHEMA_SOURCE_DATA not in schema_names:
+        schema_names = create_sql_schema(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
     print("DEV schemas in DB EDM_DATA/edm-qaqc:")
     print(f"{schema_names}")
 
@@ -144,10 +144,10 @@ def load_source_data(dataset: str, version: str) -> str:
         with open(sql_dump_file_path_local, "wb") as f:
             f.write(data_mysqldump.content)
 
-    schema_tables = get_schema_tables(table_schema=DATASET_QAQC_DB_SCHEMA)
+    schema_tables = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
     if not dataset_by_version in schema_tables:
         load_data_from_sql_dump(
-            table_schema=DATASET_QAQC_DB_SCHEMA,
+            table_schema=QAQC_DB_SCHEMA_SOURCE_DATA,
             dataset_by_version=dataset_by_version,
             dataset_name=dataset,
         )

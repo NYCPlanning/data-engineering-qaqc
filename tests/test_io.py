@@ -1,7 +1,7 @@
 # test s3 and sql data IO
 from src.postgres_utils import get_table_columns
 from src.digital_ocean_utils import get_datatset_config
-from src.source_report_utils import DATASET_QAQC_DB_SCHEMA
+from src.source_report_utils import QAQC_DB_SCHEMA_SOURCE_DATA
 
 TEST_DATA_SOURCE_NAME = "dcp_zoningmapamendments"
 TEST_DATA_SOURCE_VERSION = "20230404"
@@ -29,7 +29,7 @@ def test_dataset_config():
 
 def test_get_table_columns():
     columns = get_table_columns(
-        table_schema=DATASET_QAQC_DB_SCHEMA,
+        table_schema=QAQC_DB_SCHEMA_SOURCE_DATA,
         table_name=f"{TEST_DATA_SOURCE_NAME}_{TEST_DATA_SOURCE_VERSION}",
     )
     assert columns == TEST_DATA_SOURCE_COLUMNS
