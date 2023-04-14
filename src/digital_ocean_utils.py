@@ -10,6 +10,9 @@ from dotenv import load_dotenv
 import streamlit as st
 import geopandas as gpd
 
+# DEV temprary
+DATASET_NAME = "db-zoningtaxlots"
+
 INPUT_DATA_URL = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
 )
@@ -30,6 +33,36 @@ def get_datatset_config(dataset: str, version: str) -> dict:
         INPUT_CONFIG_URL(dataset=dataset, version=version), timeout=10
     )
     return json.loads(response.text)
+
+
+@st.cache_data
+def get_latest_build_version() -> str:
+    return requests.get(
+        f"{OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version='latest')}version.txt",
+        timeout=10,
+    ).text
+
+
+@st.cache_data
+def get_source_data_versions_from_build(version: str) -> pd.DataFrame:
+    source_data_versions = pd.read_csv(
+        f"{OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version=version)}source_data_versions.csv",
+        index_col=False,
+        dtype=str,
+    )
+    source_data_versions.rename(
+        columns={
+            "schema_name": "datalibrary_name",
+            "v": "version",
+        },
+        errors="raise",
+        inplace=True,
+    )
+    source_data_versions.sort_values(
+        by=["datalibrary_name"], ascending=True
+    ).reset_index(drop=True, inplace=True)
+    source_data_versions.set_index("datalibrary_name", inplace=True)
+    return source_data_versions
 
 
 class DigitalOceanClient:

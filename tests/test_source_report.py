@@ -1,9 +1,8 @@
 # test generation of source data reports
-# TODO abstract these functions out of ztl directory
 import pandas as pd
-from src.ztl.helpers import (
-    get_latest_source_data_versions,
+from src.source_report_utils import (
     get_source_dataset_names,
+    get_latest_source_data_versions,
     compare_source_data_columns,
     compare_source_data_row_count,
 )
@@ -44,11 +43,15 @@ def test_get_source_dataset_names():
 
 def test_compare_source_data_columns():
     source_report_results = compare_source_data_columns(TEST_SOURCE_REPORT_RESULTS)
-    assert isinstance(source_report_results[TEST_DATA_SOURCE_NAME]["same_columns"], bool)
+    assert isinstance(
+        source_report_results[TEST_DATA_SOURCE_NAME]["same_columns"], bool
+    )
     assert source_report_results[TEST_DATA_SOURCE_NAME]["same_columns"] == True
 
 
 def test_compare_source_data_row_count():
     source_report_results = compare_source_data_row_count(TEST_SOURCE_REPORT_RESULTS)
-    assert isinstance(source_report_results[TEST_DATA_SOURCE_NAME]["same_row_count"], bool)
+    assert isinstance(
+        source_report_results[TEST_DATA_SOURCE_NAME]["same_row_count"], bool
+    )
     assert source_report_results[TEST_DATA_SOURCE_NAME]["same_row_count"] == False

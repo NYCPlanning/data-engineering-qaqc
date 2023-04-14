@@ -1,11 +1,10 @@
+# TODO get this out of ztl folder
 import pandas as pd
 import streamlit as st
-from src.ztl.helpers import (
-    DATASET_NAME,
+from src.source_report_utils import (
     DATASET_QAQC_DB_SCHEMA,
     REFERENCE_VESION,
     STAGING_VERSION,
-    get_source_data_versions_from_build,
     get_latest_source_data_versions,
     create_source_data_schema,
     load_source_data_to_compare,
@@ -14,6 +13,10 @@ from src.ztl.helpers import (
     compare_source_data_columns,
     compare_source_data_row_count,
     dataframe_style_source_report_results,
+)
+from src.digital_ocean_utils import (
+    get_source_data_versions_from_build,
+    DATASET_NAME,
 )
 
 
@@ -50,14 +53,14 @@ def sources_report():
     st.dataframe(source_data_versions)
     source_report_results = source_data_versions.to_dict(orient="index")
 
-    source_dataset_names = get_source_dataset_names()
-    # source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
-    # DEV remove non-dev source datasets from full source_report_results
-    # source_report_results = {
-    #     dataset_name: source_report_results[dataset_name]
-    #     for dataset_name in source_dataset_names
-    # }
-    # st.warning(f"Only using DEV source datasets {source_dataset_names}")
+    # source_dataset_names = get_source_dataset_names()
+    source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
+    # remove non-dev source datasets from full source_report_results
+    source_report_results = {
+        dataset_name: source_report_results[dataset_name]
+        for dataset_name in source_dataset_names
+    }
+    st.warning(f"Only using DEV source datasets {source_dataset_names}")
 
     if not st.session_state.get("source_load_button", False):
         st.session_state.data_loaded = False
