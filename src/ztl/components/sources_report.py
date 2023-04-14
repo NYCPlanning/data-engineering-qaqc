@@ -2,10 +2,7 @@
 import pandas as pd
 import streamlit as st
 from src.source_report_utils import (
-    REFERENCE_VESION,
-    STAGING_VERSION,
-    get_source_data_versions_from_build,
-    get_latest_source_data_versions,
+    get_source_data_versions_to_compare,
     create_source_data_schema,
     load_source_data_to_compare,
     get_source_dataset_names,
@@ -15,7 +12,7 @@ from src.source_report_utils import (
 )
 
 
-def sources_report(dataset:str):
+def sources_report(dataset: str, reference_version: str, staging_version: str):
     print("STARTING Source Data Review")
     st.header("Source Data Review")
     st.markdown(
@@ -23,32 +20,16 @@ def sources_report(dataset:str):
     This page reviews the status of all source data used to build this dataset.
     It compares the latest versions of source data to those used in the build of a reference version of this dataset.
     
-    The reference dataset version is `{REFERENCE_VESION}`.
+    The reference dataset version is `{reference_version}`.
     """
     )
 
     st.subheader("Compare source data versions")
-    # TODO move this to source_report_utils
-    # TODO (nice-to-have) add column with links to data-library yaml templates
-    reference_source_data_versions = get_source_data_versions_from_build(
+    source_data_versions = get_source_data_versions_to_compare(
         dataset=dataset,
-        version=REFERENCE_VESION
+        reference_version=reference_version,
+        staging_version=staging_version,
     )
-    if not STAGING_VERSION:
-        latest_source_data_versions = get_latest_source_data_versions(dataset=dataset)
-    else:
-        latest_source_data_versions = get_source_data_versions_from_build(
-            dataset=dataset,
-            version=STAGING_VERSION
-        )
-    source_data_versions = reference_source_data_versions.merge(
-        latest_source_data_versions,
-        left_index=True,
-        right_index=True,
-        suffixes=("_reference", "_latest"),
-    )
-    source_data_versions.sort_index(ascending=True, inplace=True)
-    # source_data_versions = get_to_compare
 
     st.dataframe(source_data_versions)
     source_report_results = source_data_versions.to_dict(orient="index")

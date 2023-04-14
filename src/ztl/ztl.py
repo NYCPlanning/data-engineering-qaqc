@@ -6,11 +6,14 @@ from src.ztl.components.outputs_report import output_report
 from src.ztl.components.sources_report import sources_report
 
 DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
+REFERENCE_VESION = "2023/03/01"
+STAGING_VERSION = None
 
 pd.options.display.float_format = "{:.2f}%".format
 
+
 def ztl():
-    dataset = DATASET_NAMES['ztl']
+    dataset = DATASET_NAMES["ztl"]
 
     st.title("Zoning Tax Lots QAQC")
     col1, col2, col3 = st.columns(3)
@@ -29,7 +32,11 @@ def ztl():
     )
 
     if report_type == "Sources":
-        sources_report(dataset)
+        sources_report(
+            dataset=dataset,
+            reference_version=REFERENCE_VESION,
+            staging_version=STAGING_VERSION,
+        )
     elif report_type == "Outputs":
         output_report()
     else:

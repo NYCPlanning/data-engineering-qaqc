@@ -20,9 +20,6 @@ from src.postgres_utils import (
     get_table_row_count,
 )
 
-# TODO these are ZTL specific
-REFERENCE_VESION = "2023/03/01"
-STAGING_VERSION = None
 
 
 def dataframe_style_source_report_results(value: bool):
@@ -31,7 +28,7 @@ def dataframe_style_source_report_results(value: bool):
 
 
 def get_source_dataset_names() -> pd.DataFrame:
-    source_data_versions = get_source_data_versions_from_build(version=REFERENCE_VESION)
+    source_data_versions = get_source_data_versions_from_build(version="latest")
     return sorted(source_data_versions.index.values.tolist())
 
 
@@ -58,7 +55,7 @@ def get_source_data_versions_from_build(dataset: str, version: str) -> pd.DataFr
 
 def get_latest_source_data_versions(dataset: str) -> pd.DataFrame:
     source_data_versions = get_source_data_versions_from_build(
-        dataset=dataset, version=REFERENCE_VESION
+        dataset=dataset, version="latest"
     )
     source_data_versions["version"] = source_data_versions.index.map(
         lambda dataset: get_datatset_config(
@@ -70,6 +67,26 @@ def get_latest_source_data_versions(dataset: str) -> pd.DataFrame:
     )
     return source_data_versions
 
+def get_source_data_versions_to_compare(dataset:str, reference_version:str, staging_version:str):
+    # TODO (nice-to-have) add column with links to data-library yaml templates
+    reference_source_data_versions = get_source_data_versions_from_build(
+        dataset=dataset, version=reference_version
+    )
+    if not staging_version:
+        latest_source_data_versions = get_latest_source_data_versions(dataset=dataset)
+    else:
+        latest_source_data_versions = get_source_data_versions_from_build(
+            dataset=dataset, version=staging_version
+        )
+    source_data_versions = reference_source_data_versions.merge(
+        latest_source_data_versions,
+        left_index=True,
+        right_index=True,
+        suffixes=("_reference", "_latest"),
+    )
+    source_data_versions.sort_index(ascending=True, inplace=True)
+
+    return source_data_versions
 
 def compare_source_data_columns(source_report_results: dict) -> dict:
     for dataset_name in source_report_results:
