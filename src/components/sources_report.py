@@ -33,7 +33,8 @@ def sources_report(dataset: str, reference_version: str, staging_version: str):
     st.dataframe(source_data_versions)
     source_report_results = source_data_versions.to_dict(orient="index")
 
-    source_dataset_names = get_source_dataset_names(dataset, reference_version)
+    source_dataset_names = source_report_results.keys()
+    # source_dataset_names = get_source_dataset_names(dataset, reference_version)
     # source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
     # # remove non-dev source datasets from full source_report_results
     # source_report_results = {
@@ -67,7 +68,7 @@ def sources_report(dataset: str, reference_version: str, staging_version: str):
         success_message = "\n\n".join(status_messages)
         st.success(success_message)
 
-    # TODO consider adding table names to source_report_results
+    # TODO (nice-to-have) consider adding table names to source_report_results
     st.subheader("Compare source data shapes")
     with st.spinner(f"⏳ Comparing columns ..."):
         source_report_results = compare_source_data_columns(source_report_results)
