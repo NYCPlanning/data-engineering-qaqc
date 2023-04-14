@@ -1,12 +1,9 @@
 import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
-from src.constants import COLOR_SCHEME
-from src.digital_ocean_utils import (
-    OUTPUT_DATA_DIRECTORY_URL,
-    get_source_data_versions_from_build,
-)
-DATASET_NAME = "db-zoningtaxlots"
+from src.constants import DATASET_NAMES, COLOR_SCHEME
+from src.digital_ocean_utils import OUTPUT_DATA_DIRECTORY_URL
+from src.source_report_utils import get_source_data_versions_from_build
 
 ZONING_FIELD_CATEGORIES = {
     "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
@@ -39,7 +36,8 @@ ZONING_FIELD_CATEGORIES = {
 }
 
 def output_report():
-    data_url = OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version="latest")
+    dataset = DATASET_NAMES["ztl"]
+    data_url = OUTPUT_DATA_DIRECTORY_URL(dataset=dataset, version="latest")
 
     bbldiff = pd.read_csv(
         f"{data_url}qc_bbldiffs.csv",
@@ -170,6 +168,6 @@ def output_report():
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
-    source_data_versions = get_source_data_versions_from_build(version="latest")
+    source_data_versions = get_source_data_versions_from_build(dataset=dataset, version="latest")
     st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================

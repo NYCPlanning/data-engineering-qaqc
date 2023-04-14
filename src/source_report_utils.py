@@ -5,8 +5,8 @@ import pandas as pd
 import requests
 from src.constants import DATASET_BY_VERSION
 from src.digital_ocean_utils import (
+    OUTPUT_DATA_DIRECTORY_URL,
     get_datatset_config,
-    get_source_data_versions_from_build,
     load_source_data_sql_file,
 )
 
@@ -20,7 +20,7 @@ from src.postgres_utils import (
     get_table_row_count,
 )
 
-# TODO still wanna use a non default schema, make it something like source_data
+# TODO these are ZTL specific
 REFERENCE_VESION = "2023/03/01"
 STAGING_VERSION = None
 
@@ -30,15 +30,36 @@ def dataframe_style_source_report_results(value: bool):
     return f"background-color: {color}"
 
 
-@st.cache_data
 def get_source_dataset_names() -> pd.DataFrame:
     source_data_versions = get_source_data_versions_from_build(version=REFERENCE_VESION)
     return sorted(source_data_versions.index.values.tolist())
 
 
-@st.cache_data
-def get_latest_source_data_versions() -> pd.DataFrame:
-    source_data_versions = get_source_data_versions_from_build(version=REFERENCE_VESION)
+def get_source_data_versions_from_build(dataset: str, version: str) -> pd.DataFrame:
+    source_data_versions = pd.read_csv(
+        f"{OUTPUT_DATA_DIRECTORY_URL(dataset=dataset, version=version)}source_data_versions.csv",
+        index_col=False,
+        dtype=str,
+    )
+    source_data_versions.rename(
+        columns={
+            "schema_name": "datalibrary_name",
+            "v": "version",
+        },
+        errors="raise",
+        inplace=True,
+    )
+    source_data_versions.sort_values(
+        by=["datalibrary_name"], ascending=True
+    ).reset_index(drop=True, inplace=True)
+    source_data_versions.set_index("datalibrary_name", inplace=True)
+    return source_data_versions
+
+
+def get_latest_source_data_versions(dataset: str) -> pd.DataFrame:
+    source_data_versions = get_source_data_versions_from_build(
+        dataset=dataset, version=REFERENCE_VESION
+    )
     source_data_versions["version"] = source_data_versions.index.map(
         lambda dataset: get_datatset_config(
             dataset=dataset,
@@ -139,6 +160,8 @@ def load_source_data(dataset: str, version: str) -> str:
         )
         status_message = f"Loaded `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
     else:
-        status_message = f"Database already has `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
+        status_message = (
+            f"Database already has `{QAQC_DB_SCHEMA_SOURCE_DATA}.{dataset_by_version}`"
+        )
 
     return status_message

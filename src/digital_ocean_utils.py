@@ -11,8 +11,6 @@ import streamlit as st
 import geopandas as gpd
 from src.constants import SQL_FILE_DIRECTORY, DATASET_BY_VERSION
 
-# DEV temprary
-DATASET_NAME = "db-zoningtaxlots"
 
 INPUT_DATA_URL = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
@@ -36,34 +34,11 @@ def get_datatset_config(dataset: str, version: str) -> dict:
     return json.loads(response.text)
 
 
-@st.cache_data
-def get_latest_build_version() -> str:
+def get_latest_build_version(dataset: str) -> str:
     return requests.get(
-        f"{OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version='latest')}version.txt",
+        f"{OUTPUT_DATA_DIRECTORY_URL(dataset=dataset, version='latest')}version.txt",
         timeout=10,
     ).text
-
-
-@st.cache_data
-def get_source_data_versions_from_build(version: str) -> pd.DataFrame:
-    source_data_versions = pd.read_csv(
-        f"{OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version=version)}source_data_versions.csv",
-        index_col=False,
-        dtype=str,
-    )
-    source_data_versions.rename(
-        columns={
-            "schema_name": "datalibrary_name",
-            "v": "version",
-        },
-        errors="raise",
-        inplace=True,
-    )
-    source_data_versions.sort_values(
-        by=["datalibrary_name"], ascending=True
-    ).reset_index(drop=True, inplace=True)
-    source_data_versions.set_index("datalibrary_name", inplace=True)
-    return source_data_versions
 
 
 def load_source_data_sql_file(dataset: str, version: str) -> None:

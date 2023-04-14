@@ -1,14 +1,10 @@
 # TODO get this out of ztl folder
 import pandas as pd
 import streamlit as st
-
-from src.digital_ocean_utils import (
-    get_source_data_versions_from_build,
-    DATASET_NAME,
-)
 from src.source_report_utils import (
     REFERENCE_VESION,
     STAGING_VERSION,
+    get_source_data_versions_from_build,
     get_latest_source_data_versions,
     create_source_data_schema,
     load_source_data_to_compare,
@@ -19,7 +15,7 @@ from src.source_report_utils import (
 )
 
 
-def sources_report():
+def sources_report(dataset:str):
     print("STARTING Source Data Review")
     st.header("Source Data Review")
     st.markdown(
@@ -32,14 +28,17 @@ def sources_report():
     )
 
     st.subheader("Compare source data versions")
+    # TODO move this to source_report_utils
     # TODO (nice-to-have) add column with links to data-library yaml templates
     reference_source_data_versions = get_source_data_versions_from_build(
+        dataset=dataset,
         version=REFERENCE_VESION
     )
     if not STAGING_VERSION:
-        latest_source_data_versions = get_latest_source_data_versions()
+        latest_source_data_versions = get_latest_source_data_versions(dataset=dataset)
     else:
         latest_source_data_versions = get_source_data_versions_from_build(
+            dataset=dataset,
             version=STAGING_VERSION
         )
     source_data_versions = reference_source_data_versions.merge(
@@ -49,6 +48,8 @@ def sources_report():
         suffixes=("_reference", "_latest"),
     )
     source_data_versions.sort_index(ascending=True, inplace=True)
+    # source_data_versions = get_to_compare
+
     st.dataframe(source_data_versions)
     source_report_results = source_data_versions.to_dict(orient="index")
 
@@ -77,7 +78,6 @@ def sources_report():
         disabled=True,
     )
 
-    print(f"LOADING SOURCE DATA FOR {DATASET_NAME}")
     create_source_data_schema()
     for dataset in source_dataset_names:
         with st.spinner(f"⏳ Loading {dataset} versions ..."):
