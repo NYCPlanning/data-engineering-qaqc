@@ -45,10 +45,14 @@ def test_get_source_data_versions_from_build():
     )
 
 def test_get_source_data_versions_from_build_manual():
-    with pytest.raises(FileNotFoundError):
-        source_data_versions = get_source_data_versions_from_build(
-            dataset=DATASET_NAMES["facdb"], version="2021-03-02"
-        )
+    source_data_versions = get_source_data_versions_from_build(
+        dataset=DATASET_NAMES["facdb"], version="2021-03-02"
+    )
+    assert isinstance(source_data_versions, pd.DataFrame)
+    assert (
+        source_data_versions.loc["doitt_buildingfootprints", "version"]
+        == "XXX"
+    )
 
 def test_get_latest_source_data_versions():
     source_data_versions = get_latest_source_data_versions(

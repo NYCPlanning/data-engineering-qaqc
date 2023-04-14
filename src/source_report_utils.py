@@ -1,7 +1,7 @@
 # functions used to generate source data reports
 import pandas as pd
 import urllib
-from src.constants import DATASET_BY_VERSION
+from src.constants import DATASET_BY_VERSION, DATASET_SOURCE_VERSIONS
 from src.digital_ocean_utils import (
     OUTPUT_DATA_DIRECTORY_URL,
     get_datatset_config,
@@ -39,8 +39,8 @@ def get_source_data_versions_from_build(dataset: str, version: str) -> pd.DataFr
             dtype=str,
         )
     except urllib.error.HTTPError:
-    # TODO handle lack of source_data_versions file
-        raise FileNotFoundError
+        # TODO handle lack of source_data_versions file
+        source_data_versions = DATASET_SOURCE_VERSIONS[dataset]
     source_data_versions.rename(
         columns={
             "schema_name": "datalibrary_name",
