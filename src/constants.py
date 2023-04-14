@@ -14,7 +14,8 @@ DATASET_PAGES = {
     "Template Repo DB": "trdb",
 }
 DATASET_NAMES = {
-    "ztl": "db-zoningtaxlots"
+    "ztl": "db-zoningtaxlots",
+    "facdb": "db-facilities",
 }
 
 COLOR_SCHEME = ["#003f5c", "#ffa600", "#58508d", "#ff6361", "#bc5090"]

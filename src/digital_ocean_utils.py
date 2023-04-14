@@ -34,10 +34,12 @@ def get_datatset_config(dataset: str, version: str) -> dict:
 
 
 def get_latest_build_version(dataset: str) -> str:
-    return requests.get(
+    # TODO handle lack of version file
+    version = requests.get(
         f"{OUTPUT_DATA_DIRECTORY_URL(dataset=dataset, version='latest')}version.txt",
         timeout=10,
     ).text
+    return version
 
 
 def load_source_data_sql_file(dataset: str, version: str) -> None:
