@@ -23,8 +23,10 @@ def dataframe_style_source_report_results(value: bool):
     return f"background-color: {color}"
 
 
-def get_source_dataset_names() -> pd.DataFrame:
-    source_data_versions = get_source_data_versions_from_build(version="latest")
+def get_source_dataset_names(dataset: str, version: str) -> pd.DataFrame:
+    source_data_versions = get_source_data_versions_from_build(
+        dataset=dataset, version=version
+    )
     return sorted(source_data_versions.index.values.tolist())
 
 

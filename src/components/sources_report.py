@@ -33,14 +33,14 @@ def sources_report(dataset: str, reference_version: str, staging_version: str):
     st.dataframe(source_data_versions)
     source_report_results = source_data_versions.to_dict(orient="index")
 
-    # source_dataset_names = get_source_dataset_names()
-    source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
-    # remove non-dev source datasets from full source_report_results
-    source_report_results = {
-        dataset_name: source_report_results[dataset_name]
-        for dataset_name in source_dataset_names
-    }
-    st.warning(f"Only using DEV source datasets `{source_dataset_names}`")
+    source_dataset_names = get_source_dataset_names(dataset, reference_version)
+    # source_dataset_names = ["dcp_zoningmapamendments", "dcp_limitedheight"]
+    # # remove non-dev source datasets from full source_report_results
+    # source_report_results = {
+    #     dataset_name: source_report_results[dataset_name]
+    #     for dataset_name in source_dataset_names
+    # }
+    # st.warning(f"Only using DEV source datasets `{source_dataset_names}`")
 
     if not st.session_state.get("source_load_button", False):
         st.session_state.data_loaded = False
