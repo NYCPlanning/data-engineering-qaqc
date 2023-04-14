@@ -1,6 +1,6 @@
 import streamlit as st
 import plotly.graph_objects as go
-from src.ztl.helpers import get_output_data, ZONING_FIELD_CATEGORIES
+from src.ztl.outputs_report_utils import get_output_data, ZONING_FIELD_CATEGORIES
 from src.constants import COLOR_SCHEME
 
 

@@ -1,8 +1,6 @@
 # test s3 and sql data IO
 from src.postgres_utils import get_table_columns
 from src.digital_ocean_utils import get_datatset_config
-
-# DEV temporary
 from src.source_report_utils import DATASET_QAQC_DB_SCHEMA
 
 TEST_DATA_SOURCE_NAME = "dcp_zoningmapamendments"

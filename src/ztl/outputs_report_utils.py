@@ -1,4 +1,3 @@
-# TODO turn this into output_report_utils.py
 import streamlit as st
 import pandas as pd
 from src.digital_ocean_utils import (
@@ -9,8 +8,6 @@ from src.digital_ocean_utils import (
 
 DATASET_NAME = "db-zoningtaxlots"
 DATASET_QAQC_DB_SCHEMA = "db_zoningtaxlots"
-
-DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
 
 REFERENCE_VESION = "2023/03/01"
 STAGING_VERSION = None
@@ -50,7 +47,7 @@ ZONING_FIELD_CATEGORIES = {
 @st.cache_data
 def get_output_data() -> tuple:
     last_build = get_latest_build_version()
-    source_data_versions = get_source_data_versions_from_build()
+    source_data_versions = get_source_data_versions_from_build(version="latest")
     data_url = OUTPUT_DATA_DIRECTORY_URL(dataset=DATASET_NAME, version="latest")
 
     bbldiff = pd.read_csv(

@@ -1,9 +1,10 @@
 import streamlit as st
 import pandas as pd
+from src.digital_ocean_utils import get_latest_build_version
 from src.ztl.components.outputs_report import output_report
 from src.ztl.components.sources_report import sources_report
-from src.ztl.helpers import get_latest_build_version, DATASET_REPO_URL
 
+DATASET_REPO_URL = "https://github.com/NYCPlanning/db-zoningtaxlots"
 
 def ztl():
     pd.options.display.float_format = "{:.2f}%".format
