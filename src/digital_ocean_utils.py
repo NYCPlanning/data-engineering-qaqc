@@ -11,7 +11,7 @@ from dotenv import load_dotenv
 from src.constants import SQL_FILE_DIRECTORY, DATASET_BY_VERSION
 
 
-INPUT_DATA_URL = lambda dataset, version: (
+DATA_LIBRARY_SQL_URL = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
 )
 
@@ -42,8 +42,8 @@ def get_latest_build_version(dataset: str) -> str:
     return version
 
 
-def load_source_data_sql_file(dataset: str, version: str) -> None:
-    sql_dump_file_path_s3 = INPUT_DATA_URL(dataset, version)
+def get_data_library_sql_file(dataset: str, version: str) -> None:
+    sql_dump_file_path_s3 = DATA_LIBRARY_SQL_URL(dataset, version)
     dataset_by_version = DATASET_BY_VERSION(dataset, version)
     sql_dump_file_path_local = SQL_FILE_DIRECTORY / f"{dataset_by_version}.sql"
 

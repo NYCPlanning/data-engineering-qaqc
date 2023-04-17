@@ -5,7 +5,7 @@ from src.constants import DATASET_BY_VERSION, DATASET_SOURCE_VERSIONS
 from src.digital_ocean_utils import (
     OUTPUT_DATA_DIRECTORY_URL,
     get_datatset_config,
-    load_source_data_sql_file,
+    get_data_library_sql_file,
 )
 
 from src.postgres_utils import (
@@ -170,7 +170,7 @@ def load_source_data_to_compare(
 
 
 def load_source_data(dataset: str, version: str) -> str:
-    load_source_data_sql_file(dataset=dataset, version=version)
+    get_data_library_sql_file(dataset=dataset, version=version)
 
     dataset_by_version = DATASET_BY_VERSION(dataset, version)
     schema_tables = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
