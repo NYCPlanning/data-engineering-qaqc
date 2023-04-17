@@ -94,7 +94,7 @@ def get_table_row_count(table_schema: str, table_name: str) -> int:
 
 
 def create_postigs_extension() -> None:
-    query = "CREATE EXTENSION POSTIG"
+    query = "CREATE EXTENSION POSTGIS"
     execute_sql_query(query)
 
 
