@@ -15,7 +15,7 @@ DATA_LIBRARY_SQL_URL = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
 )
 
-INPUT_CONFIG_URL = lambda dataset, version: (
+DATA_LIBRARY_CONFIG_URL = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/config.json"
 )
 
@@ -28,7 +28,7 @@ load_dotenv()
 
 def get_datatset_config(dataset: str, version: str) -> dict:
     response = requests.get(
-        INPUT_CONFIG_URL(dataset=dataset, version=version), timeout=10
+        DATA_LIBRARY_CONFIG_URL(dataset=dataset, version=version), timeout=10
     )
     return json.loads(response.text)
 
