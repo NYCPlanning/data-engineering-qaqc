@@ -14,7 +14,6 @@ BUILD_ENGINE = os.getenv("SQL_ENGINE_EDM_DATA", "")
 QAQC_DB_SCHEMA_SOURCE_DATA = "source_data"
 
 
-
 def load_data_from_sql_dump(
     table_schema: str,
     dataset_by_version: str,

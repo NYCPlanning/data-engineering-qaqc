@@ -1,9 +1,9 @@
 # functions used to generate source data reports
 import pandas as pd
 import urllib
-from src.constants import DATASET_BY_VERSION, DATASET_SOURCE_VERSIONS
+from src.constants import fn_dataset_by_version, DATASET_SOURCE_VERSIONS
 from src.digital_ocean_utils import (
-    OUTPUT_DATA_DIRECTORY_URL,
+    fn_output_data_directory_url,
     get_datatset_config,
     get_data_library_sql_file,
 )
@@ -34,7 +34,7 @@ def get_source_dataset_names(dataset: str, version: str) -> pd.DataFrame:
 def get_source_data_versions_from_build(dataset: str, version: str) -> pd.DataFrame:
     try:
         source_data_versions = pd.read_csv(
-            f"{OUTPUT_DATA_DIRECTORY_URL(dataset=dataset, version=version)}source_data_versions.csv",
+            f"{fn_output_data_directory_url(dataset=dataset, version=version)}source_data_versions.csv",
             index_col=False,
             dtype=str,
         )
@@ -97,10 +97,10 @@ def get_source_data_versions_to_compare(
 
 def compare_source_data_columns(source_report_results: dict) -> dict:
     for dataset_name in source_report_results:
-        reference_table = DATASET_BY_VERSION(
+        reference_table = fn_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_reference"]
         )
-        latest_table = DATASET_BY_VERSION(
+        latest_table = fn_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
         reference_columns = get_table_columns(
@@ -117,10 +117,10 @@ def compare_source_data_columns(source_report_results: dict) -> dict:
 
 def compare_source_data_row_count(source_report_results: dict) -> dict:
     for dataset_name in source_report_results:
-        reference_table = DATASET_BY_VERSION(
+        reference_table = fn_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_reference"]
         )
-        latest_table = DATASET_BY_VERSION(
+        latest_table = fn_dataset_by_version(
             dataset_name, source_report_results[dataset_name]["version_latest"]
         )
         reference_row_count = get_table_row_count(
@@ -172,7 +172,7 @@ def load_source_data_to_compare(
 def load_source_data(dataset: str, version: str) -> str:
     get_data_library_sql_file(dataset=dataset, version=version)
 
-    dataset_by_version = DATASET_BY_VERSION(dataset, version)
+    dataset_by_version = fn_dataset_by_version(dataset, version)
     schema_tables = get_schema_tables(table_schema=QAQC_DB_SCHEMA_SOURCE_DATA)
 
     status_message = None

@@ -5,8 +5,6 @@ COLOR_SCHEME = ["#003f5c", "#ffa600", "#58508d", "#ff6361", "#bc5090"]
 
 SQL_FILE_DIRECTORY = Path().absolute() / ".data/sql"
 
-DATASET_BY_VERSION = lambda dataset, version: f"{dataset}_{version.replace('/', '_')}"
-
 DATASET_PAGES = {
     "Home": "home",
     "PLUTO": "pluto",
@@ -44,3 +42,5 @@ DATASET_SOURCE_VERSIONS = {
         columns=["schema_name", "v"],
     )
 }
+
+fn_dataset_by_version = lambda dataset, version: f"{dataset}_{version.replace('/', '_')}"
