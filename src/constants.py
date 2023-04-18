@@ -22,6 +22,7 @@ DATASET_NAMES = {
     "facdb": "db-facilities",
 }
 
+# NOTE this is a placeholder for an un-implemented feature
 DATASET_SOURCE_VERSIONS = {
     "db-facilities": pd.DataFrame.from_records(
         [

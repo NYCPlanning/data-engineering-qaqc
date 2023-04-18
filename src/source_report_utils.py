@@ -40,6 +40,7 @@ def get_source_data_versions_from_build(dataset: str, version: str) -> pd.DataFr
         )
     except urllib.error.HTTPError:
         # TODO handle lack of source_data_versions file
+        # NOTE this uses a placeholder for an un-implemented feature
         source_data_versions = DATASET_SOURCE_VERSIONS[dataset]
     source_data_versions.rename(
         columns={
