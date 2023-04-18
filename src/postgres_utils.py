@@ -2,14 +2,13 @@ import os
 import subprocess
 from dotenv import load_dotenv
 from sqlalchemy import create_engine, text
-from sqlalchemy.orm import Session
 from psycopg2.extensions import AsIs
 import pandas as pd
 from src.constants import SQL_FILE_DIRECTORY
 
 
 load_dotenv()
-BUILD_ENGINE = os.getenv("SQL_ENGINE_EDM_DATA", "")
+BUILD_ENGINE = os.getenv("SQL_ENGINE_EDM_DATA")
 
 QAQC_DB_SCHEMA_SOURCE_DATA = "source_data"
 
@@ -22,7 +21,7 @@ def load_data_from_sql_dump(
     print(f"Loading data into table {table_schema}.{dataset_name} ...")
     file_name = f"{dataset_by_version}.sql"
     # run sql dump file to create initial table
-    execute_sql_file_low_level(filename=file_name)
+    execute_sql_file(filename=file_name)
     # copy inital data to a new table in the dataset-specific schema
     execute_sql_query(
         """
@@ -122,7 +121,7 @@ def create_sql_schema(table_schema: str) -> pd.DataFrame:
 
 def execute_sql_select_query(query: str, placeholders: dict = {}) -> pd.DataFrame:
     sql_engine = create_engine(BUILD_ENGINE)
-    with sql_engine.begin() as sql_conn:
+    with sql_engine.connect() as sql_conn:
         select_records = pd.read_sql(sql=text(query), con=sql_conn, params=placeholders)
     sql_engine.dispose()
     return select_records
@@ -130,33 +129,12 @@ def execute_sql_select_query(query: str, placeholders: dict = {}) -> pd.DataFram
 
 def execute_sql_query(query: str, placeholders: dict = {}) -> None:
     sql_engine = create_engine(BUILD_ENGINE, isolation_level="AUTOCOMMIT")
-    with Session(sql_engine) as session:
-        session.execute(statement=text(query), params=placeholders)
-        session.commit()
+    with sql_engine.connect() as connection:
+        connection.execute(statement=text(query), params=placeholders)
     sql_engine.dispose()
 
 
 def execute_sql_file(filename: str) -> None:
-    print(f"Executing {SQL_FILE_DIRECTORY / filename} ...")
-    sql_file = open(SQL_FILE_DIRECTORY / filename, "r")
-    sql_query = ""
-    for line in sql_file:
-        # ignore comment lines
-        if line.strip("\n") and not line.startswith("--"):
-            # append line to the query string
-            sql_query += line.strip("\n")
-            # if the query string ends with ';', it is a full statement
-            if sql_query.endswith(";"):
-                execute_sql_query(query=sql_query)
-                sql_query = ""
-            else:
-                # continue parsing multi-line statement
-                sql_query += " "
-        else:
-            continue
-
-
-def execute_sql_file_low_level(filename: str) -> None:
     subprocess.run(
         [
             f"psql {BUILD_ENGINE} --set ON_ERROR_STOP=1 --file {SQL_FILE_DIRECTORY / filename}"
