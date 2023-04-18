@@ -2,7 +2,7 @@ import streamlit as st
 import pandas as pd
 import plotly.graph_objects as go
 from src.constants import DATASET_NAMES, COLOR_SCHEME
-from src.digital_ocean_utils import fn_output_data_directory_url
+from src.digital_ocean_utils import construct_output_data_directory_url
 from src.source_report_utils import get_source_data_versions_from_build
 
 ZONING_FIELD_CATEGORIES = {
@@ -37,7 +37,7 @@ ZONING_FIELD_CATEGORIES = {
 
 def output_report():
     dataset = DATASET_NAMES["ztl"]
-    data_url = fn_output_data_directory_url(dataset=dataset, version="latest")
+    data_url = construct_output_data_directory_url(dataset=dataset, version="latest")
 
     bbldiff = pd.read_csv(
         f"{data_url}qc_bbldiffs.csv",

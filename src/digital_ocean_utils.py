@@ -8,18 +8,18 @@ from io import BytesIO
 from zipfile import ZipFile
 from io import StringIO
 from dotenv import load_dotenv
-from src.constants import SQL_FILE_DIRECTORY, fn_dataset_by_version
+from src.constants import SQL_FILE_DIRECTORY, construct_dataset_by_version
 
 
-fn_data_library_sql_url = lambda dataset, version: (
+construct_data_library_sql_url = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
 )
 
-fn_data_library_config_url = lambda dataset, version: (
+construct_data_library_config_url = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/config.json"
 )
 
-fn_output_data_directory_url = lambda dataset, version: (
+construct_output_data_directory_url = lambda dataset, version: (
     f"https://edm-publishing.nyc3.digitaloceanspaces.com/{dataset}/{version}/output/"
 )
 
@@ -28,7 +28,7 @@ load_dotenv()
 
 def get_datatset_config(dataset: str, version: str) -> dict:
     response = requests.get(
-        fn_data_library_config_url(dataset=dataset, version=version), timeout=10
+        construct_data_library_config_url(dataset=dataset, version=version), timeout=10
     )
     return json.loads(response.text)
 
@@ -36,15 +36,15 @@ def get_datatset_config(dataset: str, version: str) -> dict:
 def get_latest_build_version(dataset: str) -> str:
     # TODO handle lack of version file
     version = requests.get(
-        f"{fn_output_data_directory_url(dataset=dataset, version='latest')}version.txt",
+        f"{construct_output_data_directory_url(dataset=dataset, version='latest')}version.txt",
         timeout=10,
     ).text
     return version
 
 
 def get_data_library_sql_file(dataset: str, version: str) -> None:
-    sql_dump_file_path_s3 = fn_data_library_sql_url(dataset, version)
-    dataset_by_version = fn_dataset_by_version(dataset, version)
+    sql_dump_file_path_s3 = construct_data_library_sql_url(dataset, version)
+    dataset_by_version = construct_dataset_by_version(dataset, version)
     sql_dump_file_path_local = SQL_FILE_DIRECTORY / f"{dataset_by_version}.sql"
 
     if not os.path.exists(SQL_FILE_DIRECTORY):
