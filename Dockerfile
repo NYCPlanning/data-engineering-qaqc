@@ -5,6 +5,10 @@ COPY bash/ /bash/
 COPY requirements.txt /.
 RUN bash/setup_env.sh
 
+# Set environment variables from building environment
+ARG SQL_ENGINE_EDM_DATA=edm_data_placeholder_engine
+ENV SQL_ENGINE_EDM_DATA ${SQL_ENGINE_EDM_DATA}
+
 # Run deployed environment setups
 WORKDIR /app
 
