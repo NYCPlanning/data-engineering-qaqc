@@ -3,7 +3,7 @@ from typing import Dict
 from urllib.error import HTTPError
 import streamlit as st
 import json
-from src.digital_ocean_client import DigitalOceanClient
+from src.digital_ocean_utils import DigitalOceanClient
 
 BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-developments"

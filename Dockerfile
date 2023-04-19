@@ -1,10 +1,14 @@
 FROM python:3.11-slim as build
 
+# Run environment setup script
+COPY bash/ /bash/
+COPY requirements.txt /.
+RUN bash/setup_env.sh
+
+# Run deployed environment setups
 WORKDIR /app
 
 COPY . .
-
-RUN dev/install_python_packages.sh
 
 CMD [ "./entrypoint.sh" ]
 

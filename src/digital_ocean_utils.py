@@ -1,18 +1,65 @@
+import os
+import requests
+import json
 import boto3
 import pandas as pd
+import geopandas as gpd
 from io import BytesIO
 from zipfile import ZipFile
 from io import StringIO
-import os
 from dotenv import load_dotenv
-import streamlit as st
-from datetime import datetime
-import shutil
-import geopandas as gpd
+from src.constants import SQL_FILE_DIRECTORY, construct_dataset_by_version
+
+
+construct_data_library_sql_url = lambda dataset, version: (
+    f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/{dataset}.sql"
+)
+
+construct_data_library_config_url = lambda dataset, version: (
+    f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/config.json"
+)
+
+construct_output_data_directory_url = lambda dataset, version: (
+    f"https://edm-publishing.nyc3.digitaloceanspaces.com/{dataset}/{version}/output/"
+)
 
 load_dotenv()
 
 
+def get_datatset_config(dataset: str, version: str) -> dict:
+    response = requests.get(
+        construct_data_library_config_url(dataset=dataset, version=version), timeout=10
+    )
+    return json.loads(response.text)
+
+
+def get_latest_build_version(dataset: str) -> str:
+    # TODO handle lack of version file
+    version = requests.get(
+        f"{construct_output_data_directory_url(dataset=dataset, version='latest')}version.txt",
+        timeout=10,
+    ).text
+    return version
+
+
+def get_data_library_sql_file(dataset: str, version: str) -> None:
+    sql_dump_file_path_s3 = construct_data_library_sql_url(dataset, version)
+    dataset_by_version = construct_dataset_by_version(dataset, version)
+    sql_dump_file_path_local = SQL_FILE_DIRECTORY / f"{dataset_by_version}.sql"
+
+    if not os.path.exists(SQL_FILE_DIRECTORY):
+        os.makedirs(SQL_FILE_DIRECTORY)
+
+    if os.path.exists(sql_dump_file_path_local):
+        print(f"sql dump file already pulled : ({sql_dump_file_path_s3}")
+    else:
+        print(f"getting sql dump file : {sql_dump_file_path_s3} ...")
+        data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=10)
+        with open(sql_dump_file_path_local, "wb") as f:
+            f.write(data_mysqldump.content)
+
+
+# NOTE this class is a legacy approach used in many reports, but prefer a functional approach
 class DigitalOceanClient:
     def __init__(self, bucket_name, repo_name):
         self.bucket_name = bucket_name
@@ -69,7 +116,7 @@ class DigitalOceanClient:
 
             return gpd.read_file(buffer)
         except:
-            st.info(
+            raise ConnectionAbortedError(
                 f"There was an issue downloading {shapefile_zip} from Digital Ocean"
             )
 
@@ -80,7 +127,9 @@ class DigitalOceanClient:
             else:
                 return self.private_csv_from_DO(url, kwargs)
         except:
-            st.info(f"There was an issue downloading {url} from Digital Ocean.")
+            ConnectionAbortedError(
+                f"There was an issue downloading {url} from Digital Ocean."
+            )
 
     def public_csv_from_DO(self, url, kwargs):
         return pd.read_csv(url, **kwargs)
