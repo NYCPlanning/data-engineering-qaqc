@@ -16,6 +16,8 @@ jobs:
           fetch-depth: 0
       - name: Deploy
         uses: woudsma/dokku-deploy-github-action@v1
+        env:
+          SQL_ENGINE_EDM_DATA: ${{ secrets.SQL_ENGINE_EDM_DATA }}
         with:
           ssh-private-key: ${{ secrets.DOKKU_SSH_KEY }}
           dokku-host: ${{ secrets.DOKKU_HOST }}
