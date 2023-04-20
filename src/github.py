@@ -48,5 +48,8 @@ def dispatch_workflow(repo, workflow_name, **inputs):
     if response.status_code != 204:
         raise Exception(f'Dispatch workflow failed with status code {response.status_code}')
 
-def dispatch_workflow_button(repo, workflow_name, key, label='Run', disabled=False, **inputs):
-    return st.button(label, key=key, on_click=lambda: dispatch_workflow(repo, workflow_name, **inputs), disabled=disabled)
+def dispatch_workflow_button(repo, workflow_name, key, label='Run', disabled=False, run_after=None, **inputs):
+    def on_click():
+        dispatch_workflow(repo, workflow_name, **inputs)
+        if run_after is not None: run_after()
+    return st.button(label, key=key, on_click=on_click, disabled=disabled)

@@ -1,6 +1,9 @@
 from src.github import get_workflow_runs, parse_workflow
 import pandas as pd
 import streamlit as st
+from datetime import datetime
+import pytz
+import time
 
 tests = pd.DataFrame([
     ('Address Points vs PAD', 'address-points-vs-pad', ['rejects_pad_addrpts']),
@@ -26,10 +29,21 @@ def get_qaqc_runs():
     return workflows
 
 def status(workflow):
+    timestamp = datetime.fromisoformat(workflow['timestamp']).astimezone(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d %H:%M')
+    format = lambda status: f"{status} - [{timestamp}](google.com)"
     if workflow['status'] in ['queued', 'in_progress']:
-        return st.warning(workflow['status'] + ' - '  + workflow['timestamp'])
+        st.warning(format(workflow['status']))
+        st.spinner()
     elif workflow['status'] == 'completed':
         if workflow['conclusion'] == 'success':
-            return st.success('Success - ' + workflow['timestamp'])
+            st.success(format('Success'))
+        elif workflow['conclusion'] == 'cancelled':
+            st.info(format('Cancelled')) 
+        elif workflow['conclusion'] == 'failed':
+            st.error(format('Failed'))
         else:
-            return st.error('Failed - ' + workflow['timestamp'])
+            st.write(workflow['conclusion'])
+
+def after_workflow_dispatch():
+    st.session_state['currently_running'] = True
+    time.sleep(2)
