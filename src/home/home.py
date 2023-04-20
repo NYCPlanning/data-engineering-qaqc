@@ -1,5 +1,4 @@
 import requests
-import datetime
 import streamlit as st
 
 BLOG_URL = "https://api.rss2json.com/v1/api.json?rss_url=https://medium.com/feed/nyc-planning-digital/tagged/data-engineering"
@@ -30,7 +29,7 @@ CSS = """
 
 @st.cache_data(ttl=30000)
 def retrieve_blog_posts():
-    return requests.get(BLOG_URL).json()["items"]
+    return requests.get(BLOG_URL, timeout=10).json()["items"]
 
 
 def display_blog():

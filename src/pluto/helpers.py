@@ -4,7 +4,7 @@ from datetime import datetime
 import json
 from typing import Dict
 from dotenv import load_dotenv
-from src.digital_ocean_client import DigitalOceanClient
+from src.digital_ocean_utils import DigitalOceanClient
 
 load_dotenv()
 

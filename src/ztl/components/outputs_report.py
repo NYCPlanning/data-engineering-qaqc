@@ -1,90 +1,78 @@
-def ztl():
-    import streamlit as st
-    import pandas as pd
-    import numpy as np
-    import requests
-    import os
-    import json
-    import plotly.graph_objects as go
-    from src.constants import COLOR_SCHEME
+import streamlit as st
+import pandas as pd
+import plotly.graph_objects as go
+from src.constants import DATASET_NAMES, COLOR_SCHEME
+from src.digital_ocean_utils import construct_output_data_directory_url
+from src.source_report_utils import get_source_data_versions_from_build
 
-    pd.options.display.float_format = "{:.2f}%".format
+ZONING_FIELD_CATEGORIES = {
+    "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
+    "Zoning Districts": [
+        "zoningdistrict1",
+        "zoningdistrict2",
+        "zoningdistrict3",
+        "zoningdistrict4",
+    ],
+    "Special Districts": [
+        "specialdistrict1",
+        "specialdistrict2",
+        "specialdistrict3",
+    ],
+    "Other": ["zoningmapcode", "zoningmapnumber", "limitedheightdistrict"],
+    "All": [
+        "commercialoverlay1",
+        "commercialoverlay2",
+        "zoningdistrict1",
+        "zoningdistrict2",
+        "zoningdistrict3",
+        "zoningdistrict4",
+        "specialdistrict1",
+        "specialdistrict2",
+        "specialdistrict3",
+        "zoningmapcode",
+        "zoningmapnumber",
+        "limitedheightdistrict",
+    ],
+}
 
-    @st.cache_data
-    def get_data():
-        url = "https://edm-publishing.nyc3.digitaloceanspaces.com/db-zoningtaxlots/latest/output/"
-        source_data_versions = pd.read_csv(
-            f"{url}source_data_versions.csv", index_col=False
-        )
-        qaqc_bbl = pd.read_csv(f"{url}qaqc_bbl.csv", index_col=False)
-        qaqc_mismatch = pd.read_csv(f"{url}qaqc_mismatch.csv", index_col=False)
-        bbldiff = pd.read_csv(f"{url}qc_bbldiffs.csv", dtype=str, index_col=False)
-        bbldiff = bbldiff.fillna("NULL")
-        qaqc_null = pd.read_csv(f"{url}qaqc_null.csv", index_col=False)
-        last_build = requests.get(f"{url}version.txt").text
+def output_report():
+    dataset = DATASET_NAMES["ztl"]
+    data_url = construct_output_data_directory_url(dataset=dataset, version="latest")
 
-        return (
-            source_data_versions,
-            bbldiff,
-            last_build,
-            qaqc_mismatch,
-            qaqc_bbl,
-            qaqc_null,
-        )
-
-    (
-        source_data_versions,
-        bbldiff,
-        last_build,
-        qaqc_mismatch,
-        qaqc_bbl,
-        qaqc_null,
-    ) = get_data()
-
-    st.title("Zoning Tax Lots QAQC")
-    st.markdown(
-        f"[![Build](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml/badge.svg)](https://github.com/NYCPlanning/db-zoningtaxlots/actions/workflows/build.yml) last build: {last_build}"
+    bbldiff = pd.read_csv(
+        f"{data_url}qc_bbldiffs.csv",
+        dtype=str,
+        index_col=False,
     )
-
-    meta = {
-        "Commercial Overlay": ["commercialoverlay1", "commercialoverlay2"],
-        "Zoning Districts": [
-            "zoningdistrict1",
-            "zoningdistrict2",
-            "zoningdistrict3",
-            "zoningdistrict4",
-        ],
-        "Special Districts": [
-            "specialdistrict1",
-            "specialdistrict2",
-            "specialdistrict3",
-        ],
-        "Other": ["zoningmapcode", "zoningmapnumber", "limitedheightdistrict"],
-        "All": [
-            "commercialoverlay1",
-            "commercialoverlay2",
-            "zoningdistrict1",
-            "zoningdistrict2",
-            "zoningdistrict3",
-            "zoningdistrict4",
-            "specialdistrict1",
-            "specialdistrict2",
-            "specialdistrict3",
-            "zoningmapcode",
-            "zoningmapnumber",
-            "limitedheightdistrict",
-        ],
-    }
+    bbldiff = bbldiff.fillna("NULL")
+    qaqc_mismatch = pd.read_csv(
+        f"{data_url}qaqc_mismatch.csv",
+        index_col=False,
+    )
+    qaqc_bbl = pd.read_csv(
+        f"{data_url}qaqc_bbl.csv",
+        index_col=False,
+    )
+    qaqc_null = pd.read_csv(
+        f"{data_url}qaqc_null.csv",
+        index_col=False,
+    )
 
     # TOTAL QAQC DIFF BY BOROUGH =============================
     total_diff_by_borough = bbldiff.groupby(["boroughcode"]).size().to_dict()
     st.header("Total BBL Counts with Value Changes by Borough")
     st.markdown(
         f"""
-    Manhattan: **{total_diff_by_borough.get('1', '0')}**, Bronx: **{total_diff_by_borough.get('2', '0')}**, 
-    Brooklyn: **{total_diff_by_borough.get('3', '0')}**, Queens: **{total_diff_by_borough.get('4', '0')}**,
-    Staten Island: **{total_diff_by_borough.get('5', '0')}**
-    """
+        Bronx: **{total_diff_by_borough.get('2', '0')}**
+
+        Brooklyn: **{total_diff_by_borough.get('3', '0')}**
+
+        Manhattan: **{total_diff_by_borough.get('1', '0')}**
+
+        Queens: **{total_diff_by_borough.get('4', '0')}**
+        
+        Staten Island: **{total_diff_by_borough.get('5', '0')}**
+        """
     )
     # TOTAL QAQC DIFF BY BOROUGH =============================
 
@@ -145,7 +133,9 @@ def ztl():
     change_by_category = qaqc_mismatch[["version", "version_prev"]]
     category = ["Commercial Overlay", "Zoning Districts", "Special Districts", "Other"]
     for cat in category:
-        change_by_category[cat] = qaqc_mismatch[meta[cat]].sum(axis=1)
+        change_by_category[cat] = qaqc_mismatch[ZONING_FIELD_CATEGORIES[cat]].sum(
+            axis=1
+        )
     create_plot(change_by_category, category, key="cat")
     st.markdown(
         """
@@ -178,5 +168,6 @@ def ztl():
 
     # SOURCE DATA REPORT  ====================================
     st.header("Source Data Versions")
-    st.table(source_data_versions.sort_values(by=["schema_name"], ascending=True))
+    source_data_versions = get_source_data_versions_from_build(dataset=dataset, version="latest")
+    st.table(source_data_versions)
     # SOURCE DATA REPORT  ====================================
