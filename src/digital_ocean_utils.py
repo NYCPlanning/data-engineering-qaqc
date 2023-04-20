@@ -54,7 +54,7 @@ def get_data_library_sql_file(dataset: str, version: str) -> None:
         print(f"sql dump file already pulled : ({sql_dump_file_path_s3}")
     else:
         print(f"getting sql dump file : {sql_dump_file_path_s3} ...")
-        data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=10)
+        data_mysqldump = requests.get(sql_dump_file_path_s3, timeout=300)
         with open(sql_dump_file_path_local, "wb") as f:
             f.write(data_mysqldump.content)
 
