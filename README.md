@@ -8,7 +8,7 @@ It's written in Python using the [streamlit](https://streamlit.io/) framework.
 
 ## Dev
 
-**To deploy the app run the github action [Deploy to Dokku - production](https://github.com/NYCPlanning/data-engineering-qaqc/actions/workflows/main.yml).**
+**To deploy the app, run the github action [Deploy to Dokku - production](https://github.com/NYCPlanning/data-engineering-qaqc/actions/workflows/main.yml).**
 
 > NOTE: This will deploy the app using code in the branch chosen in the "Run workflow" dropdown.
 
@@ -26,10 +26,10 @@ The deployed app does not have a `.env` file to import environment variables fro
 
 2. Check the current environment variables using
     ```bash
-    dokku config appname
+    dokku config edm-data-engineering
     ```
 
 3. Set the new environment variable using
     ```bash
-    dokku config:set appname VAR=Value
+    dokku config:set edm-data-engineering VAR=Value
     ```
