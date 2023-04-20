@@ -59,14 +59,16 @@ def sources_report(dataset: str, reference_version: str, staging_version: str):
         disabled=True,
     )
 
+    data_loading_expander = st.expander("Data loading status")
     create_source_data_schema()
-    for dataset in source_dataset_names:
-        with st.spinner(f"⏳ Loading {dataset} versions ..."):
-            status_messages = load_source_data_to_compare(
-                dataset=dataset, source_data_versions=source_data_versions
-            )
-        success_message = "\n\n".join(status_messages)
-        st.success(success_message)
+    with data_loading_expander:
+        for dataset in source_dataset_names:
+            with st.spinner(f"⏳ Loading {dataset} versions ..."):
+                status_messages = load_source_data_to_compare(
+                    dataset=dataset, source_data_versions=source_data_versions
+                )
+            success_message = "\n\n".join(status_messages)
+            st.success(success_message)
 
     # TODO (nice-to-have) consider adding table names to source_report_results
     st.subheader("Compare source data shapes")
