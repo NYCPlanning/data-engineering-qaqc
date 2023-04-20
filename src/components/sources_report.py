@@ -84,8 +84,7 @@ def sources_report(dataset: str, reference_version: str, staging_version: str):
             subset=["same_columns", "same_row_count"],
         )
     )
-
-    st.header("DEV DEBUG SECTION")
-    st.dataframe(df_source_report_results)
-    st.table(df_source_report_results)
-    st.json(source_report_results)
+    with st.expander("DEV DEBUG SECTION"):
+        st.dataframe(df_source_report_results)
+        st.table(df_source_report_results)
+        st.json(source_report_results)
