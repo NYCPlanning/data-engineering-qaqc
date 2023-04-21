@@ -17,3 +17,5 @@ Best practice to run the app locally is to use the dev container (especially via
 2. If in VS Code, a popup should appear with an option to navigate to the site in a browser
 
 3. If an error of `Access to localhost was denied` appears in the browser, try navigating to `127.0.0.1:5000` rather than `localhost:5000`
+
+If running GRU qaqc, or working at all on github api functionality, you'll need a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token). The app assumes its stored in the env variable `GHP_TOKEN`.
