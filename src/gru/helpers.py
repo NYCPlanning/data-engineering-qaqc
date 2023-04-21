@@ -19,7 +19,14 @@ def get_source_version(dataset):
         timestamp = s3.list_objects(Bucket='edm-publishing', Prefix='gru/dcp_saf/latest/dcp_saf.zip')['Contents'][0]['LastModified']
         return timestamp.strftime('%Y%m%d')
     else:
-        return get_datatset_config(dataset, 'latest')['dataset']['version']   
+        return get_datatset_config(dataset, 'latest')['dataset']['version']
+    
+@st.cache_data
+def get_source_versions():
+    versions = {}
+    for dataset in [ source for sources in tests['sources'] for source in sources ]:
+        versions[dataset] = get_source_version(dataset)
+    return versions
 
 def get_qaqc_runs():
     workflows = {}

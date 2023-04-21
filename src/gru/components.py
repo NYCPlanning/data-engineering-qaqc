@@ -1,6 +1,6 @@
 import streamlit as st
 from .constants import tests
-from .helpers import get_source_version, render_status, after_workflow_dispatch
+from .helpers import get_source_versions, render_status, after_workflow_dispatch
 from ..github import dispatch_workflow_button
 
 def source_table():
@@ -9,11 +9,11 @@ def source_table():
     fields = ["Name", "Latest Version Archived by DE"]
     for col, field_name in zip(cols, fields):
         col.write(f"**{field_name}**")
-        
-    for source in set([ source for sources in tests['sources'] for source in sources ] ):
+    source_versions = get_source_versions()
+    for source in source_versions:
         col1, col2 = st.columns(column_widths)
         col1.write(source)
-        col2.write(get_source_version(source))
+        col2.write(source_versions[source])
 
 def check_table(workflows):
     column_widths = (3, 3, 4, 3, 2) 
