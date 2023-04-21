@@ -65,11 +65,7 @@ greenlet==2.0.2
     # via sqlalchemy
 idna==3.4
     # via requests
-<<<<<<< HEAD
-importlib-metadata==6.5.0
-=======
 importlib-metadata==6.3.0
->>>>>>> master
     # via streamlit
 iniconfig==2.0.0
     # via pytest
