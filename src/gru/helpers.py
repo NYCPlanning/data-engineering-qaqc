@@ -1,9 +1,25 @@
-from src.github import get_workflow_runs, parse_workflow, dispatch_workflow
 import streamlit as st
-from datetime import datetime
 import pytz
 import time
+import os
+import boto3
+from datetime import datetime
 from .constants import tests
+from src.digital_ocean_utils import get_datatset_config
+from src.github import get_workflow_runs, parse_workflow, dispatch_workflow
+
+def get_source_version(dataset):
+    if dataset == 'dcp_saf':
+        s3 = boto3.client(
+            "s3",
+            aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
+            aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
+            endpoint_url=os.getenv("AWS_S3_ENDPOINT")
+        )
+        timestamp = s3.list_objects(Bucket='edm-publishing', Prefix='gru/dcp_saf/latest/dcp_saf.zip')['Contents'][0]['LastModified']
+        return timestamp.strftime('%Y%m%d')
+    else:
+        return get_datatset_config(dataset, 'latest')['dataset']['version']   
 
 def get_qaqc_runs():
     workflows = {}

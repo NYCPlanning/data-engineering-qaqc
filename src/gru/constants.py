@@ -2,7 +2,7 @@ import pandas as pd
 
 tests = pd.DataFrame([
     ('Address Points vs PAD', 'address-points-vs-pad', ['rejects_pad_addrpts'], ['dcp_addresspoints']),
-    ('Adress Points (Spatial) vs GRID', 'addresses-spatial', ['geocode_diffs_address_spatial'], ['dcp_atomic_polygons', 'dcp_addresspoints']),
+    ('Adress Points (Spatial) vs GRID', 'addresses-spatial', ['geocode_diffs_address_spatial'], ['dcp_atomicpolygons', 'dcp_addresspoints']),
     ('Footprint BINs vs PAD', 'footprints-vs-pad', ['rejects_footprintbin_padbin'], ['doitt_buildingfootprints']),
     ('TBINs vs. C/Os', 'housing', ['tbins_certf_occp'], ['dcp_developments']),
     ('PAD BINs vs Footprint BINs', 'pad-vs-footprint', ['rejects_padbin_footprintbin'], ['doitt_buildingfootprints', 'dcp_pad']),
