@@ -16,8 +16,8 @@ def gru():
 
     st.header("QAQC Checks")
     workflows = get_qaqc_runs()
-    running_workflows = [action_name for action_name in workflows if workflows[action_name]['status'] in ['queued', 'in_progress']]
-    run_all_workflows(running_workflows)
+    not_running_workflows = [action_name for action_name in workflows if workflows[action_name]['status'] not in ['queued', 'in_progress']]
+    run_all_workflows(not_running_workflows)
     check_table(workflows)
 
     st.header("README")
