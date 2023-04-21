@@ -1,16 +1,15 @@
-def check_table():
+def check_table(workflows):
     import streamlit as st
     from .constants import tests
-    from .helpers import get_qaqc_runs, render_status, after_workflow_dispatch
+    from .helpers import render_status, after_workflow_dispatch
     from ..github import dispatch_workflow_button
-    
-    column_widths = (3, 3, 4, 3, 2)
+   
+    column_widths = (3, 3, 4, 3, 2) 
     cols = st.columns(column_widths)
     fields = ["Name", 'Sources', 'Latest results', 'Status', 'Run Check']
     for col, field_name in zip(cols, fields):
         col.write(field_name)
 
-    workflows = get_qaqc_runs()
     st.session_state['currently_running'] = False
 
     for _, test in tests.iterrows():
@@ -44,6 +43,7 @@ def gru():
     import streamlit as st
     import time
     from .constants import readme_markdown_text
+    from .helpers import get_qaqc_runs, run_all_workflows
 
     st.header("GRU QAQC")
     st.write("This page runs automated QAQC checks for various GRU-maintained files, displays source data info and makes outputs available for download.")
@@ -52,9 +52,13 @@ def gru():
     st.write("Detailed instructions are in the [instructions folder](https://github.com/NYCPlanning/db-gru-qaqc/blob/update-docs/instructions/instructions.md) in GitHub.")
     
     st.header("Latest Source Data")
+    
 
     st.header("QAQC Checks")
-    check_table()
+    workflows = get_qaqc_runs()
+    running_workflows = [action_name for action_name in workflows if workflows[action_name]['status'] in ['queued', 'in_progress']]
+    run_all_workflows(running_workflows)
+    check_table(workflows)
 
     st.header("README")
     st.markdown(readme_markdown_text)

@@ -1,4 +1,4 @@
-from src.github import get_workflow_runs, parse_workflow
+from src.github import get_workflow_runs, parse_workflow, dispatch_workflow
 import streamlit as st
 from datetime import datetime
 import pytz
@@ -37,3 +37,10 @@ def render_status(workflow):
 def after_workflow_dispatch():
     st.session_state['currently_running'] = True
     time.sleep(2)
+    
+def run_all_workflows(actions):
+    def on_click():
+        for action in actions:
+            dispatch_workflow('db-gru-qaqc', 'main.yml', name=action)
+        after_workflow_dispatch()
+    return st.button('Run all', key='all', on_click=on_click)
