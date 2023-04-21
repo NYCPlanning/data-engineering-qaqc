@@ -10,20 +10,16 @@ jobs:
   deploy:
     runs-on: ubuntu-latest
     steps:
-    - name: Checkout
-      uses: actions/checkout@v2
-      with:
-        fetch-depth: 0
-    - name: Deploy
-      uses: woudsma/dokku-deploy-github-action@v1
-      with:
-        ssh-private-key: ${{ secrets.DOKKU_SSH_KEY }}
-        dokku-host: ${{ secrets.DOKKU_HOST }}
-        app-name: ${{ env.DOKKU_APP_NAME }}
-        app-remote-branch: ${{ env.DOKKU_REMOTE_BRANCH }}
-        git-push-flags: --force
-    - name: Setup Env Variables
-      run: |
-        ssh-add ${{ secrets.DOKKU_SSH_KEY}}
-        ssh ${{ secrets.DOKKU_SSH_KEY }} "export GHP_TOKEN=${{ secrets.GHP_TOKEN }}"
+      - name: Checkout
+        uses: actions/checkout@v2
+        with:
+          fetch-depth: 0
+      - name: Deploy
+        uses: woudsma/dokku-deploy-github-action@v1
+        with:
+          ssh-private-key: ${{ secrets.DOKKU_SSH_KEY }}
+          dokku-host: ${{ secrets.DOKKU_HOST }}
+          app-name: ${{ env.DOKKU_APP_NAME }}
+          app-remote-branch: ${{ env.DOKKU_REMOTE_BRANCH }}
+          git-push-flags: --force
 
