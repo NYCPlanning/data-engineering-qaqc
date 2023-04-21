@@ -4,7 +4,6 @@ from .helpers import get_source_version, render_status, after_workflow_dispatch
 from ..github import dispatch_workflow_button
 
 def source_table():
-    
     column_widths = (1, 3)
     cols = st.columns(column_widths)
     fields = ["Name", "Latest Version Archived by DE"]
@@ -17,7 +16,6 @@ def source_table():
         col2.write(get_source_version(source))
 
 def check_table(workflows):
-   
     column_widths = (3, 3, 4, 3, 2) 
     cols = st.columns(column_widths)
     fields = ["Name", 'Sources', 'Latest results', 'Status', 'Run Check']
