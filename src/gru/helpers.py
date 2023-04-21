@@ -18,9 +18,9 @@ def get_qaqc_runs():
                 workflows[name] = parse_workflow(run)
     return workflows
 
-def status(workflow):
+def render_status(workflow):
     timestamp = datetime.fromisoformat(workflow['timestamp']).astimezone(pytz.timezone('US/Eastern')).strftime('%Y-%m-%d %H:%M')
-    format = lambda status: f"{status} - [{timestamp}](google.com)"
+    format = lambda status: f"{status}  \n[{timestamp}](google.com)"
     if workflow['status'] in ['queued', 'in_progress']:
         st.warning(format(workflow['status']))
         st.spinner()

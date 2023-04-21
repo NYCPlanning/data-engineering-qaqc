@@ -1,11 +1,12 @@
 def check_table():
     import streamlit as st
     from .constants import tests
-    from .helpers import get_qaqc_runs, status, after_workflow_dispatch
+    from .helpers import get_qaqc_runs, render_status, after_workflow_dispatch
     from ..github import dispatch_workflow_button
-
-    cols = st.columns((5, 4, 3, 3, 2))
-    fields = ["Name", 'Latest result', 'Source version', 'Status', 'Run']
+    
+    column_widths = (3, 3, 4, 3, 2)
+    cols = st.columns(column_widths)
+    fields = ["Name", 'Sources', 'Latest results', 'Status', 'Run Check']
     for col, field_name in zip(cols, fields):
         col.write(field_name)
 
@@ -18,18 +19,18 @@ def check_table():
         running = workflow['status'] in ['queued', 'in_progress']
         st.session_state['currently_running'] = st.session_state['currently_running'] or running
 
-        col1, col2, col3, col4, col5 = st.columns((5, 4, 3, 3, 2))
+        name, sources, outputs, status, run = st.columns(column_widths)
 
-        col1.write(test['display_name'])
+        name.write(test['display_name'])
 
+        sources.write('  \n'.join(test['sources']))
+        
         folder = f'https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{action_name}/latest'
-        for filename in test['filename']:
-            filename = filename + '.csv'
-            col2.write(f'[{filename}]({folder}/{filename})')
-        col3.write(f'[versions.csv]({folder}/versions.csv)')
+        files = '  \n'.join([f'[{filename}.csv]({folder}/{filename}.csv)' for filename in test['files']] + [f'[versions.csv]({folder}/versions.csv)'])
+        outputs.write(files)
 
-        with col4: status(workflow)
-        with col5: 
+        with status: render_status(workflow)
+        with run: 
             dispatch_workflow_button(
                 'db-gru-qaqc', 
                 'main.yml', 
@@ -58,6 +59,7 @@ def gru():
     st.header("README")
     st.markdown(readme_markdown_text)
 
+    # this state gets set when an action is triggered, set to false once it's complete
     while st.session_state['currently_running']:
         time.sleep(5)
         st.experimental_rerun()
