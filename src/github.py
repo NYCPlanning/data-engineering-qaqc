@@ -13,6 +13,7 @@ def parse_workflow(workflow):
         "status": workflow['status'],
         'conclusion': workflow['conclusion'],
         'timestamp': workflow['updated_at'],
+        'url': workflow['html_url']
     }
 
 def get_workflow(repo, name): 
