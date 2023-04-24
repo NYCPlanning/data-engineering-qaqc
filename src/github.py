@@ -20,22 +20,29 @@ def get_workflow(repo, name):
     r = requests.get(url, headers=headers)
     return r.json()
 
+def __get_workflow_runs_helper(url, params=None):
+    response = requests.get(url, headers=headers, params=params).json()
+    if 'workflow_runs' in response:
+        return response['workflow_runs']
+    else:
+        raise Exception(f'Error retreiving workflow runs from Github. If error persists, contact Data Engineering. Github API response: {response}')
+
 def get_workflow_runs(repo, workflow_name = None, items_per_page = None, total_items = None):
     if workflow_name: 
         url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/runs"
     else:
         url = f"{BASE_URL}/{repo}/actions/runs"
     if items_per_page is None and total_items is None:
-        return requests.get(url, headers=headers).json()['workflow_runs']
+        return __get_workflow_runs_helper(url)
     elif items_per_page is None:
-        return requests.get(url, headers=headers, params={'per_page': items_per_page}).json()['workflow_runs']
+        return __get_workflow_runs_helper(url, params={'per_page': items_per_page})
     else:
         workflows = []
         page = 0
         res = []
         while (total_items is None and (page == 0 or len(res) != 0)) or (total_items is not None and len(workflows) < total_items):
             page += 1
-            res = requests.get(url, headers=headers, params={'items_per_page': items_per_page, 'page': page}).json()['workflow_runs']
+            res = __get_workflow_runs_helper(url, params={'items_per_page': items_per_page, 'page': page})
             workflows = workflows.append(res)
             if total_items is not None and len(workflows) < total_items: 
                 workflows = workflows[:total_items]
