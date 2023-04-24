@@ -20,6 +20,9 @@ To test changes, run the app locally using the devcontainer (especially via VS C
 
 3. If an error of `Access to localhost was denied` appears in the browser, try navigating to `127.0.0.1:5000` rather than `localhost:5000`
 
+If running GRU qaqc, or working at all on github api functionality, you'll need a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token). The app assumes its stored in the env variable `GHP_TOKEN`.
+
+## Env Variables and Deployment
 The deployed app does not have a `.env` file to import environment variables from. If a new environment variable is expected to exist in the the deployed dokku instance, use the following steps ([source](https://tute.io/environment-variables-dokku-config-commands)):
 
 1. In Digital Ocean, navigate to the dokku instance and open a Console (aka terminal)
