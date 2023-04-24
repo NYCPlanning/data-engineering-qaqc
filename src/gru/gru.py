@@ -14,7 +14,7 @@ def gru():
         To perform a check, hit a button in the table below. The status column has a link to the latest Github workflow run for a given check"""
     )
     st.write(
-        "Detailed instructions are in the [instructions folder](https://github.com/NYCPlanning/db-gru-qaqc/blob/update-docs/instructions/instructions.md) in GitHub."
+        "Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."
     )
 
     st.header("Latest Source Data")
