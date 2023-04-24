@@ -60,7 +60,7 @@ def get_workflow_runs(repo, workflow_name=None, items_per_page=None, total_items
 
 
 def dispatch_workflow(repo, workflow_name, **inputs):
-    params = {"ref": "fvk-2023-Q2-maintenance", "inputs": inputs}
+    params = {"ref": "main", "inputs": inputs}
     url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/dispatches"
     response = requests.post(url, headers=headers, json=params)
     if response.status_code != 204:
