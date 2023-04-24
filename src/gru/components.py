@@ -4,7 +4,7 @@ from .helpers import get_source_versions, render_status, after_workflow_dispatch
 from ..github import dispatch_workflow_button
 
 def source_table():
-    column_widths = (1, 3)
+    column_widths = (1, 2)
     cols = st.columns(column_widths)
     fields = ["Name", "Latest Version Archived by DE"]
     for col, field_name in zip(cols, fields):
