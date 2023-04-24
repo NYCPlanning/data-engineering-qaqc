@@ -2,15 +2,17 @@
 
 This web application displays charts and tables to assess the consistency, quality and completeness of a particular build of one of data engineering's data products.
 
-The deployed app is at https://edm-data-engineering.nycplanningdigital.com/?page=Home
+The deployed app is at [edm-data-engineering.nycplanningdigital.com](https://edm-data-engineering.nycplanningdigital.com/?page=Home)
 
 It's written in Python using the [streamlit](https://streamlit.io/) framework.
 
-The code to produce data this application assess can be found at https://github.com/NYCPlanning/
-
 ## Dev
 
-Best practice to run the app locally is to use the dev container (especially via VS Code)
+**To deploy the app, run the github action [Deploy to Dokku - production](https://github.com/NYCPlanning/data-engineering-qaqc/actions/workflows/main.yml).**
+
+> NOTE: This will deploy the app using code in the branch chosen in the "Run workflow" dropdown.
+
+To test changes, run the app locally using the devcontainer (especially via VS Code):
 
 1. From a dev container terminal, run `./entrypoint.sh`
 
@@ -19,3 +21,18 @@ Best practice to run the app locally is to use the dev container (especially via
 3. If an error of `Access to localhost was denied` appears in the browser, try navigating to `127.0.0.1:5000` rather than `localhost:5000`
 
 If running GRU qaqc, or working at all on github api functionality, you'll need a [personal access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/creating-a-personal-access-token). The app assumes its stored in the env variable `GHP_TOKEN`.
+
+## Env Variables and Deployment
+The deployed app does not have a `.env` file to import environment variables from. If a new environment variable is expected to exist in the the deployed dokku instance, use the following steps ([source](https://tute.io/environment-variables-dokku-config-commands)):
+
+1. In Digital Ocean, navigate to the dokku instance and open a Console (aka terminal)
+
+2. Check the current environment variables using
+    ```bash
+    dokku config edm-data-engineering
+    ```
+
+3. Set the new environment variable using
+    ```bash
+    dokku config:set edm-data-engineering VAR=Value
+    ```
