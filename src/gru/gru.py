@@ -6,17 +6,27 @@ def gru():
     from .components import source_table, check_table
 
     st.header("GRU QAQC")
-    st.write("This page runs automated QAQC checks for various GRU-maintained files, displays source data info and makes outputs available for download.")
-    st.write("""Checks are performed either by comparing files to each other or by comparing a file to the latest Geosupport release.
-        To perform a check, hit a button in the table below. The status column has a link to the latest Github workflow run for a given check""")
-    st.write("Detailed instructions are in the [instructions folder](https://github.com/NYCPlanning/db-gru-qaqc/blob/update-docs/instructions/instructions.md) in GitHub.")
-    
+    st.write(
+        "This page runs automated QAQC checks for various GRU-maintained files, displays source data info and makes outputs available for download."
+    )
+    st.write(
+        """Checks are performed either by comparing files to each other or by comparing a file to the latest Geosupport release.
+        To perform a check, hit a button in the table below. The status column has a link to the latest Github workflow run for a given check"""
+    )
+    st.write(
+        "Detailed instructions are in the [instructions folder](https://github.com/NYCPlanning/db-gru-qaqc/blob/update-docs/instructions/instructions.md) in GitHub."
+    )
+
     st.header("Latest Source Data")
     source_table()
 
     st.header("QAQC Checks")
     workflows = get_qaqc_runs()
-    not_running_workflows = [action_name for action_name in workflows if workflows[action_name]['status'] not in ['queued', 'in_progress']]
+    not_running_workflows = [
+        action_name
+        for action_name in workflows
+        if workflows[action_name]["status"] not in ["queued", "in_progress"]
+    ]
     run_all_workflows(not_running_workflows)
     check_table(workflows)
 
@@ -24,6 +34,6 @@ def gru():
     st.markdown(readme_markdown_text)
 
     # this state gets set when an action is triggered, set to false once it's complete
-    while st.session_state['currently_running']:
+    while st.session_state["currently_running"]:
         time.sleep(5)
         st.experimental_rerun()

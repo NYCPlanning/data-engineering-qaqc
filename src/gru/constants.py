@@ -1,14 +1,54 @@
 import pandas as pd 
 
-tests = pd.DataFrame([
-    ('Address Points vs PAD', 'address-points-vs-pad', ['rejects_pad_addrpts'], ['dcp_addresspoints']),
-    ('Adress Points (Spatial) vs GRID', 'addresses-spatial', ['geocode_diffs_address_spatial'], ['dcp_atomicpolygons', 'dcp_addresspoints']),
-    ('Footprint BINs vs PAD', 'footprints-vs-pad', ['rejects_footprintbin_padbin'], ['doitt_buildingfootprints']),
-    ('TBINs vs. C/Os', 'housing', ['tbins_certf_occp'], ['dcp_developments']),
-    ('PAD BINs vs Footprint BINs', 'pad-vs-footprint', ['rejects_padbin_footprintbin'], ['doitt_buildingfootprints', 'dcp_pad']),
-    ('DCM Names vs SND Names', 'dcm-streetname', ['rejects_sn_dcm_snd'], ['dcp_dcmstreetcenterline']),
-    ('Generic SAF Addresses vs PAD Roadbed SAF Addresses vs PAD', 'saf-vs-pad', ['saf_gen_1A_pad', 'saf_gen_1R_pad', 'saf_gen_1_pad', 'saf_rb_1A_pad', 'saf_rb_1R_pad', 'saf_rb_1_pad'], ['dcp_saf'])
-], columns =['display_name', 'action_name', 'files', 'sources'])
+tests = pd.DataFrame(
+    [
+        (
+            "Address Points vs PAD",
+            "address-points-vs-pad",
+            ["rejects_pad_addrpts"],
+            ["dcp_addresspoints"],
+        ),
+        (
+            "Adress Points (Spatial) vs GRID",
+            "addresses-spatial",
+            ["geocode_diffs_address_spatial"],
+            ["dcp_atomicpolygons", "dcp_addresspoints"],
+        ),
+        (
+            "Footprint BINs vs PAD",
+            "footprints-vs-pad",
+            ["rejects_footprintbin_padbin"],
+            ["doitt_buildingfootprints"],
+        ),
+        ("TBINs vs. C/Os", "housing", ["tbins_certf_occp"], ["dcp_developments"]),
+        (
+            "PAD BINs vs Footprint BINs",
+            "pad-vs-footprint",
+            ["rejects_padbin_footprintbin"],
+            ["doitt_buildingfootprints", "dcp_pad"],
+        ),
+        (
+            "DCM Names vs SND Names",
+            "dcm-streetname",
+            ["rejects_sn_dcm_snd"],
+            ["dcp_dcmstreetcenterline"],
+        ),
+        (
+            "Generic SAF Addresses vs PAD Roadbed SAF Addresses vs PAD",
+            "saf-vs-pad",
+            [
+                "saf_gen_1A_pad",
+                "saf_gen_1R_pad",
+                "saf_gen_1_pad",
+                "saf_rb_1A_pad",
+                "saf_rb_1R_pad",
+                "saf_rb_1_pad",
+            ],
+            ["dcp_saf"],
+        ),
+    ],
+    columns=["display_name", "action_name", "files", "sources"],
+)
 
 readme_markdown_text = """### Source Data Info
 + Quarterly load to data-library using [dataloading workflow](https://github.com/NYCPlanning/db-gru-qaqc/blob/main/.github/workflows/dataloading.yml) included in this repo
