@@ -5,7 +5,6 @@ import streamlit as st
 ORG = 'NYCPlanning'
 PERSONAL_TOKEN = os.environ['GHP_TOKEN']
 headers = {'Authorization': 'Bearer %s' % PERSONAL_TOKEN}
-params = {'filter': 'all', 'per_page': 100}
 BASE_URL=f'https://api.github.com/repos/{ORG}'
 
 def parse_workflow(workflow):
