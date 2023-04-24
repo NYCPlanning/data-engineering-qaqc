@@ -7,14 +7,10 @@ def gru():
 
     st.header("GRU QAQC")
     st.write(
-        "This page runs automated QAQC checks for various GRU-maintained files, displays source data info and makes outputs available for download."
-    )
-    st.write(
-        """Checks are performed either by comparing files to each other or by comparing a file to the latest Geosupport release.
-        To perform a check, hit a button in the table below. The status column has a link to the latest Github workflow run for a given check"""
-    )
-    st.write(
-        "Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."
+        """This page runs automated QAQC checks for various GRU-maintained files, displays source data info and makes outputs available for download.  \n
+Checks are performed either by comparing files to each other or by comparing a file to the latest Geosupport release.
+To perform a check, hit a button in the table below. The status column has a link to the latest Github workflow run for a given check  \n
+Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
     )
 
     st.header("Latest Source Data")
