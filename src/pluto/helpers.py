@@ -53,6 +53,7 @@ def get_data(branch: str) -> Dict[str, pd.DataFrame]:
     for data_name in data_to_standardize:
         data[data_name].replace(
             to_replace={
+                "23v1_1 - 23v1": "23v1.1 - 23v1",
                 "23v1 - 22v3_1": "23v1 - 22v3.1",
             },
             inplace=True,
