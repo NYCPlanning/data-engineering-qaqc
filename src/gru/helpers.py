@@ -56,7 +56,7 @@ def render_status(workflow):
     )
     format = lambda status: f"{status}  \n[{timestamp}]({workflow['url']})"
     if workflow["status"] in ["queued", "in_progress"]:
-        st.warning(format(workflow["status"]))
+        st.warning(format(workflow["status"].capitalize().replace('_', ' ')))
         st.spinner()
     elif workflow["status"] == "completed":
         if workflow["conclusion"] == "success":
