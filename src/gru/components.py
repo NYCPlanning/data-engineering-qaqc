@@ -28,11 +28,6 @@ def check_table(workflows):
 
     for _, test in tests.iterrows():
         action_name = test["action_name"]
-        workflow = workflows[action_name]
-        running = workflow["status"] in ["queued", "in_progress"]
-        st.session_state["currently_running"] = (
-            st.session_state["currently_running"] or running
-        )
 
         name, sources, outputs, status, run = st.columns(column_widths)
 
@@ -48,7 +43,16 @@ def check_table(workflows):
         outputs.write(files)
 
         with status:
-            render_status(workflow)
+            if action_name in workflows:
+                workflow = workflows[action_name]
+                render_status(workflow)
+                running = workflow["status"] in ["queued", "in_progress"]
+                st.session_state["currently_running"] = (
+                    st.session_state["currently_running"] or running
+                )
+            else:
+                st.info(format("No past run found"))
+        
         with run:
             dispatch_workflow_button(
                 "db-gru-qaqc",

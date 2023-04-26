@@ -63,7 +63,7 @@ def render_status(workflow):
             st.success(format("Success"))
         elif workflow["conclusion"] == "cancelled":
             st.info(format("Cancelled"))
-        elif workflow["conclusion"] == "failed":
+        elif workflow["conclusion"] == "failure":
             st.error(format("Failed"))
         else:
             st.write(workflow["conclusion"])
