@@ -25,7 +25,7 @@ def get_source_version(dataset):
         return get_datatset_config(dataset, "latest")["dataset"]["version"]
 
 
-@st.cache_data
+@st.cache_data(ttl=120)
 def get_source_versions():
     versions = {}
     for dataset in [source for sources in tests["sources"] for source in sources]:
