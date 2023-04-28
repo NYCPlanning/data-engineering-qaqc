@@ -1,7 +1,7 @@
 def gru():
     import streamlit as st
     import time
-    from .constants import readme_markdown_text
+    from .constants import readme_markdown_text, tests
     from .helpers import get_qaqc_runs, run_all_workflows
     from .components import source_table, check_table
 
@@ -20,8 +20,8 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
     workflows = get_qaqc_runs()
     not_running_workflows = [
         action_name
-        for action_name in workflows
-        if workflows[action_name]["status"] not in ["queued", "in_progress"]
+        for action_name in tests["action_name"]
+        if action_name in workflows and workflows[action_name]["status"] not in ["queued", "in_progress"]
     ]
     run_all_workflows(not_running_workflows)
     check_table(workflows)

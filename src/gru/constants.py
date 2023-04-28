@@ -9,7 +9,7 @@ tests = pd.DataFrame(
             ["dcp_addresspoints"],
         ),
         (
-            "Adress Points (Spatial) vs GRID",
+            "Address Points (Spatial) vs GRID",
             "addresses-spatial",
             ["geocode_diffs_address_spatial"],
             ["dcp_atomicpolygons", "dcp_addresspoints"],

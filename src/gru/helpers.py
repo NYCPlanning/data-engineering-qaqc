@@ -25,7 +25,7 @@ def get_source_version(dataset):
         return get_datatset_config(dataset, "latest")["dataset"]["version"]
 
 
-@st.cache_data
+@st.cache_data(ttl=120)
 def get_source_versions():
     versions = {}
     for dataset in [source for sources in tests["sources"] for source in sources]:
@@ -56,14 +56,14 @@ def render_status(workflow):
     )
     format = lambda status: f"{status}  \n[{timestamp}]({workflow['url']})"
     if workflow["status"] in ["queued", "in_progress"]:
-        st.warning(format(workflow["status"]))
+        st.warning(format(workflow["status"].capitalize().replace('_', ' ')))
         st.spinner()
     elif workflow["status"] == "completed":
         if workflow["conclusion"] == "success":
             st.success(format("Success"))
         elif workflow["conclusion"] == "cancelled":
             st.info(format("Cancelled"))
-        elif workflow["conclusion"] == "failed":
+        elif workflow["conclusion"] == "failure":
             st.error(format("Failed"))
         else:
             st.write(workflow["conclusion"])
