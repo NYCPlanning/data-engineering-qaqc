@@ -3,7 +3,7 @@ import requests
 import streamlit as st
 
 ORG = "NYCPlanning"
-PERSONAL_TOKEN = os.environ["GHP_TOKEN"]
+PERSONAL_TOKEN = os.environ.get("GHP_TOKEN", None)
 headers = {"Authorization": "Bearer %s" % PERSONAL_TOKEN}
 BASE_URL = f"https://api.github.com/repos/{ORG}"
 
@@ -16,6 +16,13 @@ def parse_workflow(workflow):
         "url": workflow["html_url"],
     }
 
+def get_branches(repo:str, branches_blacklist:list):
+        url = f"https://api.github.com/repos/nycplanning/{repo}/branches"
+        response = requests.get(url).json()
+        all_branches = [branch_info["name"] for branch_info in response]
+        return [
+            b for b in all_branches if b not in branches_blacklist
+        ]
 
 def get_workflow(repo, name):
     url = f"{BASE_URL}/{repo}/actions/workflows/{name}"

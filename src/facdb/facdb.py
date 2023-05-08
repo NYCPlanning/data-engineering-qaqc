@@ -6,6 +6,7 @@ import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
 import requests
 from src.facdb.helpers import get_data, remove_branches
+from src.github import get_branches
 from src.constants import COLOR_SCHEME
 
 
@@ -38,14 +39,6 @@ def facdb():
             colorway=COLOR_SCHEME,
         )
         st.plotly_chart(fig)
-
-    def get_branches():
-        url = "https://api.github.com/repos/nycplanning/db-facilities/branches"
-        response = requests.get(url).json()
-        all_branches = [r["name"] for r in response]
-        return [
-            b for b in all_branches if b not in remove_branches
-        ]  # filter branches no longer needed in qaqc
 
     branches = get_branches()
     branch = st.sidebar.selectbox(
