@@ -16,13 +16,20 @@ def parse_workflow(workflow):
         "url": workflow["html_url"],
     }
 
+
+def get_default_branch(repo:str):
+    url = f"https://api.github.com/repos/nycplanning/{repo}"
+    response = requests.get(url).json()
+    return response["default_branch"]
+
+
 def get_branches(repo:str, branches_blacklist:list):
-        url = f"https://api.github.com/repos/nycplanning/{repo}/branches"
-        response = requests.get(url).json()
-        all_branches = [branch_info["name"] for branch_info in response]
-        return [
-            b for b in all_branches if b not in branches_blacklist
-        ]
+    url = f"https://api.github.com/repos/nycplanning/{repo}/branches"
+    response = requests.get(url).json()
+    all_branches = [branch_info["name"] for branch_info in response]
+    return [
+        b for b in all_branches if b not in branches_blacklist
+    ]
 
 def get_workflow(repo, name):
     url = f"{BASE_URL}/{repo}/actions/workflows/{name}"
