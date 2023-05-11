@@ -5,8 +5,7 @@ import pydeck as pdk  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
 import requests
-from src.facdb.helpers import get_data, remove_branches
-from src.github import get_branches
+from src.facdb.helpers import get_latest_data, get_active_s3_folders
 from src.constants import COLOR_SCHEME
 
 
@@ -40,7 +39,7 @@ def facdb():
         )
         st.plotly_chart(fig)
 
-    branches = get_branches()
+    branches = get_active_s3_folders()
     branch = st.sidebar.selectbox(
         "select a branch",
         branches,
@@ -51,7 +50,7 @@ def facdb():
     ):
 
         st.cache_data.clear()
-        get_data(branch)
+        get_latest_data(branch)
 
     general_or_classification = st.sidebar.selectbox(
         "Would you like to review general QAQC or changes by classification?",
@@ -59,7 +58,7 @@ def facdb():
     )
     st.subheader(general_or_classification)
 
-    qc_tables, qc_diff, qc_mapped = get_data(branch)
+    qc_tables, qc_diff, qc_mapped = get_latest_data(branch)
 
     def count_comparison(df, width=1000, height=1000):
         fig = go.Figure()

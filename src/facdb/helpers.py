@@ -1,33 +1,21 @@
 import streamlit as st
 import pandas as pd
+from src.digital_ocean_utils import DigitalOceanClient
+from src.github import get_branches
 
-remove_branches = [
-    "524_AddPOPSNumber",
-    "528-Manager-Address-Approach",
-    "528-usairports-update-source",
-    "530-docker-compose-postgres-install-issue",
-    "532-update-moeo-socialservicesitelocations",
-    "534-q2-update-check-dataloading",
-    "535-Fix-Fooddrops",
-    "543-No-Build-On-Push",
-    "546-Metadata-Output",
-    "547-update-dcp-pops-version",
-    "549-QAQC-compare-to-all-records",
-    "553-Clarify-QAQC-Mapped",
-    "554-update-dot-data",
-    "558-remove-special-character-moeo-sonyc",
-    "559-update-projection-shapefile",
-    "560-doe-lcgms-latest",
-    "563-Update-TextileDrop",
-    "567_MOEOProgramName",
-    "574-Rename-POPS-Number",
-    "Address-Poetry-Merge-Conflict",
-    "dataloading-issue-template",
-]
+BUCKET_NAME = "edm-publishing"
+REPO_NAME = "db-facilities"
 
+def get_active_s3_folders():
+    all_branches = get_branches(repo=REPO_NAME, branches_blacklist=[])
+    all_folders = DigitalOceanClient(
+        bucket_name=BUCKET_NAME, repo_name=REPO_NAME,
+    ).get_all_folder_names_in_repo_folder()
 
-@st.cache_data
-def get_data(branch):
+    folders = sorted(list(set(all_folders).intersection(set(all_branches))))
+    return folders
+
+def get_latest_data(branch):
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/{branch}/latest/output"
     qc_diff = pd.read_csv(f"{url}/qc_diff.csv")
     qc_captype = pd.read_csv(f"{url}/qc_captype.csv")
