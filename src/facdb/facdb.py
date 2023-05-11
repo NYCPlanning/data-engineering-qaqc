@@ -43,7 +43,6 @@ def facdb():
     branch = st.sidebar.selectbox(
         "select a branch",
         branches,
-        index=branches.index("develop"),
     )
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"

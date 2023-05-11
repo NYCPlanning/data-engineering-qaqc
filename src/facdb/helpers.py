@@ -1,18 +1,21 @@
 import streamlit as st
 import pandas as pd
 from src.digital_ocean_utils import DigitalOceanClient
-from src.github import get_branches
+from src.github import get_default_branch, get_branches
 
 BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-facilities"
 
 def get_active_s3_folders():
+    default_branch = get_default_branch(repo=REPO_NAME)
     all_branches = get_branches(repo=REPO_NAME, branches_blacklist=[])
     all_folders = DigitalOceanClient(
         bucket_name=BUCKET_NAME, repo_name=REPO_NAME,
     ).get_all_folder_names_in_repo_folder()
 
     folders = sorted(list(set(all_folders).intersection(set(all_branches))))
+    folders.remove(default_branch)
+    folders = [default_branch] + folders
     return folders
 
 def get_latest_data(branch):
