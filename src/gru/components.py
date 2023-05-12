@@ -5,16 +5,17 @@ from ..github import dispatch_workflow_button
 
 
 def source_table():
-    column_widths = (1, 2)
+    column_widths = (4, 5, 3)
     cols = st.columns(column_widths)
-    fields = ["Name", "Latest Version Archived by DE"]
+    fields = ["Name", "Latest version archived by DE", "Date of archival"]
     for col, field_name in zip(cols, fields):
-        col.write(f"**{field_name}**")
+        col.write(f"**{field_name}**", help="testing again")
     source_versions = get_source_versions()
     for source in source_versions:
-        col1, col2 = st.columns(column_widths)
+        col1, col2, col3 = st.columns(column_widths)
         col1.write(source)
-        col2.write(source_versions[source])
+        col2.write(source_versions[source]["version"])
+        col3.write(source_versions[source]["date"])
 
 
 def check_table(workflows):
@@ -52,7 +53,7 @@ def check_table(workflows):
                 )
             else:
                 st.info(format("No past run found"))
-        
+
         with run:
             dispatch_workflow_button(
                 "db-gru-qaqc",
