@@ -9,7 +9,7 @@ def source_table():
     cols = st.columns(column_widths)
     fields = ["Name", "Latest version archived by DE", "Date of archival"]
     for col, field_name in zip(cols, fields):
-        col.write(f"**{field_name}**", help="testing again")
+        col.write(f"**{field_name}**")
     source_versions = get_source_versions()
     for source in source_versions:
         col1, col2, col3 = st.columns(column_widths)
