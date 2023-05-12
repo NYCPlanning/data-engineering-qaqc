@@ -11,18 +11,32 @@ from src.github import get_workflow_runs, parse_workflow, dispatch_workflow
 
 def get_source_version(dataset):
     if dataset == "dcp_saf":
+        bucket = "edm-publishing"
+        prefix = "gru/dcp_saf/"
         s3 = boto3.client(
             "s3",
             aws_access_key_id=os.getenv("AWS_ACCESS_KEY_ID"),
             aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
-        timestamp = s3.list_objects(
-            Bucket="edm-publishing", Prefix="gru/dcp_saf/latest/dcp_saf.zip"
-        )["Contents"][0]["LastModified"]
-        return timestamp.strftime("%Y%m%d")
+        folders = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter="/")["CommonPrefixes"]
+        folders = [ folder["Prefix"].split("/")[-2] for folder in folders if "latest" not in folder["Prefix"]]
+        latest_version = max(folders)
+        timestamp = s3.list_objects(Bucket=bucket, Prefix=f"{prefix}{latest_version}/dcp_saf.zip")["Contents"][0]["LastModified"]
+        return { 
+            "version": latest_version.lower(),
+            "date": timestamp.strftime("%Y-%m-%d") 
+        }
     else:
-        return get_datatset_config(dataset, "latest")["dataset"]["version"]
+        config = get_datatset_config(dataset, "latest")
+        if "execution_details" in config:
+            timestamp = datetime.strptime(config["execution_details"]["timestamp"], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+        else:
+            timestamp = ""
+        return { 
+            "version": config["dataset"]["version"],
+            "date": timestamp
+        }
 
 
 @st.cache_data(ttl=120)
