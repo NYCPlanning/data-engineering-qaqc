@@ -19,24 +19,31 @@ def get_source_version(dataset):
             aws_secret_access_key=os.getenv("AWS_SECRET_ACCESS_KEY"),
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
-        folders = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter="/")["CommonPrefixes"]
-        folders = [ folder["Prefix"].split("/")[-2] for folder in folders if "latest" not in folder["Prefix"]]
+        folders = s3.list_objects_v2(Bucket=bucket, Prefix=prefix, Delimiter="/")[
+            "CommonPrefixes"
+        ]
+        folders = [
+            folder["Prefix"].split("/")[-2]
+            for folder in folders
+            if "latest" not in folder["Prefix"]
+        ]
         latest_version = max(folders)
-        timestamp = s3.list_objects(Bucket=bucket, Prefix=f"{prefix}{latest_version}/dcp_saf.zip")["Contents"][0]["LastModified"]
-        return { 
+        timestamp = s3.list_objects(
+            Bucket=bucket, Prefix=f"{prefix}{latest_version}/dcp_saf.zip"
+        )["Contents"][0]["LastModified"]
+        return {
             "version": latest_version.lower(),
-            "date": timestamp.strftime("%Y-%m-%d") 
+            "date": timestamp.strftime("%Y-%m-%d"),
         }
     else:
         config = get_datatset_config(dataset, "latest")
         if "execution_details" in config:
-            timestamp = datetime.strptime(config["execution_details"]["timestamp"], "%Y-%m-%d %H:%M:%S").strftime("%Y-%m-%d")
+            timestamp = datetime.strptime(
+                config["execution_details"]["timestamp"], "%Y-%m-%d %H:%M:%S"
+            ).strftime("%Y-%m-%d")
         else:
             timestamp = ""
-        return { 
-            "version": config["dataset"]["version"],
-            "date": timestamp
-        }
+        return {"version": config["dataset"]["version"], "date": timestamp}
 
 
 @st.cache_data(ttl=120)
@@ -70,7 +77,7 @@ def render_status(workflow):
     )
     format = lambda status: f"{status}  \n[{timestamp}]({workflow['url']})"
     if workflow["status"] in ["queued", "in_progress"]:
-        st.warning(format(workflow["status"].capitalize().replace('_', ' ')))
+        st.warning(format(workflow["status"].capitalize().replace("_", " ")))
         st.spinner()
     elif workflow["status"] == "completed":
         if workflow["conclusion"] == "success":
