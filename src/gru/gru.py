@@ -22,7 +22,7 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
         action_name
         for action_name in tests["action_name"]
         if action_name in workflows
-        and workflows[action_name]["status"] not in ["queued", "in_progress"]
+        and (workflows[action_name]["status"] not in ["queued", "in_progress"])
     ]
     run_all_workflows(not_running_workflows)
     check_table(workflows)
