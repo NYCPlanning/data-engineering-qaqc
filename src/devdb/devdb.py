@@ -3,11 +3,8 @@ from src.devdb.components.field_distribution_report import FieldDistributionRepo
 
 def devdb():
     import streamlit as st
-    import pandas as pd
-    import numpy as np
-    import os
-    import pdb
-    from src.devdb.helpers import get_data, QAQC_CHECK_DICTIONARY, QAQC_CHECK_SECTIONS
+    from src.report_utils import get_active_s3_folders
+    from src.devdb.helpers import get_latest_data, REPO_NAME, BUCKET_NAME, QAQC_CHECK_DICTIONARY, QAQC_CHECK_SECTIONS
     from src.devdb.components.flagged_jobs_report import FlaggedJobsReport
     from src.devdb.components.qaqc_version_history_report import (
         QAQCVersionHistoryReport,
@@ -36,9 +33,13 @@ def devdb():
         """
     )
 
-    branch = st.sidebar.selectbox("select a branch", ["dev", "main"])
+    branches = get_active_s3_folders(repo=REPO_NAME, bucket_name=BUCKET_NAME)
+    branch = st.sidebar.selectbox(
+        "select a branch",
+        branches,
+    )
 
-    data = get_data(branch)
+    data = get_latest_data(branch)
 
     QAQCVersionHistoryReport(
         data=data,
