@@ -4,10 +4,12 @@ import numpy as np
 import pydeck as pdk  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
-import requests
-from src.facdb.helpers import get_latest_data, get_active_s3_folders
 from src.constants import COLOR_SCHEME
+from src.report_utils import get_active_s3_folders
+from src.facdb.helpers import get_latest_data
 
+BUCKET_NAME = "edm-publishing"
+REPO_NAME = "db-facilities"
 
 def facdb():
     st.title("Facilities DB QAQC")
@@ -39,7 +41,7 @@ def facdb():
         )
         st.plotly_chart(fig)
 
-    branches = get_active_s3_folders()
+    branches = get_active_s3_folders(repo=REPO_NAME, bucket_name=BUCKET_NAME)
     branch = st.sidebar.selectbox(
         "select a branch",
         branches,
