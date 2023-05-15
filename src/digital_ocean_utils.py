@@ -19,6 +19,10 @@ construct_data_library_config_url = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/config.json"
 )
 
+construct_branch_output_data_directory_url = lambda dataset, branch, version: (
+    f"https://edm-publishing.nyc3.digitaloceanspaces.com/{dataset}/{branch}/{version}/output"
+)
+
 construct_output_data_directory_url = lambda dataset, version: (
     f"https://edm-publishing.nyc3.digitaloceanspaces.com/{dataset}/{version}/output/"
 )

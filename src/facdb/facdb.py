@@ -6,10 +6,7 @@ import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
 from src.constants import COLOR_SCHEME
 from src.report_utils import get_active_s3_folders
-from src.facdb.helpers import get_latest_data
-
-BUCKET_NAME = "edm-publishing"
-REPO_NAME = "db-facilities"
+from src.facdb.helpers import get_latest_data, REPO_NAME, BUCKET_NAME
 
 def facdb():
     st.title("Facilities DB QAQC")
