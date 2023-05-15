@@ -170,7 +170,7 @@ QAQC_CHECK_DICTIONARY = {
 }
 
 
-def get_data(branch):
+def get_latest_data(branch):
     rv = {}
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/{branch}/latest/output"
 
