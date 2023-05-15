@@ -175,7 +175,6 @@ QAQC_CHECK_DICTIONARY = {
 
 def get_latest_data(branch) -> dict[str, pd.DataFrame]:
     rv = {}
-    # url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/{branch}/latest/output"
     url = construct_branch_output_data_directory_url(
         dataset=REPO_NAME,
         branch=branch,
