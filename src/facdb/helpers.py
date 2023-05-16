@@ -1,34 +1,19 @@
 import streamlit as st
 import pandas as pd
+from src.digital_ocean_utils import construct_branch_output_data_directory_url
 
-remove_branches = [
-    "524_AddPOPSNumber",
-    "528-Manager-Address-Approach",
-    "528-usairports-update-source",
-    "530-docker-compose-postgres-install-issue",
-    "532-update-moeo-socialservicesitelocations",
-    "534-q2-update-check-dataloading",
-    "535-Fix-Fooddrops",
-    "543-No-Build-On-Push",
-    "546-Metadata-Output",
-    "547-update-dcp-pops-version",
-    "549-QAQC-compare-to-all-records",
-    "553-Clarify-QAQC-Mapped",
-    "554-update-dot-data",
-    "558-remove-special-character-moeo-sonyc",
-    "559-update-projection-shapefile",
-    "560-doe-lcgms-latest",
-    "563-Update-TextileDrop",
-    "567_MOEOProgramName",
-    "574-Rename-POPS-Number",
-    "Address-Poetry-Merge-Conflict",
-    "dataloading-issue-template",
-]
+BUCKET_NAME = "edm-publishing"
+REPO_NAME = "db-facilities"
 
-
-@st.cache_data
-def get_data(branch):
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-facilities/{branch}/latest/output"
+def get_latest_data(
+    branch,
+) -> tuple[dict[str, dict[str, pd.DataFrame | str]], pd.DataFrame, pd.DataFrame]:
+    url = construct_branch_output_data_directory_url(
+        dataset=REPO_NAME,
+        branch=branch,
+        version="latest",
+    )
+    
     qc_diff = pd.read_csv(f"{url}/qc_diff.csv")
     qc_captype = pd.read_csv(f"{url}/qc_captype.csv")
     qc_classification = pd.read_csv(f"{url}/qc_classification.csv")
@@ -41,8 +26,17 @@ def get_data(branch):
             "dataframe": qc_classification,
             "type": "dataframe",
         },
-        "Operator": {"dataframe": qc_operator, "type": "dataframe"},
-        "Oversight": {"dataframe": qc_oversight, "type": "dataframe"},
-        "Capacity Types": {"dataframe": qc_captype, "type": "table"},
+        "Operator": {
+            "dataframe": qc_operator,
+            "type": "dataframe",
+        },
+        "Oversight": {
+            "dataframe": qc_oversight,
+            "type": "dataframe",
+        },
+        "Capacity Types": {
+            "dataframe": qc_captype,
+            "type": "table",
+        },
     }
     return qc_tables, qc_diff, qc_mapped

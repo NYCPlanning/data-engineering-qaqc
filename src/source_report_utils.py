@@ -34,7 +34,7 @@ def get_source_dataset_names(dataset: str, version: str) -> pd.DataFrame:
 def get_source_data_versions_from_build(dataset: str, version: str) -> pd.DataFrame:
     try:
         source_data_versions = pd.read_csv(
-            f"{construct_output_data_directory_url(dataset=dataset, version=version)}source_data_versions.csv",
+            f"{construct_output_data_directory_url(dataset=dataset, version=version)}/source_data_versions.csv",
             index_col=False,
             dtype=str,
         )

@@ -4,10 +4,9 @@ import numpy as np
 import pydeck as pdk  # type: ignore
 import plotly.graph_objects as go  # type: ignore
 import plotly.express as px  # type: ignore
-import requests
-from src.facdb.helpers import get_data, remove_branches
 from src.constants import COLOR_SCHEME
-
+from src.report_utils import get_active_s3_folders
+from src.facdb.helpers import get_latest_data, REPO_NAME, BUCKET_NAME
 
 def facdb():
     st.title("Facilities DB QAQC")
@@ -39,26 +38,17 @@ def facdb():
         )
         st.plotly_chart(fig)
 
-    def get_branches():
-        url = "https://api.github.com/repos/nycplanning/db-facilities/branches"
-        response = requests.get(url).json()
-        all_branches = [r["name"] for r in response]
-        return [
-            b for b in all_branches if b not in remove_branches
-        ]  # filter branches no longer needed in qaqc
-
-    branches = get_branches()
+    branches = get_active_s3_folders(repo=REPO_NAME, bucket_name=BUCKET_NAME)
     branch = st.sidebar.selectbox(
         "select a branch",
         branches,
-        index=branches.index("develop"),
     )
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
     ):
 
         st.cache_data.clear()
-        get_data(branch)
+        get_latest_data(branch)
 
     general_or_classification = st.sidebar.selectbox(
         "Would you like to review general QAQC or changes by classification?",
@@ -66,7 +56,7 @@ def facdb():
     )
     st.subheader(general_or_classification)
 
-    qc_tables, qc_diff, qc_mapped = get_data(branch)
+    qc_tables, qc_diff, qc_mapped = get_latest_data(branch)
 
     def count_comparison(df, width=1000, height=1000):
         fig = go.Figure()

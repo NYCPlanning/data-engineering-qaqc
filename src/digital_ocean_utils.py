@@ -19,8 +19,12 @@ construct_data_library_config_url = lambda dataset, version: (
     f"https://edm-recipes.nyc3.cdn.digitaloceanspaces.com/datasets/{dataset}/{version}/config.json"
 )
 
+construct_branch_output_data_directory_url = lambda dataset, branch, version: (
+    f"https://edm-publishing.nyc3.digitaloceanspaces.com/{dataset}/{branch}/{version}/output"
+)
+
 construct_output_data_directory_url = lambda dataset, version: (
-    f"https://edm-publishing.nyc3.digitaloceanspaces.com/{dataset}/{version}/output/"
+    f"https://edm-publishing.nyc3.digitaloceanspaces.com/{dataset}/{version}/output"
 )
 
 load_dotenv()
@@ -36,7 +40,7 @@ def get_datatset_config(dataset: str, version: str) -> dict:
 def get_latest_build_version(dataset: str) -> str:
     # TODO handle lack of version file
     version = requests.get(
-        f"{construct_output_data_directory_url(dataset=dataset, version='latest')}version.txt",
+        f"{construct_output_data_directory_url(dataset=dataset, version='latest')}/version.txt",
         timeout=10,
     ).text
     return version
