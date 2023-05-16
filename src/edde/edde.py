@@ -32,7 +32,7 @@ def get_active_s3_folders(repo:str, bucket_name:str):
     folders = [default_branch] + folders
     return folders
 
-def facdb():
+def edde():
     st.title("EDDE QAQC")
 
     branches = get_active_s3_folders(repo="db-equitable-development-tool", bucket_name="edm-publishing")
