@@ -4,7 +4,21 @@ import numpy as np
 import requests
 from src.constants import COLOR_SCHEME
 from src.digital_ocean_utils import DigitalOceanClient
-from helpers import get_data
+from helpers import get_data, compare_columns
+
+categories = [
+    "demographics",
+    "economics",
+    "housing_prodution",
+    "housing_security",
+    "quality_of_life"
+]
+
+geographies = [
+    "citywide",
+    "borough",
+    "puma"
+]
 
 def get_default_branch(repo:str):
     url = f"https://api.github.com/repos/nycplanning/{repo}"
@@ -62,6 +76,32 @@ def edde():
     old_data = get_data(branch_comp, date_comp)
     new_data = get_data(branch, "latest")
 
-    ## side bar - select by category? Or by geography?
+    try_pairing = st.sidebar.checkbox(
+        label="Try to match altered columns",
+        help="Some datasets have columns which remain effectively the same but update year in header.\nThis will try to identify those"
+    )
+
+    for geography in geographies:
+        for category in category:
+            st.header(f"{category} - {geography}")
+            old = old_data[category][geography]
+            new = new_data[category][geography]
+
+            lost, added, union, paired = compare_columns(old, new, try_pairing)
+            nrows_mismatch = max(len(lost), len(added))
+
+            st.write(f"{len(union)} matching columns")
+            col1, col2 = st.columns(2)
+            col1.write("Lost")
+            col2.write("Added")
+            
+            for (old_column, matched_columns) in paired:
+                with col1: st.warning(old_column)
+                with col2: st.warning(", ".join(matched_columns))
+
+            for i in range(nrows_mismatch):
+                with col1: st.error(lost[i])
+                with col2: st.success(added[i])
+
 
     ## Columns - dropped or added from last version

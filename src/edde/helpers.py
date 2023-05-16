@@ -10,16 +10,16 @@ def compare_header(left, right):
             return False
     return True
 
-# deswired output - columns in left not in right, columns in right not in left
+# desired output - columns in left not in right, columns in right not in left
 def compare_columns(left, right, try_pairing):
     lost = [ column for column in left.columns if column not in right.columns ]
     added = [ column for column in right.columns if column not in left.columns ]
     union = [ column for column in left.columns if column in right.columns ]
     if not try_pairing:
-        return lost, added, union
+        return lost, added, union, [] ## todo this is not the most elegant
     else:
         paired_columns = []
         for col in lost:
             matches = [ col2 for col2 in added if compare_header(col, col2) ]
             paired_columns.append(col, matches)
-        return lost, added, paired_columns
+        return lost, added, union, paired_columns
