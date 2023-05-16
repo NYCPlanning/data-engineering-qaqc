@@ -6,7 +6,7 @@ def get_data(branch, version):
 ## essentially, check if string are equal other than change of numeric characters
 def compare_header(left, right):
     for char1, char2 in zip(left, right):
-        if char1 != char2 and not (is_digit(char1) and is_digit(char2)):
+        if char1 != char2 and not (char1.isdigit() and char2.isdigit()):
             return False
     return True
 
