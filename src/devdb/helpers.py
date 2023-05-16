@@ -3,7 +3,10 @@ from typing import Dict
 from urllib.error import HTTPError
 import streamlit as st
 import json
-from src.digital_ocean_utils import DigitalOceanClient
+from src.digital_ocean_utils import (
+    DigitalOceanClient,
+    construct_branch_output_data_directory_url,
+)
 
 BUCKET_NAME = "edm-publishing"
 REPO_NAME = "db-developments"
@@ -170,9 +173,13 @@ QAQC_CHECK_DICTIONARY = {
 }
 
 
-def get_data(branch):
+def get_latest_data(branch) -> dict[str, pd.DataFrame]:
     rv = {}
-    url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-developments/{branch}/latest/output"
+    url = construct_branch_output_data_directory_url(
+        dataset=REPO_NAME,
+        branch=branch,
+        version="latest",
+    )
 
     client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
 

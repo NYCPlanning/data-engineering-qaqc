@@ -40,21 +40,21 @@ def output_report():
     data_url = construct_output_data_directory_url(dataset=dataset, version="latest")
 
     bbldiff = pd.read_csv(
-        f"{data_url}qc_bbldiffs.csv",
+        f"{data_url}/qc_bbldiffs.csv",
         dtype=str,
         index_col=False,
     )
     bbldiff = bbldiff.fillna("NULL")
     qaqc_mismatch = pd.read_csv(
-        f"{data_url}qaqc_mismatch.csv",
+        f"{data_url}/qaqc_mismatch.csv",
         index_col=False,
     )
     qaqc_bbl = pd.read_csv(
-        f"{data_url}qaqc_bbl.csv",
+        f"{data_url}/qaqc_bbl.csv",
         index_col=False,
     )
     qaqc_null = pd.read_csv(
-        f"{data_url}qaqc_null.csv",
+        f"{data_url}/qaqc_null.csv",
         index_col=False,
     )
 
