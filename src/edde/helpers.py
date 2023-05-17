@@ -22,7 +22,7 @@ def get_demographics_data(branch: str, version: str):
     client = DigitalOceanClient("edm-publishing", "db-eddt")
     for category in demographic_categories:
         category_data = {}
-        files = client.get_all_filenames_in_folder(f"{branch}/{version}/{category}")
+        files = client.get_all_filenames_in_folder(f"db-eddt/{branch}/{version}/{category}")
         matches = [
             re.match(
                 "^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$", file
