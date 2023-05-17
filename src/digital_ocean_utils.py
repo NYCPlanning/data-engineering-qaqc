@@ -90,11 +90,13 @@ class DigitalOceanClient:
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
 
-    def get_all_folder_names_in_repo_folder(self):
+    def get_all_folder_names_in_repo_folder(self, index=1):
         all_folders = set()
 
         for obj in self.repo:
-            all_folders.add(obj._key.split("/")[1])
+            folder = obj._key.split("/")[index]
+            if folder != "":
+                all_folders.add(folder)
 
         return all_folders
 
