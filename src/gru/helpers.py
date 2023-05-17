@@ -1,9 +1,9 @@
-import streamlit as st
-import pytz
 import time
 import os
 import boto3
 from datetime import datetime
+import streamlit as st
+
 from .constants import tests
 from src.digital_ocean_utils import get_datatset_config
 from src.github import get_workflow_runs, parse_workflow, dispatch_workflow
@@ -67,27 +67,6 @@ def get_qaqc_runs():
             if name not in workflows:
                 workflows[name] = parse_workflow(run)
     return workflows
-
-
-def render_status(workflow):
-    timestamp = (
-        datetime.fromisoformat(workflow["timestamp"])
-        .astimezone(pytz.timezone("US/Eastern"))
-        .strftime("%Y-%m-%d %H:%M")
-    )
-    format = lambda status: f"{status}  \n[{timestamp}]({workflow['url']})"
-    if workflow["status"] in ["queued", "in_progress"]:
-        st.warning(format(workflow["status"].capitalize().replace("_", " ")))
-        st.spinner()
-    elif workflow["status"] == "completed":
-        if workflow["conclusion"] == "success":
-            st.success(format("Success"))
-        elif workflow["conclusion"] == "cancelled":
-            st.info(format("Cancelled"))
-        elif workflow["conclusion"] == "failure":
-            st.error(format("Failed"))
-        else:
-            st.write(workflow["conclusion"])
 
 
 def after_workflow_dispatch():

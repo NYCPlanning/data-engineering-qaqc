@@ -1,7 +1,31 @@
+from datetime import datetime
+import pytz
 import streamlit as st
+
 from .constants import tests
-from .helpers import get_source_versions, render_status, after_workflow_dispatch
+from .helpers import get_source_versions, after_workflow_dispatch
 from ..github import dispatch_workflow_button
+
+
+def status(workflow):
+    timestamp = (
+        datetime.fromisoformat(workflow["timestamp"])
+        .astimezone(pytz.timezone("US/Eastern"))
+        .strftime("%Y-%m-%d %H:%M")
+    )
+    format = lambda status: f"{status}  \n[{timestamp}]({workflow['url']})"
+    if workflow["status"] in ["queued", "in_progress"]:
+        st.warning(format(workflow["status"].capitalize().replace("_", " ")))
+        st.spinner()
+    elif workflow["status"] == "completed":
+        if workflow["conclusion"] == "success":
+            st.success(format("Success"))
+        elif workflow["conclusion"] == "cancelled":
+            st.info(format("Cancelled"))
+        elif workflow["conclusion"] == "failure":
+            st.error(format("Failed"))
+        else:
+            st.write(workflow["conclusion"])
 
 
 def source_table():
@@ -46,7 +70,7 @@ def check_table(workflows):
         with status:
             if action_name in workflows:
                 workflow = workflows[action_name]
-                render_status(workflow)
+                status(workflow)
                 running = workflow["status"] in ["queued", "in_progress"]
                 st.session_state["currently_running"] = (
                     st.session_state["currently_running"] or running
