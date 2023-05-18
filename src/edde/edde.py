@@ -19,10 +19,24 @@ def edde():
     st.title("EDDE QAQC")
 
     default_branch = get_default_branch()
-    branch = branch_selectbox(repo="db-equitable-development-tool", bucket_name="edm-publishing", s3_folder="db-eddt", label="Select a branch (will use latest)", default=default_branch)
-    branch_for_comp = branch_selectbox(repo="db-equitable-development-tool", bucket_name="edm-publishing", s3_folder="db-eddt", label="Select a branch for comparison", default=default_branch)
+    branch = branch_selectbox(
+        repo="db-equitable-development-tool",
+        bucket_name="edm-publishing",
+        s3_folder="db-eddt",
+        label="Select a branch (will use latest)",
+        default=default_branch,
+    )
+    branch_for_comp = branch_selectbox(
+        repo="db-equitable-development-tool",
+        bucket_name="edm-publishing",
+        s3_folder="db-eddt",
+        label="Select a branch for comparison",
+        default=default_branch,
+    )
 
-    date_for_comp = output_selectbox(repo="db-eddt", bucket_name="edm-publishing", branch=branch_for_comp)
+    date_for_comp = output_selectbox(
+        repo="db-eddt", bucket_name="edm-publishing", branch=branch_for_comp
+    )
 
     category_type = st.sidebar.selectbox(
         "Select category type", ["Demographics", "Housing/Quality of Life"]
@@ -56,7 +70,9 @@ def edde():
                     for i in range(len(keys) - 1):
                         old_acs_year = keys[i]
                         new_acs_year = keys[i + 1]
-                        st.header(f"{category} {geography}: {old_acs_year} vs {new_acs_year}")
+                        st.header(
+                            f"{category} {geography}: {old_acs_year} vs {new_acs_year}"
+                        )
                         column_comparison_table(new[old_acs_year], new[new_acs_year])
 
     elif category_type == "Housing/Quality of Life":

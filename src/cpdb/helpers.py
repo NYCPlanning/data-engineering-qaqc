@@ -55,7 +55,9 @@ def get_data(branch, previous_branch, previous_version) -> dict:
     for t in tables["analysis"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t, sub_folder="analysis/"))
         rv["pre_" + t] = client.csv_from_DO(
-            url=construct_url(previous_branch, t, previous_version, sub_folder="analysis/")
+            url=construct_url(
+                previous_branch, t, previous_version, sub_folder="analysis/"
+            )
         )
     for t in tables["others"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t))
