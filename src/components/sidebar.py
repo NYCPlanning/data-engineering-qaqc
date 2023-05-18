@@ -3,8 +3,8 @@ import streamlit as st
 from src.report_utils import get_active_s3_folders
 from src.digital_ocean_utils import DigitalOceanClient
 
-def branch_selectbox(repo, bucket, label="Select a branch", default=None):
-    branches = get_active_s3_folders(repo=repo, bucket_name=bucket)
+def branch_selectbox(repo, bucket, label="Select a branch", default=None, s3_folder=None):
+    branches = get_active_s3_folders(repo=repo, bucket_name=bucket, s3_folder=s3_folder)
     if default:
         index = branches.index(default)
     else:

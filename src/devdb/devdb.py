@@ -10,6 +10,7 @@ def devdb():
         QAQCVersionHistoryReport,
     )
     from src.devdb.components.complete_quarters_report import CompleteQuartersReport
+    from src.components.sidebar import branch_selectbox
 
     st.title("Developments Database QAQC")
     st.markdown(
@@ -33,12 +34,7 @@ def devdb():
         """
     )
 
-    branches = get_active_s3_folders(repo=REPO_NAME, bucket_name=BUCKET_NAME)
-    branch = st.sidebar.selectbox(
-        "select a branch",
-        branches,
-    )
-
+    branch = branch_selectbox(REPO_NAME, BUCKET_NAME)
     data = get_latest_data(branch)
 
     QAQCVersionHistoryReport(

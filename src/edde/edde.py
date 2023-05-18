@@ -1,5 +1,6 @@
 import streamlit as st
 
+from src.github import get_default_branch
 from src.constants import COLOR_SCHEME
 from src.digital_ocean_utils import DigitalOceanClient
 from src.report_utils import get_active_s3_folders
@@ -10,36 +11,18 @@ from src.edde.helpers import (
     get_demographics_data,
     get_other_data,
 )
+from src.components.sidebar import branch_selectbox, output_selectbox
 from src.edde.components import column_comparison_table
 
 
 def edde():
     st.title("EDDE QAQC")
 
-    branches = get_active_s3_folders(
-        repo="db-equitable-development-tool", bucket_name="edm-publishing", s3_folder="db-eddt"
-    )
-    branch = st.sidebar.selectbox(
-        "Select a branch (will use latest)",
-        branches,
-        index=branches.index("main"),
-    )
+    default_branch = get_default_branch()
+    branch = branch_selectbox(repo="db-equitable-development-tool", bucket_name="edm-publishing", s3_folder="db-eddt", label="Select a branch (will use latest)", default=default_branch)
+    branch_for_comp = branch_selectbox(repo="db-equitable-development-tool", bucket_name="edm-publishing", s3_folder="db-eddt", label="Select a branch for comparison", default=default_branch)
 
-    branch_comp = st.sidebar.selectbox(
-        "Select a branch for comparison",
-        branches,
-        index=branches.index("main"),
-    )
-
-    date_comp = st.sidebar.selectbox(
-        "Select an export for comparison",
-        DigitalOceanClient(
-            bucket_name="edm-publishing",
-            repo_name=f"db-eddt/{branch_comp}",
-        ).get_all_folder_names_in_repo_folder(
-            index=2
-        ),  ##todo - all other than latest if same branch, or latest if other branch
-    )
+    date_for_comp = output_selectbox(repo="db-eddt", bucket_name="edm-publishing", branch=branch_for_comp)
 
     category_type = st.sidebar.selectbox(
         "Select category type", ["Demographics", "Housing/Quality of Life"]
@@ -52,7 +35,7 @@ def edde():
             help="Each build, exports are made for each ACS year. Comparisons can be made between same export files (ACS year) for different builds OR between different ACS years in the current build",
         )
 
-        old_data = get_demographics_data(branch_comp, date_comp)
+        old_data = get_demographics_data(branch_for_comp, date_for_comp)
         new_data = get_demographics_data(branch, "latest")
 
         for category in demographic_categories:
@@ -77,7 +60,7 @@ def edde():
                         column_comparison_table(new[old_acs_year], new[new_acs_year])
 
     elif category_type == "Housing/Quality of Life":
-        old_data = get_other_data(branch_comp, date_comp)
+        old_data = get_other_data(branch_for_comp, date_for_comp)
         new_data = get_other_data(branch, "latest")
 
         for category in other_categories:
