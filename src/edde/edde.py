@@ -2,8 +2,6 @@ import streamlit as st
 
 from src.github import get_default_branch
 from src.constants import COLOR_SCHEME
-from src.digital_ocean_utils import DigitalOceanClient
-from src.report_utils import get_active_s3_folders
 from src.edde.helpers import (
     demographic_categories,
     other_categories,

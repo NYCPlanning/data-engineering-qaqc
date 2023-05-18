@@ -1,7 +1,5 @@
 import pandas as pd
 from dotenv import load_dotenv
-import geopandas as gpd
-from src.github import get_default_branch
 from src.digital_ocean_utils import DigitalOceanClient
 
 load_dotenv()
