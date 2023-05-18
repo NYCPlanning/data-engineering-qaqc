@@ -5,7 +5,7 @@ on:
 
 env:
   DOKKU_APP_NAME: 'edm-data-engineering'
-  DOKKU_REMOTE_BRANCH: 'master'
+  DOKKU_REMOTE_BRANCH: 'main'
 jobs:
   deploy:
     runs-on: ubuntu-latest
