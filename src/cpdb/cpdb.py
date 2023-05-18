@@ -1,50 +1,33 @@
-import streamlit as st  # type: ignore
-import pandas as pd
-from src.cpdb.helpers import (
-    REPO_NAME,
-    BUCKET_NAME,
-    get_data,
-    get_geometries,
-    get_commit_cols,
-    get_diff_dataframe,
-    get_map_percent_diff,
-    sort_base_on_option,
-    VIZKEY,
-    #cpdb_published_versions,
-)
-import plotly.express as px
-import plotly.graph_objects as go
-from src.constants import COLOR_SCHEME
-from src.github import get_default_branch
-from src.digital_ocean_utils import DigitalOceanClient
-from src.report_utils import get_active_s3_folders
-from src.cpdb.components.geometry_visualization_report import (
-    geometry_visualization_report,
-)
-from src.cpdb.components.adminbounds import adminbounds
-from src.cpdb.components.withinNYC_check import withinNYC_check
-
-
 def cpdb():
+    import streamlit as st  
+    import plotly.express as px
+    import plotly.graph_objects as go
+
+    from src.cpdb.helpers import (
+        REPO_NAME,
+        BUCKET_NAME,
+        get_data,
+        get_commit_cols,
+        get_diff_dataframe,
+        get_map_percent_diff,
+        sort_base_on_option,
+        VIZKEY
+    )
+    from src.constants import COLOR_SCHEME
+    from src.github import get_default_branch
+    from src.digital_ocean_utils import DigitalOceanClient
+    from src.report_utils import get_active_s3_folders
+    from src.cpdb.components.geometry_visualization_report import geometry_visualization_report
+    from src.cpdb.components.adminbounds import adminbounds
+    from src.cpdb.components.withinNYC_check import withinNYC_check
+    from src.components.sidebar import branch_selectbox, output_selectbox
+    
     st.title("Capital Projects Database QAQC")
+
     default_branch = get_default_branch(REPO_NAME)
-    branches = get_active_s3_folders(
-        repo=REPO_NAME, bucket_name=BUCKET_NAME
-    )
-    branch = st.sidebar.selectbox(
-        "Select a branch (will use latest)",
-        branches,
-        index=branches.index(default_branch),
-    )
-    previous_version = st.sidebar.selectbox(
-        "Select an export for comparison",
-        DigitalOceanClient(
-            bucket_name=BUCKET_NAME,
-            repo_name=f"{REPO_NAME}/{default_branch}",
-        ).get_all_folder_names_in_repo_folder(
-            index=2
-        ),  ##todo - all other than latest if same branch, or latest if other branch
-    )
+    branch = branch_selectbox(REPO_NAME, BUCKET_NAME, label="Select a branch (latest build will be used)", default=default_branch)
+
+    previous_version = output_selectbox(REPO_NAME, BUCKET_NAME, default_branch)
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",
