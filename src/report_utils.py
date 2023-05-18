@@ -10,6 +10,6 @@ def get_active_s3_folders(repo:str, bucket_name:str):
     ).get_all_folder_names_in_repo_folder()
 
     folders = sorted(list(set(all_folders).intersection(set(all_branches))))
-    folders.remove(default_branch)
+    if default_branch in folders: folders.remove(default_branch)
     folders = [default_branch] + folders
     return folders

@@ -7,14 +7,15 @@ SQL_FILE_DIRECTORY = Path().absolute() / ".data/sql"
 
 DATASET_PAGES = {
     "Home": "home",
-    "PLUTO": "pluto",
-    "Zoning Tax Lots": "ztl",
-    "Facilities DB": "facdb",
-    "Developments DB": "devdb",
-    #"Geosupport Demo": "geocode",
     "Capital Projects DB": "cpdb",
     "City Owned and Leased Properties": "colp",
+    "Developments DB": "devdb",
+    "Equitable Development Data Explorer": "edde",
+    "Facilities DB": "facdb",
+    "PLUTO": "pluto",
     "Template Repo DB": "trdb",
+    "Zoning Tax Lots": "ztl",
+    #"Geosupport Demo": "geocode",
     "GRU QAQC": "gru"
 }
 

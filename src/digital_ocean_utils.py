@@ -90,18 +90,22 @@ class DigitalOceanClient:
             endpoint_url=os.getenv("AWS_S3_ENDPOINT"),
         )
 
-    def get_all_folder_names_in_repo_folder(self):
+    def get_all_folder_names_in_repo_folder(self, index=1):
         all_folders = set()
 
         for obj in self.repo:
-            all_folders.add(obj._key.split("/")[1])
+            folder = obj._key.split("/")[index]
+            if folder != "":
+                all_folders.add(folder)
 
         return all_folders
 
     def get_all_filenames_in_folder(self, folder_path: str):
         filenames = set()
         for object in self.bucket.objects.filter(Prefix=f"{folder_path}/"):
-            filenames.add(object.key.split("/")[-1])
+            filename = object.key.split("/")[-1]
+            if filename != "":
+                filenames.add(object.key.split("/")[-1])
         return filenames
 
     def unzip_csv(self, csv_filename, zipfile):
