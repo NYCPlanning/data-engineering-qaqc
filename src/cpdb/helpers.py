@@ -68,7 +68,6 @@ def get_data(branch, previous_branch, previous_version) -> dict:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t))
     for t in tables["geometries"]:
         rv[t] = get_geometries(branch, table=t)
-    print(rv.keys())
     return rv
 
 

@@ -93,7 +93,6 @@ def cpdb():
     )
 
     df = data["cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
-    print(agency_type)
     df_pre = data["pre_cpdb_summarystats_" + agency_type].set_index(
         agency_type + "acro"
     )
