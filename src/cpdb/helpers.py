@@ -1,6 +1,7 @@
 import pandas as pd
 from dotenv import load_dotenv
 import geopandas as gpd
+from src.github import get_default_branch
 from src.digital_ocean_utils import DigitalOceanClient
 
 load_dotenv()
@@ -40,7 +41,7 @@ def get_geometries(branch, table) -> dict:
     return gdf
 
 
-def get_data(branch, previous_version) -> dict:
+def get_data(branch, previous_branch, previous_version) -> dict:
     rv = {}
     tables = {
         "analysis": ["cpdb_summarystats_sagency", "cpdb_summarystats_magency"],
@@ -54,12 +55,12 @@ def get_data(branch, previous_version) -> dict:
     for t in tables["analysis"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t, sub_folder="analysis/"))
         rv["pre_" + t] = client.csv_from_DO(
-            url=construct_url(branch, t, previous_version, sub_folder="analysis/")
+            url=construct_url(previous_branch, t, previous_version, sub_folder="analysis/")
         )
     for t in tables["others"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t))
         rv["pre_" + t] = client.csv_from_DO(
-            url=construct_url(branch, t, previous_version)
+            url=construct_url(previous_branch, t, previous_version)
         )
     for t in tables["no_version_compare"]:
         rv[t] = client.csv_from_DO(url=construct_url(branch, t))

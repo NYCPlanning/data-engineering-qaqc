@@ -1,6 +1,8 @@
 import streamlit as st  # type: ignore
 import pandas as pd
 from src.cpdb.helpers import (
+    REPO_NAME,
+    BUCKET_NAME,
     get_data,
     get_geometries,
     get_commit_cols,
@@ -8,11 +10,14 @@ from src.cpdb.helpers import (
     get_map_percent_diff,
     sort_base_on_option,
     VIZKEY,
-    cpdb_published_versions,
+    #cpdb_published_versions,
 )
 import plotly.express as px
 import plotly.graph_objects as go
 from src.constants import COLOR_SCHEME
+from src.github import get_default_branch
+from src.digital_ocean_utils import DigitalOceanClient
+from src.report_utils import get_active_s3_folders
 from src.cpdb.components.geometry_visualization_report import (
     geometry_visualization_report,
 )
@@ -22,10 +27,23 @@ from src.cpdb.components.withinNYC_check import withinNYC_check
 
 def cpdb():
     st.title("Capital Projects Database QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["main"])
+    default_branch = get_default_branch(REPO_NAME)
+    branches = get_active_s3_folders(
+        repo=REPO_NAME, bucket_name=BUCKET_NAME
+    )
+    branch = st.sidebar.selectbox(
+        "Select a branch (will use latest)",
+        branches,
+        index=branches.index(default_branch),
+    )
     previous_version = st.sidebar.selectbox(
-        "Pick a published version of CPDB to compare with latest (by date):",
-        cpdb_published_versions,
+        "Select an export for comparison",
+        DigitalOceanClient(
+            bucket_name=BUCKET_NAME,
+            repo_name=f"{REPO_NAME}/{default_branch}",
+        ).get_all_folder_names_in_repo_folder(
+            index=2
+        ),  ##todo - all other than latest if same branch, or latest if other branch
     )
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
@@ -48,7 +66,7 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    data = get_data(branch, previous_version)
+    data = get_data(branch, default_branch, previous_version)
 
     st.markdown(
         body="""
@@ -85,6 +103,7 @@ def cpdb():
     )
 
     df = data["cpdb_summarystats_" + agency_type].set_index(agency_type + "acro")
+    print(agency_type)
     df_pre = data["pre_cpdb_summarystats_" + agency_type].set_index(
         agency_type + "acro"
     )
