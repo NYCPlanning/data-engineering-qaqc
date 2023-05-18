@@ -1,7 +1,9 @@
+import streamlit as st
 from src.digital_ocean_utils import DigitalOceanClient
 from src.github import get_default_branch, get_branches
 
 
+@st.cache_data
 def get_active_s3_folders(repo:str, bucket_name:str, s3_folder:str=None):
     default_branch = get_default_branch(repo=repo)
     all_branches = get_branches(repo=repo, branches_blacklist=[])
