@@ -17,7 +17,7 @@ def edde():
     st.title("EDDE QAQC")
 
     branches = get_active_s3_folders(
-        repo="db-equitable-development-tool", bucket_name="edm-publishing"
+        repo="db-equitable-development-tool", bucket_name="edm-publishing", s3_folder="db-eddt"
     )
     branch = st.sidebar.selectbox(
         "Select a branch (will use latest)",
