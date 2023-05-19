@@ -7,6 +7,7 @@ import plotly.express as px  # type: ignore
 from src.constants import COLOR_SCHEME
 from src.report_utils import get_active_s3_folders
 from src.facdb.helpers import get_latest_data, REPO_NAME, BUCKET_NAME
+from src.components.sidebar import branch_selectbox
 
 def facdb():
     st.title("Facilities DB QAQC")
@@ -38,11 +39,8 @@ def facdb():
         )
         st.plotly_chart(fig)
 
-    branches = get_active_s3_folders(repo=REPO_NAME, bucket_name=BUCKET_NAME)
-    branch = st.sidebar.selectbox(
-        "select a branch",
-        branches,
-    )
+    branch = branch_selectbox(repo=REPO_NAME, bucket=BUCKET_NAME)
+
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
     ):

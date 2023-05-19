@@ -3,7 +3,6 @@ from src.constants import COLOR_SCHEME
 
 
 def geometry_visualization_report(data: dict):
-
     st.header(f"Visualize Geometries")
 
     st.caption(

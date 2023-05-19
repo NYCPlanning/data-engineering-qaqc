@@ -2,8 +2,9 @@ import streamlit as st
 
 
 def get_text(df, pre_df):
-    output = list(set(pre_df.admin_boundary_type.unique()) -
-                  set(df.admin_boundary_type.unique()))
+    output = list(
+        set(pre_df.admin_boundary_type.unique()) - set(df.admin_boundary_type.unique())
+    )
 
     if len(output) == 0:
         output = "No change"
@@ -26,7 +27,6 @@ def adminbounds(data: dict):
         """
     )
     # admin bounds
-    adminbounds_txt = get_text(
-        data["cpdb_adminbounds"], data["pre_cpdb_adminbounds"])
+    adminbounds_txt = get_text(data["cpdb_adminbounds"], data["pre_cpdb_adminbounds"])
 
     st.text(adminbounds_txt)

@@ -3,6 +3,10 @@ from itertools import groupby
 import re
 from src.digital_ocean_utils import DigitalOceanClient
 
+REPO_NAME = "db-equitable-development-tool"
+S3_FOLDER_NAME = "db-eddt"
+BUCKET_NAME = "edm-publishing"
+
 demographic_categories = ["demographics", "economics"]
 
 other_categories = [
@@ -15,14 +19,14 @@ geographies = ["citywide", "borough", "puma"]
 
 
 def get_demographics_data(branch: str, version: str):
-    parent_dir = (
-        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-eddt/{branch}/{version}"
-    )
+    parent_dir = f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
     data = {}
-    client = DigitalOceanClient("edm-publishing", "db-eddt")
+    client = DigitalOceanClient(BUCKET_NAME, S3_FOLDER_NAME)
     for category in demographic_categories:
         category_data = {}
-        files = client.get_all_filenames_in_folder(f"db-eddt/{branch}/{version}/{category}")
+        files = client.get_all_filenames_in_folder(
+            f"db-eddt/{branch}/{version}/{category}"
+        )
         matches = [
             re.match(
                 "^(demographics|economics)_(\d{4})_(citywide|borough|puma).csv$", file
@@ -48,9 +52,7 @@ def get_demographics_data(branch: str, version: str):
 
 
 def get_other_data(branch: str, version: str):
-    parent_dir = (
-        f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-eddt/{branch}/{version}"
-    )
+    parent_dir = f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
     data = {}
     for category in other_categories:
         category_data = {}

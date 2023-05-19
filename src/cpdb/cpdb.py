@@ -1,32 +1,38 @@
-import streamlit as st  # type: ignore
-import pandas as pd
-from src.cpdb.helpers import (
-    get_data,
-    get_geometries,
-    get_commit_cols,
-    get_diff_dataframe,
-    get_map_percent_diff,
-    sort_base_on_option,
-    VIZKEY,
-    cpdb_published_versions,
-)
-import plotly.express as px
-import plotly.graph_objects as go
-from src.constants import COLOR_SCHEME
-from src.cpdb.components.geometry_visualization_report import (
-    geometry_visualization_report,
-)
-from src.cpdb.components.adminbounds import adminbounds
-from src.cpdb.components.withinNYC_check import withinNYC_check
-
-
 def cpdb():
-    st.title("Capital Projects Database QAQC")
-    branch = st.sidebar.selectbox("select a branch", ["main"])
-    previous_version = st.sidebar.selectbox(
-        "Pick a published version of CPDB to compare with latest (by date):",
-        cpdb_published_versions,
+    import streamlit as st
+    import plotly.express as px
+    import plotly.graph_objects as go
+
+    from src.cpdb.helpers import (
+        REPO_NAME,
+        BUCKET_NAME,
+        get_data,
+        get_commit_cols,
+        get_diff_dataframe,
+        get_map_percent_diff,
+        sort_base_on_option,
+        VIZKEY,
     )
+    from src.constants import COLOR_SCHEME
+    from src.github import get_default_branch
+    from src.cpdb.components.geometry_visualization_report import (
+        geometry_visualization_report,
+    )
+    from src.cpdb.components.adminbounds import adminbounds
+    from src.cpdb.components.withinNYC_check import withinNYC_check
+    from src.components.sidebar import branch_selectbox, output_selectbox
+
+    st.title("Capital Projects Database QAQC")
+
+    default_branch = get_default_branch(REPO_NAME)
+    branch = branch_selectbox(
+        REPO_NAME,
+        BUCKET_NAME,
+        label="Select a branch (latest build will be used)",
+        default=default_branch,
+    )
+
+    previous_version = output_selectbox(REPO_NAME, BUCKET_NAME, default_branch)
     agency_label = {"sagency": "Sponsoring Agency", "magency": "Managing Agency"}
     agency_type = st.sidebar.selectbox(
         "select an agency type",
@@ -48,7 +54,7 @@ def cpdb():
         "choose a subcategory or entire portfolio", ["all categories", "fixed assets"]
     )
 
-    data = get_data(branch, previous_version)
+    data = get_data(branch, default_branch, previous_version)
 
     st.markdown(
         body="""
