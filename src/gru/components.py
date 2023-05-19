@@ -7,7 +7,7 @@ from .helpers import get_source_versions, after_workflow_dispatch
 from ..github import dispatch_workflow_button
 
 
-def status(workflow):
+def status_details(workflow):
     timestamp = (
         datetime.fromisoformat(workflow["timestamp"])
         .astimezone(pytz.timezone("US/Eastern"))
@@ -70,7 +70,7 @@ def check_table(workflows):
         with status:
             if action_name in workflows:
                 workflow = workflows[action_name]
-                status(workflow)
+                status_details(workflow)
                 running = workflow["status"] in ["queued", "in_progress"]
                 st.session_state["currently_running"] = (
                     st.session_state["currently_running"] or running
