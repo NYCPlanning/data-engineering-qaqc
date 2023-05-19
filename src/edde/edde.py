@@ -3,6 +3,9 @@ import streamlit as st
 from src.github import get_default_branch
 from src.constants import COLOR_SCHEME
 from src.edde.helpers import (
+    REPO_NAME,
+    S3_FOLDER_NAME,
+    BUCKET_NAME,
     demographic_categories,
     other_categories,
     geographies,
@@ -18,22 +21,22 @@ def edde():
 
     default_branch = get_default_branch()
     branch = branch_selectbox(
-        repo="db-equitable-development-tool",
-        bucket_name="edm-publishing",
-        s3_folder="db-eddt",
+        repo=REPO_NAME,
+        bucket_name=BUCKET_NAME,
+        s3_folder=S3_FOLDER_NAME,
         label="Select a branch (will use latest)",
         default=default_branch,
     )
     branch_for_comp = branch_selectbox(
-        repo="db-equitable-development-tool",
-        bucket_name="edm-publishing",
-        s3_folder="db-eddt",
+        repo=REPO_NAME,
+        bucket_name=BUCKET_NAME,
+        s3_folder=S3_FOLDER_NAME,
         label="Select a branch for comparison",
         default=default_branch,
     )
 
     date_for_comp = output_selectbox(
-        repo="db-eddt", bucket_name="edm-publishing", branch=branch_for_comp
+        repo=S3_FOLDER_NAME, bucket_name=BUCKET_NAME, branch=branch_for_comp
     )
 
     category_type = st.sidebar.selectbox(
