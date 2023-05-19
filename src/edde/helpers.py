@@ -19,9 +19,7 @@ geographies = ["citywide", "borough", "puma"]
 
 
 def get_demographics_data(branch: str, version: str):
-    parent_dir = (
-        f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
-    )
+    parent_dir = f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
     data = {}
     client = DigitalOceanClient(BUCKET_NAME, S3_FOLDER_NAME)
     for category in demographic_categories:
@@ -54,9 +52,7 @@ def get_demographics_data(branch: str, version: str):
 
 
 def get_other_data(branch: str, version: str):
-    parent_dir = (
-        f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
-    )
+    parent_dir = f"https://{BUCKET_NAME}.nyc3.digitaloceanspaces.com/{S3_FOLDER_NAME}/{branch}/{version}"
     data = {}
     for category in other_categories:
         category_data = {}
