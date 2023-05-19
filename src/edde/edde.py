@@ -19,24 +19,24 @@ from src.edde.components import column_comparison_table
 def edde():
     st.title("EDDE QAQC")
 
-    default_branch = get_default_branch()
+    default_branch = get_default_branch(REPO_NAME)
     branch = branch_selectbox(
         repo=REPO_NAME,
-        bucket_name=BUCKET_NAME,
+        bucket=BUCKET_NAME,
         s3_folder=S3_FOLDER_NAME,
         label="Select a branch (will use latest)",
         default=default_branch,
     )
     branch_for_comp = branch_selectbox(
         repo=REPO_NAME,
-        bucket_name=BUCKET_NAME,
+        bucket=BUCKET_NAME,
         s3_folder=S3_FOLDER_NAME,
         label="Select a branch for comparison",
         default=default_branch,
     )
 
     date_for_comp = output_selectbox(
-        repo=S3_FOLDER_NAME, bucket_name=BUCKET_NAME, branch=branch_for_comp
+        repo=S3_FOLDER_NAME, bucket=BUCKET_NAME, branch=branch_for_comp
     )
 
     category_type = st.sidebar.selectbox(

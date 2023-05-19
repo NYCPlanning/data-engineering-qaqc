@@ -39,8 +39,8 @@ def facdb():
         )
         st.plotly_chart(fig)
 
-    branch = branch_selectbox(repo=REPO_NAME, bucket_name=BUCKET_NAME)
-    
+    branch = branch_selectbox(repo=REPO_NAME, bucket=BUCKET_NAME)
+
     if st.sidebar.button(
         label="Refresh data", help="Download newest files from Digital Ocean"
     ):
