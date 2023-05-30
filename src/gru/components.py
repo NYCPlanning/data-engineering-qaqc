@@ -43,7 +43,7 @@ def source_table():
         col3.write(source_versions[source]["date"])
 
 
-def check_table(workflows):
+def check_table(workflows, geosupport_version:str='latest'):
     column_widths = (3, 3, 4, 3, 2)
     cols = st.columns(column_widths)
     fields = ["Name", "Sources", "Latest results", "Status", "Run Check"]
@@ -75,12 +75,13 @@ def check_table(workflows):
                 mime="text/csv",
                 help=versions.to_markdown(index=False),
             )
+        
+        running = workflows.get(action_name, {}).get("status") in ["queued", "in_progress"]
 
         with status:
             if action_name in workflows:
                 workflow = workflows[action_name]
                 status_details(workflow)
-                running = workflow["status"] in ["queued", "in_progress"]
                 st.session_state["currently_running"] = (
                     st.session_state["currently_running"] or running
                 )
@@ -94,5 +95,6 @@ def check_table(workflows):
                 disabled=running,
                 key=test["action_name"],
                 name=test["action_name"],
-                run_after=after_workflow_dispatch,
+                geosupport_version=geosupport_version,
+                run_after=after_workflow_dispatch
             )  ## refresh after 2 so that status has hopefully

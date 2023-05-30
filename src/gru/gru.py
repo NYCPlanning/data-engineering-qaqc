@@ -2,8 +2,15 @@ def gru():
     import streamlit as st
     import time
     from .constants import readme_markdown_text, tests
-    from .helpers import get_qaqc_runs, run_all_workflows
+    from .helpers import get_qaqc_runs, run_all_workflows, get_geosupport_versions
     from .components import source_table, check_table
+
+    geosupport_versions = get_geosupport_versions()
+    geosupport_version= st.sidebar.selectbox(
+        label="Choose a Geosupport version",
+        options=list(geosupport_versions.keys())
+    )
+    geosupport_version_to_run = geosupport_versions[geosupport_version]
 
     st.header("GRU QAQC")
     st.write(
@@ -17,15 +24,15 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
     source_table()
 
     st.header("QAQC Checks")
-    workflows = get_qaqc_runs()
+    workflows = get_qaqc_runs(geosupport_version)
     not_running_workflows = [
         action_name
         for action_name in tests["action_name"]
-        if action_name in workflows
-        and (workflows[action_name]["status"] not in ["queued", "in_progress"])
+        if action_name not in workflows
+        or (workflows[action_name]["status"] not in ["queued", "in_progress"])
     ]
-    run_all_workflows(not_running_workflows)
-    check_table(workflows)
+    run_all_workflows(not_running_workflows, geosupport_version_to_run)
+    check_table(workflows, geosupport_version=geosupport_version_to_run)
 
     st.header("README")
     st.markdown(readme_markdown_text)
