@@ -73,11 +73,12 @@ def get_workflow_runs(repo, workflow_name=None, items_per_page=None, total_items
         return workflows
 
 
-def dispatch_workflow(repo, workflow_name, **inputs):
-    params = {"ref": "main", "inputs": inputs}
+def dispatch_workflow(repo, workflow_name, branch="main", **inputs):
+    params = {"ref": "fvk-2023-Q2-geosupport-version-as-arg", "inputs": inputs}
     url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/dispatches"
     response = requests.post(url, headers=headers, json=params)
     if response.status_code != 204:
+        print(response.content)
         raise Exception(
             f"Dispatch workflow failed with status code {response.status_code}"
         )
