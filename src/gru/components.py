@@ -59,18 +59,13 @@ def check_table(workflows, geosupport_version):
 
         name.write(test["display_name"])
 
-        sources.write("  \n".join(test["sources"]))
+        folder = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{geosupport_version}/{action_name}/latest"
 
-        folder = f"https://edm-publishing.nyc3.cdn.digitaloceanspaces.com/db-gru-qaqc/{geosupport_version}/{action_name}/latest"
-        files = "  \n".join(
-            [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
-        )
-        outputs.write(files)
-        with outputs:
+        with sources:
             try:
                 versions = pd.read_csv(f"{folder}/versions.csv")
                 st.download_button(
-                    label="versions",
+                    label="\n".join(test["sources"]),
                     data=versions.to_csv(index=False).encode("utf-8"),
                     file_name="versions.csv",
                     mime="text/csv",
@@ -78,6 +73,11 @@ def check_table(workflows, geosupport_version):
                 )
             except:
                 pass
+
+        files = "  \n".join(
+            [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
+        )
+        outputs.write(files)
         
         running = workflows.get(action_name, {}).get("status") in ["queued", "in_progress"]
 
