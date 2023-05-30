@@ -1,6 +1,7 @@
 from datetime import datetime
 import pytz
 import streamlit as st
+import pandas as pd
 
 from .constants import tests
 from .helpers import get_source_versions, after_workflow_dispatch
@@ -60,12 +61,20 @@ def check_table(workflows):
 
         sources.write("  \n".join(test["sources"]))
 
-        folder = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{action_name}/latest"
+        folder = f"https://edm-publishing.nyc3.cdn.digitaloceanspaces.com/db-gru-qaqc/{action_name}/latest"
         files = "  \n".join(
-            [f"[{filename}.csv]({folder}/{filename}.csv)" for filename in test["files"]]
-            + [f"[versions.csv]({folder}/versions.csv)"]
+            [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
         )
         outputs.write(files)
+        with outputs:
+            versions = pd.read_csv(f"{folder}/versions.csv")
+            st.download_button(
+                label="versions",
+                data=versions.to_csv(index=False).encode("utf-8"),
+                file_name="versions.csv",
+                mime="text/csv",
+                help=versions.to_markdown(index=False),
+            )
 
         with status:
             if action_name in workflows:
