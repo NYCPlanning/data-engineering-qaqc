@@ -82,7 +82,7 @@ def after_workflow_dispatch():
 def run_all_workflows(actions, geosupport_version):
     def on_click():
         for action in actions:
-            dispatch_workflow("db-gru-qaqc", "main.yml", name=action, geosupport_version=geosupport_version)
+            dispatch_workflow("db-gru-qaqc", "main.yml", name=action, geosupport_version=get_geosupport_versions()[geosupport_version])
         after_workflow_dispatch()
 
     return st.button("Run all", key="all", on_click=on_click)

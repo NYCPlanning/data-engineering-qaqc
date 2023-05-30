@@ -31,8 +31,8 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
         if action_name not in workflows
         or (workflows[action_name]["status"] not in ["queued", "in_progress"])
     ]
-    run_all_workflows(not_running_workflows, geosupport_version_to_run)
-    check_table(workflows, geosupport_version=geosupport_version_to_run)
+    run_all_workflows(not_running_workflows, geosupport_version)
+    check_table(workflows, geosupport_version=geosupport_version)
 
     st.header("README")
     st.markdown(readme_markdown_text)

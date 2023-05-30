@@ -1,10 +1,10 @@
 from datetime import datetime
 import pytz
-import streamlit as st
 import pandas as pd
+import streamlit as st
 
 from .constants import tests
-from .helpers import get_source_versions, after_workflow_dispatch
+from .helpers import get_source_versions, after_workflow_dispatch, get_geosupport_versions
 from ..github import dispatch_workflow_button
 
 
@@ -43,7 +43,7 @@ def source_table():
         col3.write(source_versions[source]["date"])
 
 
-def check_table(workflows, geosupport_version:str='latest'):
+def check_table(workflows, geosupport_version):
     column_widths = (3, 3, 4, 3, 2)
     cols = st.columns(column_widths)
     fields = ["Name", "Sources", "Latest results", "Status", "Run Check"]
@@ -61,20 +61,23 @@ def check_table(workflows, geosupport_version:str='latest'):
 
         sources.write("  \n".join(test["sources"]))
 
-        folder = f"https://edm-publishing.nyc3.cdn.digitaloceanspaces.com/db-gru-qaqc/{action_name}/latest"
+        folder = f"https://edm-publishing.nyc3.cdn.digitaloceanspaces.com/db-gru-qaqc/{geosupport_version}/{action_name}/latest"
         files = "  \n".join(
             [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
         )
         outputs.write(files)
         with outputs:
-            versions = pd.read_csv(f"{folder}/versions.csv")
-            st.download_button(
-                label="versions",
-                data=versions.to_csv(index=False).encode("utf-8"),
-                file_name="versions.csv",
-                mime="text/csv",
-                help=versions.to_markdown(index=False),
-            )
+            try:
+                versions = pd.read_csv(f"{folder}/versions.csv")
+                st.download_button(
+                    label="versions",
+                    data=versions.to_csv(index=False).encode("utf-8"),
+                    file_name="versions.csv",
+                    mime="text/csv",
+                    help=versions.to_markdown(index=False),
+                )
+            except:
+                pass
         
         running = workflows.get(action_name, {}).get("status") in ["queued", "in_progress"]
 
@@ -95,6 +98,6 @@ def check_table(workflows, geosupport_version:str='latest'):
                 disabled=running,
                 key=test["action_name"],
                 name=test["action_name"],
-                geosupport_version=geosupport_version,
+                geosupport_version=get_geosupport_versions()[geosupport_version],
                 run_after=after_workflow_dispatch
             )  ## refresh after 2 so that status has hopefully
