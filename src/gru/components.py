@@ -2,10 +2,11 @@ from datetime import datetime
 import pytz
 import pandas as pd
 import streamlit as st
+import time
 
 from .constants import tests
-from .helpers import get_source_versions, after_workflow_dispatch, get_geosupport_versions
-from ..github import dispatch_workflow_button
+from .helpers import get_source_versions, get_geosupport_versions
+from ..github import dispatch_workflow_button, workflow_is_running
 
 
 def status_details(workflow):
@@ -50,8 +51,6 @@ def check_table(workflows, geosupport_version):
     for col, field_name in zip(cols, fields):
         col.write(f"**{field_name}**")
 
-    st.session_state["currently_running"] = False
-
     for _, test in tests.iterrows():
         action_name = test["action_name"]
 
@@ -79,15 +78,12 @@ def check_table(workflows, geosupport_version):
         )
         outputs.write(files)
         
-        running = workflows.get(action_name, {}).get("status") in ["queued", "in_progress"]
+        running = workflow_is_running(workflows.get(action_name, {}))
 
         with status:
             if action_name in workflows:
                 workflow = workflows[action_name]
                 status_details(workflow)
-                st.session_state["currently_running"] = (
-                    st.session_state["currently_running"] or running
-                )
             else:
                 st.info(format("No past run found"))
 
@@ -99,5 +95,5 @@ def check_table(workflows, geosupport_version):
                 key=test["action_name"],
                 name=test["action_name"],
                 geosupport_version=get_geosupport_versions()[geosupport_version],
-                run_after=after_workflow_dispatch
+                run_after=lambda: time.sleep(2)
             )  ## refresh after 2 so that status has hopefully

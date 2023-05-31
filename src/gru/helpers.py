@@ -63,27 +63,27 @@ def map_geosupport_version(patched_version):
 
 def get_qaqc_runs(geosupport_version):
     workflows = {}
-    for run in get_workflow_runs("db-gru-qaqc", "main.yml"):
-        if len(workflows) == 7:
+    raw_workflow_runs = []
+    page = 0
+    while len(workflows) != 7:
+        raw_workflow_runs = get_workflow_runs("db-gru-qaqc", "main.yml", items_per_page=30, total_items=30, page_start=page)
+        if len(raw_workflow_runs) == 0:
             break
-        match = re.match("^(\d+\.\d+\.\d+)\_(.+)$", run["name"])
-        if match:
-            gs_version, name = map_geosupport_version(match.group(1)), match.group(2)
-            if name in tests["action_name"].values and (gs_version == geosupport_version) and (name not in workflows):
-                workflows[name] = parse_workflow(run)
+        for run in raw_workflow_runs:
+            match = re.match("^(\d+\.\d+\.\d+)\_(.+)$", run["name"])
+            if match:
+                gs_version, name = map_geosupport_version(match.group(1)), match.group(2)
+                if name in tests["action_name"].values and (gs_version == geosupport_version) and (name not in workflows):
+                    workflows[name] = parse_workflow(run)
+        page += 1
     return workflows
-
-
-def after_workflow_dispatch():
-    st.session_state["currently_running"] = True
-    time.sleep(2)
 
 
 def run_all_workflows(actions, geosupport_version):
     def on_click():
         for action in actions:
             dispatch_workflow("db-gru-qaqc", "main.yml", name=action, geosupport_version=get_geosupport_versions()[geosupport_version])
-        after_workflow_dispatch()
+        time.sleep(2)
 
     return st.button("Run all", key="all", on_click=on_click)
 
