@@ -8,13 +8,17 @@ headers = {"Authorization": "Bearer %s" % PERSONAL_TOKEN}
 BASE_URL = f"https://api.github.com/repos/{ORG}"
 
 
-def parse_workflow(workflow):
+def parse_workflow(workflow): ## json input
     return {
         "status": workflow["status"],
         "conclusion": workflow["conclusion"],
         "timestamp": workflow["updated_at"],
         "url": workflow["html_url"],
     }
+
+def workflow_is_running(workflow:dict):
+    print(workflow)
+    return workflow.get("status") in ["queued", "in_progress"]
 
 
 def get_default_branch(repo:str):
@@ -47,34 +51,31 @@ def __get_workflow_runs_helper(url, params=None):
         )
 
 
-def get_workflow_runs(repo, workflow_name=None, items_per_page=None, total_items=None):
+def get_workflow_runs(repo, workflow_name=None, items_per_page=100, total_items=100, page_start=0): ## 100 is to be max
     if workflow_name:
         url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/runs"
     else:
         url = f"{BASE_URL}/{repo}/actions/runs"
-    if items_per_page is None and total_items is None:
-        return __get_workflow_runs_helper(url)
-    elif items_per_page is None:
-        return __get_workflow_runs_helper(url, params={"per_page": items_per_page})
-    else:
-        workflows = []
-        page = 0
-        res = []
-        while (total_items is None and (page == 0 or len(res) != 0)) or (
-            total_items is not None and len(workflows) < total_items
-        ):
-            page += 1
-            res = __get_workflow_runs_helper(
-                url, params={"items_per_page": items_per_page, "page": page}
-            )
-            workflows = workflows.append(res)
-            if total_items is not None and len(workflows) < total_items:
-                workflows = workflows[:total_items]
-        return workflows
+    workflows = []
+    page = 0
+    res = []
+    while (total_items is None and (page == 0 or len(res) != 0)) or (
+        total_items is not None and len(workflows) < total_items
+    ):
+        page += 1
+        res = __get_workflow_runs_helper(
+            url, params={"per_page": items_per_page, "page": page}
+        )
+        print(len(res))
+        workflows += res 
+        if total_items is not None and len(workflows) < total_items:
+            workflows = workflows[:total_items]
+    print(len(workflows))
+    return workflows
 
 
 def dispatch_workflow(repo, workflow_name, branch="main", **inputs):
-    params = {"ref": "fvk-2023-Q2-geosupport-version-as-arg", "inputs": inputs}
+    params = {"ref": branch, "inputs": inputs}
     url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/dispatches"
     response = requests.post(url, headers=headers, json=params)
     if response.status_code != 204:
