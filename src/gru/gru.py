@@ -6,11 +6,14 @@ def gru():
     from .components import source_table, check_table
     from src.github import workflow_is_running
 
-    st.markdown("<style>button{text-align:left; margin:0}.stDownloadButton{max-width:195px;}</style>", unsafe_allow_html=True)
+    st.markdown(
+        "<style>button{text-align:left; margin:0}.stDownloadButton{max-width:195px;}</style>",
+        unsafe_allow_html=True,
+    )
 
-    geosupport_version= st.sidebar.selectbox(
+    geosupport_version = st.sidebar.selectbox(
         label="Choose a Geosupport version",
-        options=list(get_geosupport_versions().keys())
+        options=list(get_geosupport_versions().keys()),
     )
 
     st.header("GRU QAQC")

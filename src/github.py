@@ -8,7 +8,7 @@ headers = {"Authorization": "Bearer %s" % PERSONAL_TOKEN}
 BASE_URL = f"https://api.github.com/repos/{ORG}"
 
 
-def parse_workflow(workflow): ## json input
+def parse_workflow(workflow):  ## json input
     return {
         "status": workflow["status"],
         "conclusion": workflow["conclusion"],
@@ -16,24 +16,24 @@ def parse_workflow(workflow): ## json input
         "url": workflow["html_url"],
     }
 
-def workflow_is_running(workflow:dict):
+
+def workflow_is_running(workflow: dict):
     print(workflow)
     return workflow.get("status") in ["queued", "in_progress"]
 
 
-def get_default_branch(repo:str):
+def get_default_branch(repo: str):
     url = f"https://api.github.com/repos/nycplanning/{repo}"
     response = requests.get(url).json()
     return response["default_branch"]
 
 
-def get_branches(repo:str, branches_blacklist:list):
+def get_branches(repo: str, branches_blacklist: list):
     url = f"https://api.github.com/repos/nycplanning/{repo}/branches"
     response = requests.get(url).json()
     all_branches = [branch_info["name"] for branch_info in response]
-    return [
-        b for b in all_branches if b not in branches_blacklist
-    ]
+    return [b for b in all_branches if b not in branches_blacklist]
+
 
 def get_workflow(repo, name):
     url = f"{BASE_URL}/{repo}/actions/workflows/{name}"
@@ -51,7 +51,9 @@ def __get_workflow_runs_helper(url, params=None):
         )
 
 
-def get_workflow_runs(repo, workflow_name=None, items_per_page=100, total_items=100, page_start=0): ## 100 is to be max
+def get_workflow_runs(
+    repo, workflow_name=None, items_per_page=100, total_items=100, page_start=0
+):  ## 100 is to be max
     if workflow_name:
         url = f"{BASE_URL}/{repo}/actions/workflows/{workflow_name}/runs"
     else:
@@ -67,7 +69,7 @@ def get_workflow_runs(repo, workflow_name=None, items_per_page=100, total_items=
             url, params={"per_page": items_per_page, "page": page}
         )
         print(len(res))
-        workflows += res 
+        workflows += res
         if total_items is not None and len(workflows) < total_items:
             workflows = workflows[:total_items]
     print(len(workflows))

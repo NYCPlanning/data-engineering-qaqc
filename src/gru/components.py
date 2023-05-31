@@ -77,7 +77,7 @@ def check_table(workflows, geosupport_version):
             [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
         )
         outputs.write(files)
-        
+
         running = workflow_is_running(workflows.get(action_name, {}))
 
         with status:
@@ -95,5 +95,5 @@ def check_table(workflows, geosupport_version):
                 key=test["action_name"],
                 name=test["action_name"],
                 geosupport_version=get_geosupport_versions()[geosupport_version],
-                run_after=lambda: time.sleep(2)
+                run_after=lambda: time.sleep(2),
             )  ## refresh after 2 so that status has hopefully

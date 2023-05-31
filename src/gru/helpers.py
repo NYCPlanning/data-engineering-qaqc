@@ -58,7 +58,7 @@ def get_source_versions():
 
 def map_geosupport_version(patched_version):
     major, minor, _ = patched_version.split(".")
-    return f"{major}{chr(int(minor)+96)}" ## converts 1 to 'a', 2 to 'b', etc
+    return f"{major}{chr(int(minor)+96)}"  ## converts 1 to 'a', 2 to 'b', etc
 
 
 def get_qaqc_runs(geosupport_version):
@@ -66,14 +66,26 @@ def get_qaqc_runs(geosupport_version):
     raw_workflow_runs = []
     page = 0
     while len(workflows) != 7:
-        raw_workflow_runs = get_workflow_runs("db-gru-qaqc", "main.yml", items_per_page=30, total_items=30, page_start=page)
+        raw_workflow_runs = get_workflow_runs(
+            "db-gru-qaqc",
+            "main.yml",
+            items_per_page=30,
+            total_items=30,
+            page_start=page,
+        )
         if len(raw_workflow_runs) == 0:
             break
         for run in raw_workflow_runs:
             match = re.match("^(\d+\.\d+\.\d+)\_(.+)$", run["name"])
             if match:
-                gs_version, name = map_geosupport_version(match.group(1)), match.group(2)
-                if name in tests["action_name"].values and (gs_version == geosupport_version) and (name not in workflows):
+                gs_version, name = map_geosupport_version(match.group(1)), match.group(
+                    2
+                )
+                if (
+                    name in tests["action_name"].values
+                    and (gs_version == geosupport_version)
+                    and (name not in workflows)
+                ):
                     workflows[name] = parse_workflow(run)
         page += 1
     return workflows
@@ -82,7 +94,12 @@ def get_qaqc_runs(geosupport_version):
 def run_all_workflows(actions, geosupport_version):
     def on_click():
         for action in actions:
-            dispatch_workflow("db-gru-qaqc", "main.yml", name=action, geosupport_version=get_geosupport_versions()[geosupport_version])
+            dispatch_workflow(
+                "db-gru-qaqc",
+                "main.yml",
+                name=action,
+                geosupport_version=get_geosupport_versions()[geosupport_version],
+            )
         time.sleep(2)
 
     return st.button("Run all", key="all", on_click=on_click)
@@ -90,12 +107,14 @@ def run_all_workflows(actions, geosupport_version):
 
 @st.cache_data(ttl=600)
 def get_geosupport_versions():
-   images = requests.get("https://hub.docker.com/v2/repositories/nycplanning/docker-geosupport/tags?page_size=1000").json()["results"]
-   images_by_code = {}
-   for image in images:
-       if re.match("^\d+\.\d+\.\d+$", image["name"]):
-           major, minor, _ = image["name"].split(".")
-           code = f"{major}{chr(int(minor)+96)}"
-           if code not in images_by_code:
-               images_by_code[code] = image["name"]
-   return images_by_code
+    images = requests.get(
+        "https://hub.docker.com/v2/repositories/nycplanning/docker-geosupport/tags?page_size=1000"
+    ).json()["results"]
+    images_by_code = {}
+    for image in images:
+        if re.match("^\d+\.\d+\.\d+$", image["name"]):
+            major, minor, _ = image["name"].split(".")
+            code = f"{major}{chr(int(minor)+96)}"
+            if code not in images_by_code:
+                images_by_code[code] = image["name"]
+    return images_by_code
