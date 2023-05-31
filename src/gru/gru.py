@@ -5,7 +5,7 @@ def gru():
     from .helpers import get_qaqc_runs, run_all_workflows, get_geosupport_versions
     from .components import source_table, check_table
 
-    st.markdown("<style>.stDownloadButton{text-align:left; max-width:200px}</style>", unsafe_allow_html=True)
+    st.markdown("<style>button{text-align:left; margin:0}.stDownloadButton{max-width:195px;}</style>", unsafe_allow_html=True)
 
     geosupport_version= st.sidebar.selectbox(
         label="Choose a Geosupport version",
