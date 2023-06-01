@@ -1,10 +1,12 @@
 from datetime import datetime
 import pytz
+import pandas as pd
 import streamlit as st
+import time
 
 from .constants import tests
-from .helpers import get_source_versions, after_workflow_dispatch
-from ..github import dispatch_workflow_button
+from .helpers import get_source_versions, get_geosupport_versions
+from ..github import dispatch_workflow_button, workflow_is_running
 
 
 def status_details(workflow):
@@ -42,14 +44,12 @@ def source_table():
         col3.write(source_versions[source]["date"])
 
 
-def check_table(workflows):
+def check_table(workflows, geosupport_version):
     column_widths = (3, 3, 4, 3, 2)
     cols = st.columns(column_widths)
     fields = ["Name", "Sources", "Latest results", "Status", "Run Check"]
     for col, field_name in zip(cols, fields):
         col.write(f"**{field_name}**")
-
-    st.session_state["currently_running"] = False
 
     for _, test in tests.iterrows():
         action_name = test["action_name"]
@@ -58,23 +58,32 @@ def check_table(workflows):
 
         name.write(test["display_name"])
 
-        sources.write("  \n".join(test["sources"]))
+        folder = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{geosupport_version}/{action_name}/latest"
 
-        folder = f"https://edm-publishing.nyc3.digitaloceanspaces.com/db-gru-qaqc/{action_name}/latest"
+        with sources:
+            try:
+                versions = pd.read_csv(f"{folder}/versions.csv")
+                st.download_button(
+                    label="\n".join(test["sources"]),
+                    data=versions.to_csv(index=False).encode("utf-8"),
+                    file_name="versions.csv",
+                    mime="text/csv",
+                    help=versions.to_markdown(index=False),
+                )
+            except:
+                pass
+
         files = "  \n".join(
-            [f"[{filename}.csv]({folder}/{filename}.csv)" for filename in test["files"]]
-            + [f"[versions.csv]({folder}/versions.csv)"]
+            [f"[{filename}]({folder}/{filename}.csv)" for filename in test["files"]]
         )
         outputs.write(files)
+
+        running = workflow_is_running(workflows.get(action_name, {}))
 
         with status:
             if action_name in workflows:
                 workflow = workflows[action_name]
                 status_details(workflow)
-                running = workflow["status"] in ["queued", "in_progress"]
-                st.session_state["currently_running"] = (
-                    st.session_state["currently_running"] or running
-                )
             else:
                 st.info(format("No past run found"))
 
@@ -85,5 +94,6 @@ def check_table(workflows):
                 disabled=running,
                 key=test["action_name"],
                 name=test["action_name"],
-                run_after=after_workflow_dispatch,
+                geosupport_version=get_geosupport_versions()[geosupport_version],
+                run_after=lambda: time.sleep(2),
             )  ## refresh after 2 so that status has hopefully

@@ -2,8 +2,19 @@ def gru():
     import streamlit as st
     import time
     from .constants import readme_markdown_text, tests
-    from .helpers import get_qaqc_runs, run_all_workflows
+    from .helpers import get_qaqc_runs, run_all_workflows, get_geosupport_versions
     from .components import source_table, check_table
+    from src.github import workflow_is_running
+
+    st.markdown(
+        "<style>button{text-align:left; margin:0}.stDownloadButton{max-width:195px;}</style>",
+        unsafe_allow_html=True,
+    )
+
+    geosupport_version = st.sidebar.selectbox(
+        label="Choose a Geosupport version",
+        options=list(get_geosupport_versions().keys()),
+    )
 
     st.header("GRU QAQC")
     st.write(
@@ -17,20 +28,20 @@ Github repo found [here](https://github.com/NYCPlanning/db-gru-qaqc/)."""
     source_table()
 
     st.header("QAQC Checks")
-    workflows = get_qaqc_runs()
+    workflows = get_qaqc_runs(geosupport_version)
     not_running_workflows = [
         action_name
         for action_name in tests["action_name"]
-        if action_name in workflows
-        and (workflows[action_name]["status"] not in ["queued", "in_progress"])
+        if action_name not in workflows
+        or (workflows[action_name]["status"] not in ["queued", "in_progress"])
     ]
-    run_all_workflows(not_running_workflows)
-    check_table(workflows)
+    run_all_workflows(not_running_workflows, geosupport_version)
+    check_table(workflows, geosupport_version=geosupport_version)
 
     st.header("README")
     st.markdown(readme_markdown_text)
 
     # this state gets set when an action is triggered, set to false once it's complete
-    while st.session_state["currently_running"]:
+    while any([workflow_is_running(workflow) for workflow in workflows.values()]):
         time.sleep(5)
         st.experimental_rerun()
