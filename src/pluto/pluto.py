@@ -7,7 +7,7 @@ def pluto():
     import os
     from datetime import datetime
     import requests
-    from src.pluto.helpers import get_branches, get_data
+    from src.pluto.helpers import get_branches, get_data, get_past_versions
     from st_aggrid import AgGrid
     from numerize.numerize import numerize
 
@@ -41,32 +41,11 @@ def pluto():
     data = get_data(branch)
 
     def version_comparison_report(data):
-        versions = [
-            "23v1.1",
-            "23v1",
-            "22v3.1",
-            "22v3",
-            "22v2",
-            "22v1",
-            "21v4",
-            "21v3",
-            "21v2",
-            "21v1",
-            "20v8",
-            "20v7",
-            "20v6",
-            "20v5",
-            "20v4",
-            "20v3",
-            "20v2",
-            "20v1",
-            "19v2",
-            "19v1",
-        ]
+        versions = get_past_versions()
 
         v1 = st.sidebar.selectbox(
             "Pick a version of PLUTO:",
-            versions[:-2],  # Can't produce comparison report for last two versions
+            versions
         )
 
         v2 = versions[versions.index(v1) + 1]

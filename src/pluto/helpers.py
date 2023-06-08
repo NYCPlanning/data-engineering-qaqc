@@ -4,6 +4,7 @@ from datetime import datetime
 import json
 from typing import Dict
 from dotenv import load_dotenv
+import streamlit as st
 from src.digital_ocean_utils import DigitalOceanClient
 
 load_dotenv()
@@ -126,14 +127,24 @@ def get_version_text(source_data_versions):
         Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
     """
 
-
-def get_branches():
-    all_branches = DigitalOceanClient(
+@st.cache_data(ttl=600)
+def get_all_s3_folders():
+    return DigitalOceanClient(
         bucket_name=BUCKET_NAME, repo_name=REPO_NAME
     ).get_all_folder_names_in_repo_folder()
 
-    branches = sorted(blacklist_branches(all_branches))
+
+def get_branches():
+    branches = sorted(blacklist_branches(get_all_s3_folders()))
     return branches
+
+
+def get_past_versions():
+    folders = get_all_s3_folders()
+    print(folders)
+    pattern = "^\d{2}v\d(\.\d)?$"
+    versions = [ f for f in folders if re.match(pattern, f)]
+    return sorted(versions, reverse = True)
 
 
 def convert(dt):
