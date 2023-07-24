@@ -9,19 +9,19 @@ from src.digital_ocean_utils import DigitalOceanClient
 
 load_dotenv()
 
-BUCKET_NAME = "edm-publishing"
-REPO_NAME = "db-pluto"
+S3_BUCKET_NAME = "edm-publishing"
+S3_DATASET_NAME = "db-pluto"
 
 
 def get_output_folder_path(branch: str) -> str:
-    return f"{REPO_NAME}/{branch}/latest/output"
+    return f"{S3_DATASET_NAME}/{branch}/latest/output"
 
 
 def get_data(branch: str) -> Dict[str, pd.DataFrame]:
     data = {}
     url = f"https://edm-publishing.nyc3.digitaloceanspaces.com/{get_output_folder_path(branch)}"
 
-    client = DigitalOceanClient(bucket_name=BUCKET_NAME, repo_name=REPO_NAME)
+    client = DigitalOceanClient(bucket_name=S3_BUCKET_NAME, repo_name=S3_DATASET_NAME)
     kwargs = {"true_values": ["t"], "false_values": ["f"]}
 
     data["df_mismatch"] = client.csv_from_DO(
@@ -46,7 +46,7 @@ def get_data(branch: str) -> Dict[str, pd.DataFrame]:
         url=f"{url}/source_data_versions.csv"
     )
 
-    data["version_text"] = get_version_text(data["source_data_versions"])
+    data["version_text"] = data["source_data_versions"]
 
     # standarzie minor versions strings to be dot notation
     # NOTE this is a temporary approach until data-library is improved to use dot notation
@@ -108,33 +108,14 @@ def get_changes(client: DigitalOceanClient, branch: str) -> Dict[str, pd.DataFra
     )
 
 
-def get_version_text(source_data_versions):
-    sdv = source_data_versions.to_dict("records")
-    version = {}
-    for i in sdv:
-        version[i["schema_name"]] = i["v"]
-    return f"""
-        Department of City Planning – E-Designations: ***{convert(version['dcp_edesignation'])}***  
-        Department of City Planning – Georeferenced NYC Zoning Maps: ***{convert(version['dcp_zoningmapindex'])}***  
-        Department of City Planning – NYC City Owned and Leased Properties: ***{convert(version['dcp_colp'])}***  
-        Department of City Planning – NYC GIS Zoning Features: ***{convert(version['dcp_zoningdistricts'])}***  
-        Department of City Planning – Political and Administrative Districts: ***{convert(version['dcp_cdboundaries_wi'])}***  
-        Department of City Planning – Geosupport version: ***{convert(version['dcp_cdboundaries_wi'])}***  
-        Department of Finance – Digital Tax Map (DTM): ***{convert(version['dof_dtm'])}***  
-        Department of Finance – Mass Appraisal System (CAMA): ***{convert(version['pluto_input_cama_dof'])}***  
-        Department of Finance – Property Tax System (PTS): ***{convert(version['pluto_pts'])}***  
-        Landmarks Preservation Commission – Historic Districts: ***{convert(version['lpc_historic_districts'])}***  
-        Landmarks Preservation Commission – Individual Landmarks: ***{convert(version['lpc_landmarks'])}***  
-    """
-
 @st.cache_data(ttl=600)
 def get_all_s3_folders():
     return DigitalOceanClient(
-        bucket_name=BUCKET_NAME, repo_name=REPO_NAME
+        bucket_name=S3_BUCKET_NAME, repo_name=S3_DATASET_NAME
     ).get_all_folder_names_in_repo_folder()
 
 
-def get_branches():
+def get_s3_folders():
     branches = sorted(blacklist_branches(get_all_s3_folders()))
     return branches
 

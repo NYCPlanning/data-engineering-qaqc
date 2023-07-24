@@ -18,7 +18,7 @@ class NullReport:
     def __call__(self):
         st.subheader("Null Graph")
         field_range = st.slider(
-            "Select which fields to display (ranked from most to least nulls)",
+            "Select how many fields to display (ranked by number of changes in the current version pair)",
             min_value=1,
             max_value=len(self.fields),
             value=[1, 12],

@@ -33,11 +33,11 @@ class OutlierReport:
             st.info(self.info_dict[field])
         else:
             st.markdown(self.markdown_dict[field])
-
-            AgGrid(df)
-
             st.write(f"There are {df.shape[0]} outliers in total.")
             st.info(self.info_dict[field])
+
+            with st.expander("See table"):
+                AgGrid(df)
 
     def fetch_dataframe(self, field):
         records = [i["values"] for i in self.v1_outlier_records if i["field"] == field][

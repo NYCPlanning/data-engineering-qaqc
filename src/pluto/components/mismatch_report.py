@@ -11,13 +11,17 @@ class MismatchReport:
         self.v1 = v1
         self.v2 = v2
         self.v3 = v3
+        self.version_pairs = [
+            f"{v1} - {v2}",
+            f"{v2} - {v3}",
+        ]
         self.condo = condo
         self.mapped = mapped
 
     def __call__(self):
         df = self.filter_by_options()
-        v1v2 = self.filter_by_version(df, f"{self.v1} - {self.v2}")
-        v2v3 = self.filter_by_version(df, f"{self.v2} - {self.v3}")
+        v1v2 = self.filter_by_version_pair(df, self.version_pairs[0])
+        v2v3 = self.filter_by_version_pair(df, self.version_pairs[1])
 
         for group in self.groups:
             self.display_graph(v1v2, v2v3, group)
@@ -62,19 +66,24 @@ class MismatchReport:
         return self.df_mismatch.loc[
             (self.df_mismatch.condo == self.condo)
             & (self.df_mismatch.mapped == self.mapped)
-            & (
-                self.df_mismatch.pair.isin(
-                    [f"{self.v1} - {self.v2}", f"{self.v2} - {self.v3}"]
-                )
-            ),
+            & (self.df_mismatch.pair.isin(self.version_pairs)),
             :,
         ]
 
-    def filter_by_version(self, df, version_pair):
+    def filter_by_version_pair(self, df, version_pair):
         version_pair_data = df.loc[df.pair == version_pair, :]
         if len(version_pair_data) == 0:
+            valid_pairs_text = '  \n'.join(sorted(list(self.df_mismatch.pair.unique()), reverse=True))
+            st.error(
+                f"""
+                Valid PLUTO qaqc_mismatch version pairs for chosen S3 build folder:  
+                {valid_pairs_text}
+                """
+            )
             raise ValueError(
-                f"No data found in qaqc_mismatch for version pair {version_pair}"
+                f"""No data found in qaqc_mismatch.csv for version pair {version_pair},
+                likely because QAQC data is only generated during PLUTO builds and
+                not dynamically in this app."""
             )
         return version_pair_data
 

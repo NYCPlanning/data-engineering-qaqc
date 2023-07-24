@@ -7,7 +7,7 @@ def pluto():
     import os
     from datetime import datetime
     import requests
-    from src.pluto.helpers import get_branches, get_data, get_past_versions
+    from src.pluto.helpers import get_s3_folders, get_data, get_past_versions
     from st_aggrid import AgGrid
     from numerize.numerize import numerize
 
@@ -26,9 +26,9 @@ def pluto():
 
     st.title("PLUTO QAQC")
 
-    branches = get_branches()
+    branches = get_s3_folders()
     branch = st.sidebar.selectbox(
-        "select a branch",
+        "Choose a build name (S3 folder)",
         branches,
         index=branches.index("main"),
     )
@@ -44,26 +44,37 @@ def pluto():
         versions = get_past_versions()
 
         v1 = st.sidebar.selectbox(
-            "Pick a version of PLUTO:",
-            versions
+            "Choose a version of PLUTO",
+            versions,
         )
-
-        v2 = versions[versions.index(v1) + 1]
-        v3 = versions[versions.index(v1) + 2]
+        v2 = st.sidebar.selectbox(
+            "Choose a Previous version of PLUTO",
+            versions,
+            versions.index(v1) + 1,
+        )
+        v3 = st.sidebar.selectbox(
+            "Choose a Previous Previous of PLUTO",
+            versions,
+            versions.index(v1) + 2,
+        )
 
         condo = st.sidebar.checkbox("condo only")
         mapped = st.sidebar.checkbox("mapped only")
 
-        st.text(
+        st.markdown(
             f"""
-            Current version: {v1}
-            Previous version: {v2}
-            Previous Previous version: {v3}
+            **{v1}** is the Current version
+
+            **{v2}** is the Previous version
+
+            **{v3}** is the Previous Previous version
         """
         )
         st.markdown(
             f"""
-            This series of reports compares the version of PLUTO selected with the previous version ({v1} to {v2}) in blue, and the previous two versions ({v2} to {v3}) in red.
+            This series of reports compares two pairs of PLUTO versions using two colors in graphs:
+            - blue: the Celected and the Previous versions ({v1} and {v2})
+            - gold: the previous two versions ({v2} and {v3})
 
             The graphs report the number of records that have a different value in a given field but share the same BBL between versions.
 

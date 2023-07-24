@@ -26,6 +26,7 @@ def run():
     name = st.sidebar.selectbox(
         "Select a dataset for qaqc", datasets_list, index=datasets_list.index(name)
     )
+    st.sidebar.divider()
 
     st.experimental_set_query_params(page=datasets_list[datasets_list.index(name)])
 
