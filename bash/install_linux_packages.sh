@@ -4,4 +4,4 @@
 set -e
 
 apt-get update
-apt-get --assume-yes install --no-install-recommends postgresql-client gdal-bin git-core bash-completion
+apt-get --assume-yes install --no-install-recommends postgresql-client gdal-bin git-core openssh-client bash-completion
