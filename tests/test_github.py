@@ -4,9 +4,9 @@ TEST_REPO = "data-engineering-qaqc"
 
 def test_get_default_branch():
     branch = get_default_branch(repo=TEST_REPO)
-    assert branch == "master"
+    assert branch == "main"
 
 
 def test_get_branches():
     branches = get_branches(repo=TEST_REPO, branches_blacklist=[])
-    assert "master" in branches
+    assert "main" in branches
