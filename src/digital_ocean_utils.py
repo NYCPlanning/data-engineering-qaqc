@@ -78,7 +78,7 @@ class DigitalOceanClient:
         return self.bucket_name == "edm-publishing"
 
     @property
-    def repo(self):
+    def repo_folder(self):
         return self.bucket.objects.filter(Prefix=f"{self.repo_name}/")
 
     @property
@@ -93,7 +93,7 @@ class DigitalOceanClient:
     def get_all_folder_names_in_repo_folder(self, index=1):
         all_folders = set()
 
-        for obj in self.repo:
+        for obj in self.repo_folder:
             folder = obj._key.split("/")[index]
             if folder != "":
                 all_folders.add(folder)
