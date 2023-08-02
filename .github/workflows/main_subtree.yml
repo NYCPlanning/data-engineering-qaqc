@@ -9,7 +9,8 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    image: dokku/ci-docker-image:latest
+    container: 
+      image: dokku/ci-docker-image:latest
     env:
       SSH_PRIVATE_KEY: ${{ secrets.DOKKU_SSH_KEY }}
       GIT_REMOTE_URL: ssh://docku@${{ secrets.DOKKU_HOST }}/${{ env.DOKKU_APP_NAME }}
