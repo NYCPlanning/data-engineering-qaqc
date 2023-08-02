@@ -9,7 +9,7 @@ chmod 700 ~/.ssh
 ssh_port=22
 
 echo "Generating SSH_HOST_KEY from ssh-keyscan against $dokku_host:$ssh_port"
-ssh-keyscan -H -p "$ssh_port" "$dokku_host" >> ~/.ssh/known_hosts
+ssh-keyscan -t rsa "dokku@${dokku_host}" >> ~/.ssh/known_hosts
 chmod 600 "~/.ssh/known_hosts"
 
 eval "$(ssh-agent -s)"
