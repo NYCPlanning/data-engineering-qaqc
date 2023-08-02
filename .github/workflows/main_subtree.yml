@@ -6,8 +6,6 @@ on:
 jobs:
   deploy:
     runs-on: ubuntu-latest
-    container: 
-      image: dokku/ci-docker-image:latest
     env:
       SSH_PRIVATE_KEY: ${{ secrets.DOKKU_SSH_KEY }}
       DOKKU_HOST: ${{ secrets.DOKKU_HOST }}
@@ -21,6 +19,14 @@ jobs:
         uses: actions/checkout@v3
         with:
           sparse-checkout: test/
-      - name: Deploy
+
+      - name: Setup
         run: test/bash/deploy.sh
 
+      - name: Deploy
+        uses: dokku/github-action@master
+        with:
+          git_remote_url: GIT_REMOTE_URL
+          ssh_private_key: SSH_PRIVATE_KEY
+          branch: main
+          git_push_flags: --force
