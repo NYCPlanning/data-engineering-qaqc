@@ -10,5 +10,6 @@ git config --local user.email "action@github.com"
 git config --local user.name "GitHub Action"
 git add .
 git commit -m "deployment commit"
+git checkout -b "deploy"
 
-git push "$GIT_REMOTE_URL" "HEAD:refs/heads/$APP_REMOTE_BRANCH" --force 
+git push "$GIT_REMOTE_URL" "deploy:refs/heads/$APP_REMOTE_BRANCH" --force 
