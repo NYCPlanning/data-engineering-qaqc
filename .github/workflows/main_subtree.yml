@@ -22,7 +22,7 @@ jobs:
           sparse-checkout: ${{ APP_DIR }}
 
       - name: Setup
-        run: ${{ APP_DIR }}/bash/deploy.sh
+        run: $APP_DIR/bash/deploy.sh
 
       - name: Deploy
         uses: dokku/github-action@master
