@@ -20,6 +20,6 @@ jobs:
           sparse-checkout: test/
       - name: Deploy
         run: |
-          | /bin/setup-ssh 
-          | git push "$GIT_REMOTE_URL" `git subtree split --prefix test` --force
+          /bin/setup-ssh 
+          git push "$GIT_REMOTE_URL" `git subtree split --prefix test` --force
 
