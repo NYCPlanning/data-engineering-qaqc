@@ -16,10 +16,10 @@ jobs:
           sparse-checkout: test/
       - name: Deploy
         env:
-          ssh-private-key: ${{ secrets.DOKKU_SSH_KEY }}
-          dokku-host: ${{ secrets.DOKKU_HOST }}
-          app-name: ${{ env.DOKKU_APP_NAME }}
-          app-remote-branch: ${{ env.DOKKU_REMOTE_BRANCH }}
-          git-push-flags: --force
+          ssh_private_key: ${{ secrets.DOKKU_SSH_KEY }}
+          dokku_host: ${{ secrets.DOKKU_HOST }}
+          app_name: ${{ env.DOKKU_APP_NAME }}
+          app_remote_branch: ${{ env.DOKKU_REMOTE_BRANCH }}
+          git_push_flags: --force
         run: ./test/bash/deploy.sh
 
