@@ -1,7 +1,7 @@
-name: Deploy to Dokku - production
+name: Deploy to Dokku, subtree
 
 on: 
-  workflow-dispatch:
+  push
 
 env:
   DOKKU_APP_NAME: 'edm-data-engineering'
@@ -13,13 +13,13 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          fetch-depth: 0
+          sparse-checkout: test/
       - name: Deploy
-        uses: woudsma/dokku-deploy-github-action@v1
-        with:
+        env:
           ssh-private-key: ${{ secrets.DOKKU_SSH_KEY }}
           dokku-host: ${{ secrets.DOKKU_HOST }}
           app-name: ${{ env.DOKKU_APP_NAME }}
           app-remote-branch: ${{ env.DOKKU_REMOTE_BRANCH }}
           git-push-flags: --force
+        run: ./test/bash/deploy.sh
 
