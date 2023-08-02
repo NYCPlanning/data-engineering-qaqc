@@ -10,20 +10,14 @@ jobs:
       image: dokku/ci-docker-image:latest
     env:
       SSH_PRIVATE_KEY: ${{ secrets.DOKKU_SSH_KEY }}
-      GIT_REMOTE_URL: ssh://docku@${{ secrets.DOKKU_HOST }}/edm-data-enginering
+      GIT_REMOTE_URL: ssh://dokku@${{ secrets.DOKKU_HOST }}/edm-data-enginering
       app_remote_branch: main
       git_push_flags: --force
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          set-safe-directory: true
           sparse-checkout: test/
-      - name: Setup
-        run: |
-          apk add git-subtree
-          /bin/setup-ssh
-          git config --global --add safe.directory /__w/data-engineering-qaqc/data-engineering-qaqc
       - name: Deploy
-        run: git push "$GIT_REMOTE_URL" `git subtree split --prefix test` --force
+        run: /test/bash/deploy.sh
 
