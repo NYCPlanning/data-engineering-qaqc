@@ -9,17 +9,19 @@ env:
 jobs:
   deploy:
     runs-on: ubuntu-latest
+    image: dokku/ci-docker-image:latest
+    env:
+      SSH_PRIVATE_KEY: ${{ secrets.DOKKU_SSH_KEY }}
+      GIT_REMOTE_URL: ssh://docku@${{ secrets.DOKKU_HOST }}/${{ env.DOKKU_APP_NAME }}
+      app_remote_branch: ${{ env.DOKKU_REMOTE_BRANCH }}
+      git_push_flags: --force
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
           sparse-checkout: test/
       - name: Deploy
-        env:
-          ssh_private_key: ${{ secrets.DOKKU_SSH_KEY }}
-          dokku_host: ${{ secrets.DOKKU_HOST }}
-          app_name: ${{ env.DOKKU_APP_NAME }}
-          app_remote_branch: ${{ env.DOKKU_REMOTE_BRANCH }}
-          git_push_flags: --force
-        run: ./test/bash/deploy.sh
+        run: |
+          | /bin/setup-ssh 
+          | git push "$GIT_REMOTE_URL" `git subtree split --prefix test` --force
 
