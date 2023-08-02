@@ -2,6 +2,8 @@
 
 mv $APP_DIR/Dockerfile ./Dockerfile
 
+git config --global --add safe.directory $(PWD)
+
 /bin/setup-ssh
 
 git config --local user.email "action@github.com"
