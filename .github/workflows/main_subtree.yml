@@ -21,7 +21,7 @@ jobs:
           sparse-checkout: test/
       - name: Setup
         run: |
-          apt install git-core
+          apk add git-core
           /bin/setup-ssh
       - name: Deploy
         run: git push "$GIT_REMOTE_URL" `git subtree split --prefix test` --force
