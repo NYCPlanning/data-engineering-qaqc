@@ -17,4 +17,6 @@ ssh-add .ssh/id_rsa
 
 git_remote_url="ssh://dokku@${dokku_host}:22/${app_name}"
 
+ssh -T $git_remote_url
+
 git subtree push --prefix test "$git_remote_url" "$app_remote_branch"
