@@ -3,9 +3,6 @@ name: Deploy to Dokku, subtree
 on: 
   push
 
-env:
-  DOKKU_APP_NAME: 'edm-data-engineering'
-  DOKKU_REMOTE_BRANCH: 'main'
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -13,8 +10,8 @@ jobs:
       image: dokku/ci-docker-image:latest
     env:
       SSH_PRIVATE_KEY: ${{ secrets.DOKKU_SSH_KEY }}
-      GIT_REMOTE_URL: ssh://docku@${{ secrets.DOKKU_HOST }}/${{ env.DOKKU_APP_NAME }}
-      app_remote_branch: ${{ env.DOKKU_REMOTE_BRANCH }}
+      GIT_REMOTE_URL: ssh://docku@${{ secrets.DOKKU_HOST }}/edm-data-enginering
+      app_remote_branch: main
       git_push_flags: --force
     steps:
       - name: Checkout
