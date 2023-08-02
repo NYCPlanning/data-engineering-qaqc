@@ -17,6 +17,6 @@ ssh-add .ssh/id_rsa
 
 git_remote_url="ssh://dokku@${dokku_host}:22/${app_name}"
 
-ssh -T "dokku@${dokku_host}:22/${app_name}"
+ssh -T "dokku@${dokku_host}:22"
 
 git push "$git_remote_url" `git subtree split --prefix test` --force
