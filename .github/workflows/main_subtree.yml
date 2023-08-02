@@ -20,6 +20,7 @@ jobs:
         uses: actions/checkout@v3
         with:
           sparse-checkout: ${{ env.APP_DIR }}
+          fetch-depth: 0
 
       - name: Setup
         run: $APP_DIR/bash/deploy.sh
