@@ -1,6 +1,3 @@
 #!/bin/sh
 
-pwd
-cd test
-ls
-mv $APP_DIR/DockerFile ./DockerFile
+mv $APP_DIR/Dockerfile ./Dockerfile
