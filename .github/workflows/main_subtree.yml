@@ -15,11 +15,12 @@ jobs:
       GIT_REMOTE_URL: ssh://dokku@${{ secrets.DOKKU_HOST }}/edm-data-engineering
       APP_REMOTE_BRANCH: main
       SSH_PORT: 22
+      APP_DIR: test
 
     steps:
       - name: Checkout
         uses: actions/checkout@v3
         with:
-          sparse-checkout: test/
+          sparse-checkout: ${{ APP_DIR }}
       - name: Deploy
-        run: test/bash/deploy.sh
+        run: $APP_DIR/bash/deploy.sh
