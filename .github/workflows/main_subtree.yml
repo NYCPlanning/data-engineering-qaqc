@@ -19,5 +19,5 @@ jobs:
         with:
           sparse-checkout: test/
       - name: Deploy
-        run: /test/bash/deploy.sh
+        run: test/bash/deploy.sh
 
