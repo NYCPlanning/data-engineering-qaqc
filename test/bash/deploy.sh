@@ -1,7 +1,7 @@
 #!/bin/sh
 set -e
 
-mkdir -p .ssh
+mkdir -p ~/.ssh
 echo "$ssh_private_key" | tr -d '\r' > ~/.ssh/id_rsa
 chmod 600 ~/.ssh/id_rsa
 chmod 700 ~/.ssh
