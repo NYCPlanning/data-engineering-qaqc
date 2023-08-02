@@ -18,8 +18,10 @@ jobs:
         uses: actions/checkout@v3
         with:
           sparse-checkout: test/
-      - name: Deploy
+      - name: Setup
         run: |
-          /bin/setup-ssh 
-          git push "$GIT_REMOTE_URL" `git subtree split --prefix test` --force
+          sudo apt install git-core
+          /bin/setup-ssh
+      - name: Deploy
+        run: git push "$GIT_REMOTE_URL" `git subtree split --prefix test` --force
 
